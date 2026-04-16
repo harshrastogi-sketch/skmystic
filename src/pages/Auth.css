@@ -1,0 +1,103 @@
+/* Page background */
+.register-page {
+  background: #f5f5f5;
+  padding-top: 40px;   /* ✅ clean spacing */
+  padding-bottom: 20px;
+}
+
+/* Main container */
+.register-container {
+  max-width: 900px;               /* ✅ control width */
+  margin: 0 auto;                 /* ✅ center perfectly */
+  display: flex;
+  justify-content: space-between; /* ✅ proper spacing */
+  align-items: center;            /* ✅ vertical alignment */
+  gap: 60px;
+  margin-bottom: 0;
+}
+
+/* Left Form Box */
+.register-box {
+  background: white;
+  padding: 30px;
+  width: 360px;
+  border: 1px solid #eee;
+}
+
+.register-box h2 {
+  text-align: center;
+  margin-bottom: 8px;
+   font-size: 24px;
+}
+
+.register-box p {
+  text-align: center;
+  font-size: 14px;  
+  margin-bottom: 20px;
+  color: #666;
+}
+
+.register-box label {
+  font-size: 14px;  
+  margin-top: 10px;
+  display: block;
+}
+
+.register-box input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+/* Create Button */
+.create-btn {
+  background: black;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+}
+
+/* Right Side */
+.login-box {
+  width: 320px;
+}
+
+.login-box p {
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+/* Login Button */
+.login-btn {
+  border: 1px solid #ff7a00;
+  background: none;
+  padding: 12px;
+  color: #ff7a00;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+/* Terms */
+.terms {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.6;
+}
+
+.terms span {
+  color: #ff7a00;
+}
+
+.error {
+  color: red;
+  font-size: 12px;
+  margin-top: -10px;
+  margin-bottom: 10px;
+  display: block;
+}

@@ -1,0 +1,121 @@
+var baseUrl = 'https://www.skmystic.com/';
+$("document").ready(function(){
+    $("#newsletter").validate({
+        submitHandler: newsletter
+    });
+    function newsletter(){  
+      var newsletter =$('#newsletter').serialize();
+      $.ajax({        
+        type:'POST',
+        url:baseUrl + "newslatter",
+        dataType:'text',
+        cache:false,
+        processData:false,
+        data:$('#newsletter').serialize(),
+        success:function(result){
+          if(result!='' && result=='done'){ 
+              swal({
+                title: "Thank you",
+                text: "We will get touch in soon!!",
+                type: "success",
+                confirmButtonClass: "btn-success",
+                confirmButtonText: "OK",
+                closeOnConfirm: false
+              },
+              function(isConfirm){
+                if(isConfirm) {
+                  swal.close();
+                  $('#newsletter').trigger("reset");
+                } 
+                else{
+                  swal("Cancelled", "Your imaginary file is safe :)", "error");
+                }
+              });       
+          }           
+          else if(result!='' && result=='not'){
+              swal({
+                title: "",
+                text: "Something wrong!!",
+                type: "warning",
+                confirmButtonClass: "btn-warning",
+                confirmButtonText: "OK",
+                closeOnConfirm: false
+              },
+              function(isConfirm){
+                if(isConfirm) {
+                   swal.close();
+                   $('#contactForm').trigger("reset");
+                } 
+                else{
+                  swal("Cancelled", "Your imaginary file is safe :)", "error");
+                }
+              });       
+          }
+          else{
+            $('#err').text('Pan Number wrong...');
+         }
+       }
+     });
+      return false;
+    }
+
+    // Contact
+    $("#contactus").validate({
+        submitHandler: contactus
+    });
+    function contactus(){  
+      var contactus =$('#contactus').serialize();
+      $.ajax({        
+        type:'POST',
+        url:baseUrl + "contacts",
+        dataType:'text',
+        cache:false,
+        processData:false,
+        data:$('#contactus').serialize(),
+        success:function(result){
+          if(result!='' && result=='done'){ 
+              swal({
+                title: "Thank you",
+                text: "We will get touch in soon!!",
+                type: "success",
+                confirmButtonClass: "btn-success",
+                confirmButtonText: "OK",
+                closeOnConfirm: false
+              },
+              function(isConfirm){
+                if(isConfirm) {
+                  swal.close();
+                  $('#contactus').trigger("reset");
+                } 
+                else{
+                  swal("Cancelled", "Your imaginary file is safe :)", "error");
+                }
+              });       
+          }           
+          else if(result!='' && result=='not'){
+              swal({
+                title: "",
+                text: "Something wrong!!",
+                type: "warning",
+                confirmButtonClass: "btn-warning",
+                confirmButtonText: "OK",
+                closeOnConfirm: false
+              },
+              function(isConfirm){
+                if(isConfirm) {
+                   swal.close();
+                   $('#contactus').trigger("reset");
+                } 
+                else{
+                  swal("Cancelled", "Your imaginary file is safe :)", "error");
+                }
+              });       
+          }
+          else{
+            $('#err').text('Pan Number wrong...');
+         }
+       }
+     });
+      return false;
+    }
+});
