@@ -9,7 +9,7 @@ function Products() {
   const fetchProducts = async () => {
     try {
       const res = await apiRequest(
-        "https://harsh.skmysticastrologer.in/CodeIgniter/products"
+        "https://harsh.skmysticastrologer.in/CodeIgniter/api/product"
       );
       console.log("Products response:", res);
       setProducts(res.data || []);

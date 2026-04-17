@@ -35,7 +35,7 @@ const CartDrawer = ({ isOpen, setIsOpen }) => {
       {cartItems.length > 0 ? (
         cartItems.map((item) => (
           <div key={item.id} className="cart-item">
-            <img src={`http://localhost/CodeIgniter/uploads/${item.image1}`} alt={item.name} />
+            <img src={`https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${item.image1}`} alt={item.name} />
             <div>
               <p>{item.name}</p>
               <p>
