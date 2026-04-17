@@ -30,7 +30,7 @@ const Blogs = () => {
             <div className="blog-badge">{index + 1}</div>
 
             <div className="blog-image-wrap">
-              <img src={`https://harsh.skmysticastrologer.in/CodeIgniter/uploads/blog/${blog.image}`} alt={blog.title} className="blog-image" />
+              <img src={`https://harsh.skmysticastrologer.in/CodeIgniter/${blog.image}`} alt={blog.title} className="blog-image" />
             </div>
 
             <div className="blog-content">
