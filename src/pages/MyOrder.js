@@ -19,7 +19,7 @@ const MyOrder = () => {
             return;
         }
 
-        fetch(`http://localhost/CodeIgniter/api/my-orders?userId=${userId}`, {
+        fetch(`https://harsh.skmysticastrologer.in/CodeIgniter/api/my-orders?userId=${userId}`, {
             headers: {
                 Authorization: `Bearer ${token}` // 🔥 IMPORTANT
             }

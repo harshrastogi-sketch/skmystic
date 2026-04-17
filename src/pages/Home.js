@@ -3,41 +3,52 @@ import "./Home.css";
 import { useCart } from "../context/CartContext";
 import { Link } from "react-router-dom";
 
-// ✅ IMPORT IMAGES
-import banner1 from "../assets/banner-1-1.webp";
-import banner2 from "../assets/banner-2-1.webp";
-import banner3 from "../assets/banner-3-1.webp";
-import banner4 from "../assets/banner-4-1.webp";
-
 const Home = () => {
   const { addToCart } = useCart();
 
-  // ✅ API PRODUCTS STATE
+  const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
+
+  // Products state
   const [products, setProducts] = useState([]);
 
+  // Blogs state
+  const [blogs, setBlogs] = useState([]);
+
+  // Banners state
+  const [banners, setBanners] = useState([]);
+  const [currentBanner, setCurrentBanner] = useState(0);
+
+  // Fetch products
   useEffect(() => {
     const getProducts = async () => {
-      const reqData = await fetch("http://localhost/CodeIgniter/products");
-      const resData = await reqData.json();
+      try {
+        const reqData = await fetch("https://harsh.skmysticastrologer.in/CodeIgniter/products");
+        const resData = await reqData.json();
 
-      console.log(resData);
-      setProducts(resData.data);
+        if (resData.status) {
+          setProducts(resData.data || []);
+        } else {
+          setProducts([]);
+        }
+      } catch (error) {
+        console.log("Product fetch error:", error);
+      }
     };
 
     getProducts();
   }, []);
 
-
-  const [blogs, setBlogs] = useState([]);
-
+  // Fetch blogs
   useEffect(() => {
     const getBlogs = async () => {
       try {
-        const response = await fetch("http://localhost/CodeIgniter/blogs");
+        const response = await fetch("https://harsh.skmysticastrologer.in/CodeIgniter/blogs");
         const result = await response.json();
 
         if (result.status) {
-          setBlogs(result.data);
+          setBlogs(result.data || []);
+        } else {
+          setBlogs([]);
         }
       } catch (error) {
         console.error("Error fetching blogs:", error);
@@ -47,53 +58,104 @@ const Home = () => {
     getBlogs();
   }, []);
 
-  // ✅ Banner Slider State
-  const banners = [banner1, banner2, banner3, banner4];
-  const [currentBanner, setCurrentBanner] = useState(0);
+  // Fetch banners from database
   useEffect(() => {
+    const getBanners = async () => {
+      try {
+        const res = await fetch("https://harsh.skmysticastrologer.in/CodeIgniter/api/all-banners");
+        const data = await res.json();
+        if (data.status) {
+          setBanners(data.data || []);
+        } else {
+          setBanners([]);
+        }
+      } catch (error) {
+        console.log("Banner fetch error:", error);
+      }
+    };
+
+    getBanners();
+  }, []);
+
+  // Auto slider for banners
+  useEffect(() => {
+    if (banners.length === 0) return;
+
     const interval = setInterval(() => {
       setCurrentBanner((prev) => (prev + 1) % banners.length);
     }, 4000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [banners]);
 
   const nextBanner = () => {
+    if (banners.length === 0) return;
     setCurrentBanner((prev) => (prev + 1) % banners.length);
   };
 
   const prevBanner = () => {
+    if (banners.length === 0) return;
     setCurrentBanner((prev) =>
       prev === 0 ? banners.length - 1 : prev - 1
     );
   };
 
+  const getBannerImage = (imagePath) => {
+    if (!imagePath) return "";
+
+    if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+      return imagePath;
+    }
+
+    return `${BASE_URL}${imagePath}`;
+  };
+
   return (
     <div className="home">
-
-      {/* 🔥 HERO */}
+      {/* HERO */}
       <div className="hero">
-        <img key={currentBanner} src={banners[currentBanner]} alt="banner" className="hero-img" />
+        {banners.length > 0 ? (
+          <img
+            key={currentBanner}
+            src={getBannerImage(banners[currentBanner].image)}
+            alt={banners[currentBanner].title || "banner"}
+            className="hero-img"
+          />
+        ) : (
+          <div
+            className="hero-img d-flex align-items-center justify-content-center bg-light"
+            style={{ minHeight: "300px" }}
+          >
+            <p className="text-muted mb-0">No banners available</p>
+          </div>
+        )}
 
         <div className="hero-text">
           {/* <h1>Shri Meru Ring</h1>
           <p>Generate the Positive Vibes that Strengthen you...</p> */}
         </div>
 
-        <button className="prev" onClick={prevBanner}>❮</button>
-        <button className="next" onClick={nextBanner}>❯</button>
+        {banners.length > 1 && (
+          <>
+            <button className="prev" onClick={prevBanner}>
+              ❮
+            </button>
+            <button className="next" onClick={nextBanner}>
+              ❯
+            </button>
+          </>
+        )}
       </div>
 
-      {/* 🔥 PRODUCTS */}
+      {/* PRODUCTS */}
       <div className="products-section">
         <h2>Our Products</h2>
 
         <div className="product-grid">
-          {products.map((item) => (   // ✅ show only 4 products
+          {products.map((item) => (
             <div className="product-card" key={item.id}>
-
               <img
-                src={`http://localhost/CodeIgniter/uploads/${item.image1}`}
+                src={`https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${item.image1}`}
                 alt={item.name}
               />
 
@@ -103,13 +165,9 @@ const Home = () => {
                 ⭐⭐⭐⭐⭐ <span>{item.rating}</span>
               </div>
 
-              <div className="price">
-                ₹{item.price}
-              </div>
+              <div className="price">₹{item.price}</div>
 
-              <button onClick={() => addToCart(item)}>
-                ADD TO CART
-              </button>
+              <button onClick={() => addToCart(item)}>ADD TO CART</button>
             </div>
           ))}
         </div>
@@ -195,16 +253,16 @@ const Home = () => {
           </div>
         </div>
       </div>
-      {/* 🔥 Feature PRODUCTS */}
+
+      {/* FEATURED PRODUCTS */}
       <div className="products-section">
         <h2>Featured product</h2>
 
         <div className="product-grid">
-          {products.slice(4, 8).map((item) => (   // ✅ show only 4 products
+          {products.slice(4, 8).map((item) => (
             <div className="product-card" key={item.id}>
-
               <img
-                src={`http://localhost/CodeIgniter/uploads/${item.image1}`}
+                src={`https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${item.image1}`}
                 alt={item.name}
               />
 
@@ -214,13 +272,9 @@ const Home = () => {
                 ⭐⭐⭐⭐⭐ <span>{item.rating}</span>
               </div>
 
-              <div className="price">
-                ₹{item.price}
-              </div>
+              <div className="price">₹{item.price}</div>
 
-              <button onClick={() => addToCart(item)}>
-                ADD TO CART
-              </button>
+              <button onClick={() => addToCart(item)}>ADD TO CART</button>
             </div>
           ))}
         </div>
@@ -230,7 +284,6 @@ const Home = () => {
         </Link>
       </div>
 
-
       <div className="home-blog-section">
         <h2 className="home-blog-heading">Latest blog</h2>
 
@@ -238,7 +291,11 @@ const Home = () => {
           {blogs.slice(0, 3).map((blog) => (
             <div className="home-blog-card" key={blog.id}>
               <div className="home-blog-image-wrap">
-                <img src={blog.image} alt={blog.title} className="home-blog-image" />
+                <img
+                  src={blog.image}
+                  alt={blog.title}
+                  className="home-blog-image"
+                />
 
                 <div className="home-blog-date-badge">
                   {new Date(blog.created_at).toLocaleDateString()}
@@ -247,8 +304,13 @@ const Home = () => {
 
               <div className="home-blog-content">
                 <div className="home-blog-meta">
-                  <span className="home-blog-meta-item"><i className="fa fa-user"></i> {blog.author}</span>
-                  <span className="home-blog-meta-item"><i className="fa fa-calendar"></i> Updated: {new Date(blog.created_at).toLocaleDateString()}</span>
+                  <span className="home-blog-meta-item">
+                    <i className="fa fa-user"></i> {blog.author}
+                  </span>
+                  <span className="home-blog-meta-item">
+                    <i className="fa fa-calendar"></i> Updated:{" "}
+                    {new Date(blog.created_at).toLocaleDateString()}
+                  </span>
                 </div>
 
                 <h3 className="home-blog-title">{blog.title}</h3>
@@ -263,7 +325,6 @@ const Home = () => {
           ))}
         </div>
       </div>
-
     </div>
   );
 };

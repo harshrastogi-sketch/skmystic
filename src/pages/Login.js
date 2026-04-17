@@ -54,7 +54,7 @@ export default function Login() {
 
         if (validate()) {
             try {
-                const res = await fetch("http://localhost/CodeIgniter/api/login-user", {
+                const res = await fetch("https://harsh.skmysticastrologer.in/CodeIgniter/api/login-user", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"

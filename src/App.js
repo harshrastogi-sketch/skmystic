@@ -30,6 +30,16 @@ import Products from "./admin/Products";
 import EditProduct from "./admin/EditProduct";
 import Orders from "./admin/Orders";
 import Users from "./admin/Users";
+import AdminLogin from "./admin/AdminLogin";
+import Banner from "./admin/Banner";
+import EditBanner from "./admin/EditBanner";
+import AddBanner from "./admin/AddBanner";
+import AdminBlog from "./admin/AdminBlog";
+import EditBlog from "./admin/EditBlog";
+import AddBlog from "./admin/AddBlog";
+import AddCategory from "./admin/AddCategory";
+import EditCategory from "./admin/EditCategory";
+import Category from "./admin/Category";
 
 function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -78,12 +88,24 @@ function App() {
         <Route path="/viewCart" element={<ViewCart />} />
 
         {/* ✅ ADMIN ROUTES */}
-        <Route path="/admin" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
+        <Route path="/admin/dashboard" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
         <Route path="/admin/add-product" element={<AdminLayout><AddProduct /></AdminLayout>} />
         <Route path="/admin/Products" element={<AdminLayout><Products /></AdminLayout>} />
         <Route path="/admin/edit-product/:id" element={<AdminLayout><EditProduct /></AdminLayout>} />
         <Route path="/admin/orders" element={<AdminLayout><Orders /></AdminLayout>} />
         <Route path="/admin/users" element={<AdminLayout><Users /></AdminLayout>}/>
+        <Route path="/admin/banner" element={<AdminLayout><Banner /></AdminLayout>}/>
+        <Route path="/admin/edit-banner/:id" element={<AdminLayout><EditBanner /></AdminLayout>}/>
+        <Route path="/admin/add-banner" element={<AdminLayout><AddBanner /></AdminLayout>}/>
+        <Route path="/admin/add-blog" element={<AdminLayout><AddBlog /></AdminLayout>}/>
+        <Route path="/admin/blog" element={<AdminLayout><AdminBlog /></AdminLayout>}/>
+        <Route path="/admin/edit-blog/:id" element={<AdminLayout><EditBlog /></AdminLayout>}/>
+        <Route path="/admin/category" element={<AdminLayout><Category /></AdminLayout>}/>
+        <Route path="/admin/add-category" element={<AdminLayout><AddCategory /></AdminLayout>}/>
+        <Route path="/admin/edit-category/:id" element={<AdminLayout><EditCategory /></AdminLayout>}/>
+        
+
+        <Route path="/admin" element={<AdminLogin />} />
 
       </Routes>
 

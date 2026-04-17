@@ -2,22 +2,22 @@ import React, { useEffect, useState } from "react";
 import { apiRequest } from "../api";
 import { useNavigate } from "react-router-dom";
 
-function Products() {
-  const [products, setProducts] = useState([]);
+function Category() {
+  const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
 
-  const fetchProducts = async () => {
+  const fetchCategories = async () => {
     try {
-      const res = await apiRequest("https://harsh.skmysticastrologer.in/CodeIgniter/products");
-      console.log(res);
-      setProducts(res.data || []);
+      const res = await apiRequest("https://harsh.skmysticastrologer.in/CodeIgniter/categories");
+      console.log("Categories response:", res);
+      setCategories(res.data || []);
     } catch (err) {
-      console.log(err);
+      console.log("Fetch categories error:", err);
     }
   };
 
   useEffect(() => {
-    fetchProducts();
+    fetchCategories();
   }, []);
 
   const handleToggleStatus = async (id, currentStatus) => {
@@ -25,8 +25,8 @@ function Products() {
 
     const confirmChange = window.confirm(
       isActive
-        ? "Are you sure you want to deactivate this product?"
-        : "Are you sure you want to activate this product?"
+        ? "Are you sure you want to deactivate this category?"
+        : "Are you sure you want to activate this category?"
     );
 
     if (!confirmChange) return;
@@ -35,7 +35,7 @@ function Products() {
       const newStatus = isActive ? 0 : 1;
 
       const res = await fetch(
-        `https://harsh.skmysticastrologer.in/CodeIgniter/api/products-status/${id}`,
+        `https://harsh.skmysticastrologer.in/CodeIgniter/categories/update_status/${id}`,
         {
           method: "PUT",
           headers: {
@@ -46,11 +46,12 @@ function Products() {
       );
 
       const data = await res.json();
+      console.log("Toggle status response:", data);
 
-      if (data.status) {
-        alert("Product status updated successfully");
+      if (data.status === true) {
+        alert(data.message || "Category status updated successfully");
 
-        setProducts((prev) =>
+        setCategories((prev) =>
           prev.map((item) =>
             String(item.id) === String(id)
               ? { ...item, status: String(newStatus) }
@@ -58,51 +59,52 @@ function Products() {
           )
         );
       } else {
-        alert(data.message || "Failed to update status");
+        alert(data.message || "Failed to update category status");
       }
     } catch (err) {
-      console.log(err);
-      alert("Error updating product status");
+      console.log("Toggle category status error:", err);
+      alert("Error updating category status");
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) return;
+    if (!window.confirm("Are you sure you want to delete this category?")) return;
 
     try {
       const res = await fetch(
-        `https://harsh.skmysticastrologer.in/CodeIgniter/products/delete/${id}`,
+        `https://harsh.skmysticastrologer.in/CodeIgniter/categories/delete/${id}`,
         {
-          method: "DELETE",
+          method: "POST",
         }
       );
 
       const data = await res.json();
+      console.log("Delete response:", data);
 
-      if (data.status === 200) {
-        alert("✅ Product deleted");
+      if (data.status === true) {
+        alert(data.message || "Category deleted successfully");
 
-        setProducts((prev) =>
+        setCategories((prev) =>
           prev.filter((item) => String(item.id) !== String(id))
         );
       } else {
-        alert("❌ " + data.message);
+        alert(data.message || "Delete failed");
       }
     } catch (err) {
-      console.log(err);
-      alert("❌ Error deleting product");
+      console.log("Delete category error:", err);
+      alert("Error deleting category");
     }
   };
 
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2>Products</h2>
+        <h2>Category</h2>
         <button
           className="btn btn-primary"
-          onClick={() => navigate("/admin/add-product")}
+          onClick={() => navigate("/admin/add-category")}
         >
-          + Add Product
+          + Add Category
         </button>
       </div>
 
@@ -113,17 +115,15 @@ function Products() {
               <th>#</th>
               <th>Image</th>
               <th>Name</th>
-              <th>Category</th>
-              <th>Price</th>
-              <th>Discount</th>
+              <th>Slug</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
 
           <tbody>
-            {products.length > 0 ? (
-              products.map((item, index) => {
+            {categories.length > 0 ? (
+              categories.map((item, index) => {
                 const isActive = String(item.status) === "1";
 
                 return (
@@ -132,23 +132,22 @@ function Products() {
 
                     <td>
                       <img
-                        src={`https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${item.image1}`}
-                        alt="product"
-                        width="50"
+                        src={`https://harsh.skmysticastrologer.in/CodeIgniter/${item.image}`}
+                        alt={item.name}
+                        width="70"
                         height="50"
-                        style={{ objectFit: "cover" }}
+                        style={{ objectFit: "cover", borderRadius: "4px" }}
                       />
                     </td>
 
                     <td>{item.name}</td>
-                    <td>{item.category}</td>
-                    <td>₹{item.price}</td>
-                    <td>{item.discount || 0}%</td>
+                    <td>{item.slug}</td>
 
                     <td>
                       <button
-                        className={`btn btn-sm ${isActive ? "btn-success" : "btn-secondary"
-                          }`}
+                        className={`btn btn-sm ${
+                          isActive ? "btn-success" : "btn-secondary"
+                        }`}
                         onClick={() => handleToggleStatus(item.id, item.status)}
                       >
                         {isActive ? "Active" : "Inactive"}
@@ -158,7 +157,7 @@ function Products() {
                     <td>
                       <button
                         className="btn btn-sm btn-warning me-2"
-                        onClick={() => navigate(`/admin/edit-product/${item.id}`)}
+                        onClick={() => navigate(`/admin/edit-category/${item.id}`)}
                       >
                         Edit
                       </button>
@@ -175,8 +174,8 @@ function Products() {
               })
             ) : (
               <tr>
-                <td colSpan="8" className="text-center">
-                  No Products Found
+                <td colSpan="6" className="text-center">
+                  No Categories Found
                 </td>
               </tr>
             )}
@@ -187,4 +186,4 @@ function Products() {
   );
 }
 
-export default Products;
+export default Category;

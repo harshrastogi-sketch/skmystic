@@ -5,7 +5,7 @@ function Orders() {
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch("http://localhost/CodeIgniter/api/all-orders");
+      const res = await fetch("https://harsh.skmysticastrologer.in/CodeIgniter/api/all-orders");
       const data = await res.json();
 
       if (data.status === 200) {

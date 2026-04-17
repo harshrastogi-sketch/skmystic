@@ -30,7 +30,7 @@ function Dashboard() {
 
         const fetchUser = async () => {
             const data = await apiRequest(
-                "http://localhost/CodeIgniter/api/users",
+                "https://harsh.skmysticastrologer.in/CodeIgniter/api/users",
                 {
                     method: "GET",
                 }
@@ -81,7 +81,7 @@ function Dashboard() {
 
     const handleLogout = async () => {
         try {
-            await fetch("http://localhost/CodeIgniter/api/logout", {
+            await fetch("https://harsh.skmysticastrologer.in/CodeIgniter/api/logout", {
                 method: "POST",
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`

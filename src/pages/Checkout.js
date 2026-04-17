@@ -102,7 +102,7 @@ const Checkout = () => {
       const token = localStorage.getItem("token");
 
       const data = await apiRequest(
-        "http://localhost/CodeIgniter/api/order-create",
+        "https://harsh.skmysticastrologer.in/CodeIgniter/api/order-create",
         {
           method: "POST",
           headers: {
@@ -157,7 +157,7 @@ const Checkout = () => {
 
                   <div className="checkout-product-image">
                     <img
-                      src={`http://localhost/CodeIgniter/uploads/${item.image1}`}
+                      src={`https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${item.image1}`}
                       alt={item.name}
                     />
                   </div>

@@ -16,13 +16,13 @@ const ProductDetails = () => {
   useEffect(() => {
     const getProduct = async () => {
       const res = await fetch(
-        `http://localhost/CodeIgniter/products/view/${id}`
+        `https://harsh.skmysticastrologer.in/CodeIgniter/products/view/${id}`
       );
       const data = await res.json();
 
       setProduct(data.data);
       setSelectedImage(
-        `http://localhost/CodeIgniter/uploads/${data.data.image1}`
+        `https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${data.data.image1}`
       );
     };
 
@@ -33,7 +33,7 @@ const ProductDetails = () => {
   useEffect(() => {
     const getAllProducts = async () => {
       const res = await fetch(
-        "http://localhost/CodeIgniter/products"
+        "https://harsh.skmysticastrologer.in/CodeIgniter/products"
       );
       const data = await res.json();
       setAllProducts(data.data);
@@ -60,7 +60,7 @@ const ProductDetails = () => {
             {[product.image1, product.image2]
               .filter(Boolean)
               .map((img, index) => {
-                const fullPath = `http://localhost/CodeIgniter/uploads/${img}`;
+                const fullPath = `https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${img}`;
                 return (
                   <img
                     key={index}
@@ -134,7 +134,7 @@ const ProductDetails = () => {
                 <div className="discount-badge">10%</div>
 
                 <img
-                  src={`http://localhost/CodeIgniter/uploads/${item.image1}`}
+                  src={`https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${item.image1}`}
                   alt={item.name}
                 />
 

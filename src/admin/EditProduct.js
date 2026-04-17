@@ -17,7 +17,7 @@ function EditProduct() {
 
   // 🔥 Fetch product
   useEffect(() => {
-    fetch(`http://localhost/CodeIgniter/products/view/${id}`)
+    fetch(`https://harsh.skmysticastrologer.in/CodeIgniter/products/view/${id}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.data) {
@@ -39,7 +39,7 @@ function EditProduct() {
 
     try {
       const res = await fetch(
-        `http://localhost/CodeIgniter/products/update/${id}`,
+        `https://harsh.skmysticastrologer.in/CodeIgniter/products/update/${id}`,
         {
           method: "POST",
           body: new URLSearchParams(form),

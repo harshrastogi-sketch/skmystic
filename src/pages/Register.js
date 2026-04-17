@@ -57,7 +57,7 @@ const Register = () => {
 
         if (validate()) {
             try {
-                const res = await fetch("http://localhost/CodeIgniter/api/insert-user", {
+                const res = await fetch("https://harsh.skmysticastrologer.in/CodeIgniter/api/insert-user", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"

@@ -52,7 +52,7 @@ function Cart() {
 
                 {/* IMAGE */}
                 <img
-                  src={`http://localhost/CodeIgniter/uploads/${item.image1}`}
+                  src={`https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${item.image1}`}
                   alt={item.name}
                   width="80"
                   height="80"

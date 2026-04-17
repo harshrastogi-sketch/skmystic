@@ -16,7 +16,7 @@ const Collection = () => {
 
   useEffect(() => {
     const getProducts = async () => {
-      const reqData = await fetch("http://localhost/CodeIgniter/products");
+      const reqData = await fetch("https://harsh.skmysticastrologer.in/CodeIgniter/products");
       const resData = await reqData.json();
 
       setUserData(resData.data);
@@ -101,12 +101,12 @@ const Collection = () => {
             <Link to={`/product/${item.id}`}>
               <div className="image-wrapper">
                 <img
-                  src={`http://localhost/CodeIgniter/uploads/${item.image1}`}
+                  src={`https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${item.image1}`}
                   alt={item.name}
                   className="img1"
                 />
                 <img
-                  src={`http://localhost/CodeIgniter/uploads/${item.image2}`}
+                  src={`https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${item.image2}`}
                   alt={item.name}
                   className="img2"
                 />

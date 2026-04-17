@@ -8,7 +8,7 @@ const Blogs = () => {
   useEffect(() => {
     const getBlogs = async () => {
       try {
-        const response = await fetch("http://localhost/CodeIgniter/blogs");
+        const response = await fetch("https://harsh.skmysticastrologer.in/CodeIgniter/blogs");
         const result = await response.json();
 
         if (result.status) {

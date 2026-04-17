@@ -7,7 +7,7 @@ function Users() {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch("http://localhost/CodeIgniter/api/allusers", {
+      const res = await fetch("https://harsh.skmysticastrologer.in/CodeIgniter/api/allusers", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
