@@ -40,6 +40,9 @@ import AddBlog from "./admin/AddBlog";
 import AddCategory from "./admin/AddCategory";
 import EditCategory from "./admin/EditCategory";
 import Category from "./admin/Category";
+import AddBrand from "./admin/AddBrand";
+import EditBrand from "./admin/EditBrand";
+import Brand from "./admin/Brand";
 
 function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -93,17 +96,20 @@ function App() {
         <Route path="/admin/Products" element={<AdminLayout><Products /></AdminLayout>} />
         <Route path="/admin/edit-product/:id" element={<AdminLayout><EditProduct /></AdminLayout>} />
         <Route path="/admin/orders" element={<AdminLayout><Orders /></AdminLayout>} />
-        <Route path="/admin/users" element={<AdminLayout><Users /></AdminLayout>}/>
-        <Route path="/admin/banner" element={<AdminLayout><Banner /></AdminLayout>}/>
-        <Route path="/admin/edit-banner/:id" element={<AdminLayout><EditBanner /></AdminLayout>}/>
-        <Route path="/admin/add-banner" element={<AdminLayout><AddBanner /></AdminLayout>}/>
-        <Route path="/admin/add-blog" element={<AdminLayout><AddBlog /></AdminLayout>}/>
-        <Route path="/admin/blog" element={<AdminLayout><AdminBlog /></AdminLayout>}/>
-        <Route path="/admin/edit-blog/:id" element={<AdminLayout><EditBlog /></AdminLayout>}/>
-        <Route path="/admin/category" element={<AdminLayout><Category /></AdminLayout>}/>
-        <Route path="/admin/add-category" element={<AdminLayout><AddCategory /></AdminLayout>}/>
-        <Route path="/admin/edit-category/:id" element={<AdminLayout><EditCategory /></AdminLayout>}/>
-        
+        <Route path="/admin/users" element={<AdminLayout><Users /></AdminLayout>} />
+        <Route path="/admin/banner" element={<AdminLayout><Banner /></AdminLayout>} />
+        <Route path="/admin/edit-banner/:id" element={<AdminLayout><EditBanner /></AdminLayout>} />
+        <Route path="/admin/add-banner" element={<AdminLayout><AddBanner /></AdminLayout>} />
+        <Route path="/admin/add-blog" element={<AdminLayout><AddBlog /></AdminLayout>} />
+        <Route path="/admin/blog" element={<AdminLayout><AdminBlog /></AdminLayout>} />
+        <Route path="/admin/edit-blog/:id" element={<AdminLayout><EditBlog /></AdminLayout>} />
+        <Route path="/admin/category" element={<AdminLayout><Category /></AdminLayout>} />
+        <Route path="/admin/add-category" element={<AdminLayout><AddCategory /></AdminLayout>} />
+        <Route path="/admin/edit-category/:id" element={<AdminLayout><EditCategory /></AdminLayout>} />
+        <Route path="/admin/brand" element={<AdminLayout><Brand /></AdminLayout>} />
+        <Route path="/admin/add-brand" element={<AdminLayout><AddBrand /></AdminLayout>} />
+        <Route path="/admin/edit-brand/:id" element={<AdminLayout><EditBrand /></AdminLayout>} />
+
 
         <Route path="/admin" element={<AdminLogin />} />
 

@@ -5,7 +5,8 @@ import { Link, useLocation } from "react-router-dom";
 
 const Collection = () => {
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const [products, setUserData] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [message, setMessage] = useState("");
 
   const { addToCart } = useCart();
@@ -15,70 +16,97 @@ const Collection = () => {
   const categoryFromURL = queryParams.get("category");
 
   useEffect(() => {
-    const getProducts = async () => {
-      const reqData = await fetch("https://harsh.skmysticastrologer.in/CodeIgniter/products");
-      const resData = await reqData.json();
+    const getData = async () => {
+      try {
+        const [productRes, categoryRes] = await Promise.all([
+          fetch("https://harsh.skmysticastrologer.in/CodeIgniter/products"),
+          fetch("https://harsh.skmysticastrologer.in/CodeIgniter/categories"),
+        ]);
 
-      setUserData(resData.data);
+        const productData = await productRes.json();
+        const categoryData = await categoryRes.json();
 
-      if (categoryFromURL) {
-        setSelectedCategories([categoryFromURL]);
+        const productList = productData.data || [];
+        const categoryList = (categoryData.data || []).filter(
+          (item) => String(item.status) === "1"
+        );
+
+        setProducts(productList);
+        setCategories(categoryList);
+
+        if (categoryFromURL) {
+          const matchedCategory = categoryList.find(
+            (cat) =>
+              String(cat.id) === String(categoryFromURL) ||
+              String(cat.name).toLowerCase() === categoryFromURL.toLowerCase() ||
+              String(cat.slug).toLowerCase() === categoryFromURL.toLowerCase()
+          );
+
+          if (matchedCategory) {
+            setSelectedCategories([String(matchedCategory.id)]);
+          }
+        }
+      } catch (error) {
+        console.log("Fetch error:", error);
       }
     };
 
-    getProducts();
+    getData();
   }, [categoryFromURL]);
 
-  const handleCategoryChange = (category) => {
-    if (selectedCategories.includes(category)) {
-      setSelectedCategories(
-        selectedCategories.filter((item) => item !== category)
-      );
+  const handleCategoryChange = (categoryId) => {
+    const id = String(categoryId);
+
+    if (selectedCategories.includes(id)) {
+      setSelectedCategories((prev) => prev.filter((item) => item !== id));
     } else {
-      setSelectedCategories([...selectedCategories, category]);
+      setSelectedCategories((prev) => [...prev, id]);
     }
   };
 
   const filteredProducts =
     selectedCategories.length === 0
       ? products
-      : products.filter((product) =>
-          selectedCategories.includes(product.category)
-        );
+      : products.filter((product) => {
+          const productCategoryId = String(product.category_id || "");
+          const productCategoryName = String(
+            product.category_name || product.category || ""
+          ).toLowerCase();
+
+          return selectedCategories.some((selectedId) => {
+            const matchedCategory = categories.find(
+              (cat) => String(cat.id) === String(selectedId)
+            );
+
+            if (!matchedCategory) return false;
+
+            return (
+              productCategoryId === String(matchedCategory.id) ||
+              productCategoryName === String(matchedCategory.name).toLowerCase()
+            );
+          });
+        });
 
   return (
     <div className="collection-container">
-      {/* Sidebar */}
       <aside className="collection-sidebar">
         <h3>Categories</h3>
         <hr />
 
-        <label>
-          <input
-            type="checkbox"
-            checked={selectedCategories.includes("ISHT DEV")}
-            onChange={() => handleCategoryChange("ISHT DEV")}
-          />
-          <span>ISHT DEV</span>
-        </label>
-
-        <label>
-          <input
-            type="checkbox"
-            checked={selectedCategories.includes("GEMS AND RINGS")}
-            onChange={() => handleCategoryChange("GEMS AND RINGS")}
-          />
-          <span>GEMS AND RINGS</span>
-        </label>
-
-        <label>
-          <input
-            type="checkbox"
-            checked={selectedCategories.includes("RUDRAKSH")}
-            onChange={() => handleCategoryChange("RUDRAKSH")}
-          />
-          <span>RUDRAKSH</span>
-        </label>
+        {categories.length > 0 ? (
+          categories.map((category) => (
+            <label key={category.id}>
+              <input
+                type="checkbox"
+                checked={selectedCategories.includes(String(category.id))}
+                onChange={() => handleCategoryChange(category.id)}
+              />
+              <span>{category.name}</span>
+            </label>
+          ))
+        ) : (
+          <p>No categories found</p>
+        )}
 
         <div className="banner-wrapper">
           <img
@@ -89,52 +117,56 @@ const Collection = () => {
         </div>
       </aside>
 
-      {/* Success Message */}
       {message && <div className="success-msg">{message}</div>}
 
-      {/* Products */}
       <div className="products">
-        {filteredProducts.map((item) => (
-          <div className="card" key={item.id}>
-            <div className="discount">{item.discount}</div>
+        {filteredProducts.length > 0 ? (
+          filteredProducts.map((item) => (
+            <div className="card" key={item.id}>
+              <div className="discount">{item.discount}</div>
 
-            <Link to={`/product/${item.id}`}>
-              <div className="image-wrapper">
-                <img
-                  src={`https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${item.image1}`}
-                  alt={item.name}
-                  className="img1"
-                />
-                <img
-                  src={`https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${item.image2}`}
-                  alt={item.name}
-                  className="img2"
-                />
+              <Link to={`/product/${item.id}`}>
+                <div className="image-wrapper">
+                  <img
+                    src={`https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${item.image1}`}
+                    alt={item.name}
+                    className="img1"
+                  />
+                  <img
+                    src={`https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${item.image2}`}
+                    alt={item.name}
+                    className="img2"
+                  />
+                </div>
+              </Link>
+
+              <div className="card-body">
+                <h4>{item.name}</h4>
+
+                <div className="rating">
+                  ⭐⭐⭐⭐⭐ <span className="rate-box">{item.rating}</span>
+                </div>
+
+                <p className="price">
+                  ₹ {Number(item.price || 0).toLocaleString()}
+                </p>
+
+                <button
+                  className="cart-btn"
+                  onClick={() => {
+                    addToCart(item);
+                    setMessage("Product has been added!");
+                    setTimeout(() => setMessage(""), 2000);
+                  }}
+                >
+                  ADD TO CART
+                </button>
               </div>
-            </Link>
-
-            <div className="card-body">
-              <h4>{item.name}</h4>
-
-              <div className="rating">
-                ⭐⭐⭐⭐⭐ <span className="rate-box">{item.rating}</span>
-              </div>
-
-              <p className="price">₹ {item.price.toLocaleString()}</p>
-
-              <button
-                className="cart-btn"
-                onClick={() => {
-                  addToCart(item);
-                  setMessage("Product has been added!");
-                  setTimeout(() => setMessage(""), 2000);
-                }}
-              >
-                ADD TO CART
-              </button>
             </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <p>No products found</p>
+        )}
       </div>
     </div>
   );

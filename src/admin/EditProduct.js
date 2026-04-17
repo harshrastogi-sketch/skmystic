@@ -1,86 +1,142 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import "./EditProduct.css";
 
 function EditProduct() {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const [image1, setImage1] = useState(null);
+  const [image2, setImage2] = useState(null);
+
   const [form, setForm] = useState({
     name: "",
     description: "",
-    category: "",
+    category_id: "",
     price: "",
     discount: "",
-    image1: "",
-    image2: "",
+    status: "1",
+    oldImage1: "",
+    oldImage2: "",
   });
 
-  // 🔥 Fetch product
   useEffect(() => {
-    fetch(`https://harsh.skmysticastrologer.in/CodeIgniter/products/view/${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.data) {
-          setForm(data.data);
-        }
-      });
+    fetchProduct();
+    fetchCategories();
   }, [id]);
 
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+  const fetchProduct = async () => {
+    try {
+      const res = await fetch(`https://harsh.skmysticastrologer.in/CodeIgniter/products/view/${id}`);
+      const data = await res.json();
+
+      if (data.status === true && data.data) {
+        setForm({
+          name: data.data.name || "",
+          description: data.data.description || "",
+          category_id: String(data.data.category_id || ""),
+          price: data.data.price || "",
+          discount: data.data.discount || "",
+          status: String(data.data.status ?? "1"),
+          oldImage1: data.data.image1 || "",
+          oldImage2: data.data.image2 || "",
+        });
+      } else {
+        alert(data.message || "Product not found");
+        navigate("/admin/products");
+      }
+    } catch (err) {
+      console.log("Fetch product error:", err);
+      alert("Error fetching product");
+    }
   };
 
-  // 🔥 Update product
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch("https://harsh.skmysticastrologer.in/CodeIgniter/categories");
+      const data = await res.json();
+
+      if (data.status === true) {
+        const activeCategories = (data.data || []).filter(
+          (item) => String(item.status) === "1"
+        );
+        setCategories(activeCategories);
+      }
+    } catch (err) {
+      console.log("Fetch categories error:", err);
+    }
+  };
+
+  const handleChange = (e) => {
+    setForm((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
+      setLoading(true);
+
+      const formData = new FormData();
+      formData.append("name", form.name);
+      formData.append("description", form.description);
+      formData.append("category_id", form.category_id);
+      formData.append("price", form.price);
+      formData.append("discount", form.discount);
+      formData.append("status", form.status);
+
+      if (image1) formData.append("image1", image1);
+      if (image2) formData.append("image2", image2);
+
       const res = await fetch(
         `https://harsh.skmysticastrologer.in/CodeIgniter/products/update/${id}`,
         {
           method: "POST",
-          body: new URLSearchParams(form),
+          body: formData,
         }
       );
 
       const data = await res.json();
 
-      if (data.status === 200) {
-        alert("✅ Product updated");
+      if (data.status === true) {
+        alert(data.message || "Product updated successfully");
         navigate("/admin/products");
       } else {
-        alert("❌ " + data.message);
+        alert(data.message || "Update failed");
       }
     } catch (err) {
-      console.log(err);
-      alert("❌ Error updating product");
+      console.log("Update product error:", err);
+      alert("Error updating product");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="container mt-5">
       <div className="card shadow">
-
-        {/* 🔥 Header */}
-        <div className="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <div className="card-header bg-dark text-white d-flex justify-content-between">
           <button
+            type="button"
             className="btn btn-light btn-sm"
             onClick={() => navigate(-1)}
           >
             ← Back
           </button>
-          <h5 className="mb-0">Edit Product</h5>
+          <h5>Edit Product</h5>
           <div></div>
         </div>
 
         <div className="card-body">
           <form onSubmit={handleSubmit}>
-
             {/* Name */}
-            <div className="row mb-3 align-items-center">
+            <div className="row mb-3">
               <label className="col-sm-3 col-form-label">Product Name</label>
               <div className="col-sm-9">
                 <input
@@ -94,21 +150,23 @@ function EditProduct() {
               </div>
             </div>
 
-            {/* Category Dropdown */}
-            <div className="row mb-3 align-items-center">
+            {/* Category */}
+            <div className="row mb-3">
               <label className="col-sm-3 col-form-label">Category</label>
               <div className="col-sm-9">
                 <select
-                  name="category"
+                  name="category_id"
                   className="form-control"
-                  value={form.category}
+                  value={form.category_id}
                   onChange={handleChange}
                   required
                 >
                   <option value="">Select Category</option>
-                  <option value="ISHT DEV">ISHT DEV</option>
-                  <option value="GEMS AND RINGS">GEMS AND RINGS</option>
-                  <option value="RUDRAKSH">RUDRAKSH</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -128,7 +186,7 @@ function EditProduct() {
             </div>
 
             {/* Price */}
-            <div className="row mb-3 align-items-center">
+            <div className="row mb-3">
               <label className="col-sm-3 col-form-label">Price</label>
               <div className="col-sm-9">
                 <input
@@ -143,7 +201,7 @@ function EditProduct() {
             </div>
 
             {/* Discount */}
-            <div className="row mb-3 align-items-center">
+            <div className="row mb-3">
               <label className="col-sm-3 col-form-label">Discount (%)</label>
               <div className="col-sm-9">
                 <input
@@ -156,44 +214,82 @@ function EditProduct() {
               </div>
             </div>
 
-            {/* Image1 */}
-            <div className="row mb-3 align-items-center">
-              <label className="col-sm-3 col-form-label">Image 1 URL</label>
+            {/* Image 1 */}
+            <div className="row mb-3">
+              <label className="col-sm-3 col-form-label">Current Image 1</label>
+              <div className="col-sm-9">
+                {form.oldImage1 ? (
+                  <img
+                    src={`https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${form.oldImage1}`}
+                    alt="Product 1"
+                    className="product-img"
+                  />
+                ) : (
+                  <span>No image</span>
+                )}
+              </div>
+            </div>
+
+            <div className="row mb-3">
+              <label className="col-sm-3 col-form-label">Change Image 1</label>
               <div className="col-sm-9">
                 <input
-                  type="text"
-                  name="image1"
+                  type="file"
                   className="form-control"
-                  value={form.image1}
-                  onChange={handleChange}
-                  required
+                  onChange={(e) => setImage1(e.target.files[0])}
                 />
               </div>
             </div>
 
-            {/* Image2 */}
-            <div className="row mb-3 align-items-center">
-              <label className="col-sm-3 col-form-label">Image 2 URL</label>
+            {/* Image 2 */}
+            <div className="row mb-3">
+              <label className="col-sm-3 col-form-label">Current Image 2</label>
+              <div className="col-sm-9">
+                {form.oldImage2 ? (
+                  <img
+                    src={`https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${form.oldImage2}`}
+                    alt="Product 2"
+                    className="product-img"
+                  />
+                ) : (
+                  <span>No image</span>
+                )}
+              </div>
+            </div>
+
+            <div className="row mb-3">
+              <label className="col-sm-3 col-form-label">Change Image 2</label>
               <div className="col-sm-9">
                 <input
-                  type="text"
-                  name="image2"
+                  type="file"
                   className="form-control"
-                  value={form.image2}
-                  onChange={handleChange}
+                  onChange={(e) => setImage2(e.target.files[0])}
                 />
+              </div>
+            </div>
+
+            {/* Status */}
+            <div className="row mb-3">
+              <label className="col-sm-3 col-form-label">Status</label>
+              <div className="col-sm-9">
+                <select
+                  name="status"
+                  className="form-control"
+                  value={form.status}
+                  onChange={handleChange}
+                >
+                  <option value="1">Active</option>
+                  <option value="0">Inactive</option>
+                </select>
               </div>
             </div>
 
             {/* Submit */}
-            <div className="row">
-              <div className="col-sm-9 offset-sm-3 text-end">
-                <button className="btn btn-success px-4">
-                  Update Product
-                </button>
-              </div>
+            <div className="text-end">
+              <button className="btn btn-success" disabled={loading}>
+                {loading ? "Updating..." : "Update Product"}
+              </button>
             </div>
-
           </form>
         </div>
       </div>

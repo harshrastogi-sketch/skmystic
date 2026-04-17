@@ -2,24 +2,22 @@ import React, { useEffect, useState } from "react";
 import { apiRequest } from "../api";
 import { useNavigate } from "react-router-dom";
 
-function Products() {
-  const [products, setProducts] = useState([]);
+function Brand() {
+  const [brands, setBrands] = useState([]);
   const navigate = useNavigate();
 
-  const fetchProducts = async () => {
+  const fetchBrands = async () => {
     try {
-      const res = await apiRequest(
-        "https://harsh.skmysticastrologer.in/CodeIgniter/products"
-      );
-      console.log("Products response:", res);
-      setProducts(res.data || []);
+      const res = await apiRequest("http://localhost/CodeIgniter/brands");
+      console.log("Brands response:", res);
+      setBrands(res.data || []);
     } catch (err) {
-      console.log("Fetch products error:", err);
+      console.log("Fetch brands error:", err);
     }
   };
 
   useEffect(() => {
-    fetchProducts();
+    fetchBrands();
   }, []);
 
   const handleToggleStatus = async (id, currentStatus) => {
@@ -27,8 +25,8 @@ function Products() {
 
     const confirmChange = window.confirm(
       isActive
-        ? "Are you sure you want to deactivate this product?"
-        : "Are you sure you want to activate this product?"
+        ? "Are you sure you want to deactivate this brand?"
+        : "Are you sure you want to activate this brand?"
     );
 
     if (!confirmChange) return;
@@ -37,7 +35,7 @@ function Products() {
       const newStatus = isActive ? 0 : 1;
 
       const res = await fetch(
-        `https://harsh.skmysticastrologer.in/CodeIgniter/products/update_status/${id}`,
+        `http://localhost/CodeIgniter/brands/update_status/${id}`,
         {
           method: "PUT",
           headers: {
@@ -48,12 +46,12 @@ function Products() {
       );
 
       const data = await res.json();
-      console.log("Toggle product status response:", data);
+      console.log("Toggle brand status response:", data);
 
       if (data.status === true) {
-        alert(data.message || "Product status updated successfully");
+        alert(data.message || "Brand status updated successfully");
 
-        setProducts((prev) =>
+        setBrands((prev) =>
           prev.map((item) =>
             String(item.id) === String(id)
               ? { ...item, status: String(newStatus) }
@@ -61,73 +59,69 @@ function Products() {
           )
         );
       } else {
-        alert(data.message || "Failed to update status");
+        alert(data.message || "Failed to update brand status");
       }
     } catch (err) {
-      console.log("Toggle status error:", err);
-      alert("Error updating product status");
+      console.log("Toggle brand status error:", err);
+      alert("Error updating brand status");
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) return;
+    if (!window.confirm("Are you sure you want to delete this brand?")) return;
 
     try {
       const res = await fetch(
-        `https://harsh.skmysticastrologer.in/CodeIgniter/products/delete/${id}`,
+        `http://localhost/CodeIgniter/brands/delete/${id}`,
         {
           method: "POST",
         }
       );
 
       const data = await res.json();
-      console.log("Delete product response:", data);
+      console.log("Delete brand response:", data);
 
       if (data.status === true) {
-        alert(data.message || "Product deleted successfully");
+        alert(data.message || "Brand deleted successfully");
 
-        setProducts((prev) =>
+        setBrands((prev) =>
           prev.filter((item) => String(item.id) !== String(id))
         );
       } else {
         alert(data.message || "Delete failed");
       }
     } catch (err) {
-      console.log("Delete product error:", err);
-      alert("Error deleting product");
+      console.log("Delete brand error:", err);
+      alert("Error deleting brand");
     }
   };
 
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2>Products</h2>
+        <h2>Brand</h2>
         <button
           className="btn btn-primary"
-          onClick={() => navigate("/admin/add-product")}
+          onClick={() => navigate("/admin/add-brand")}
         >
-          + Add Product
+          + Add Brand
         </button>
       </div>
 
       <div className="table-responsive">
-        <table className="table table-bordered align-middle">
+        <table className="table table-bordered">
           <thead className="table-dark">
             <tr>
               <th>#</th>
-              <th>Image</th>
-              <th>Name</th>
-              <th>Category</th>
-              <th>Price</th>
-              <th>Discount</th>
+              <th>Brand</th>
               <th>Status</th>
-              <th>Actions</th>
+              <th>Action</th>
             </tr>
           </thead>
 
           <tbody>
-            {products.length > 0 ? (
-              products.map((item, index) => {
+            {brands.length > 0 ? (
+              brands.map((item, index) => {
                 const isActive = String(item.status) === "1";
 
                 return (
@@ -135,23 +129,19 @@ function Products() {
                     <td>{index + 1}</td>
 
                     <td>
-                      {item.image1 ? (
+                      {item.image ? (
                         <img
-                          src={`https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${item.image1}`}
+                          src={`http://localhost/CodeIgniter/${item.image}`}
                           alt={item.name}
-                          width="50"
+                          width="70"
                           height="50"
-                          style={{ objectFit: "cover", borderRadius: "4px" }}
+                          style={{ objectFit: "contain", borderRadius: "4px" }}
                         />
                       ) : (
-                        "No Image"
+                        item.name
                       )}
                     </td>
 
-                    <td>{item.name}</td>
-                    <td>{item.category_name || item.category || "-"}</td>
-                    <td>₹{Number(item.price || 0).toLocaleString()}</td>
-                    <td>{item.discount || 0}%</td>
 
                     <td>
                       <button
@@ -167,7 +157,7 @@ function Products() {
                     <td>
                       <button
                         className="btn btn-sm btn-warning me-2"
-                        onClick={() => navigate(`/admin/edit-product/${item.id}`)}
+                        onClick={() => navigate(`/admin/edit-brand/${item.id}`)}
                       >
                         Edit
                       </button>
@@ -184,8 +174,8 @@ function Products() {
               })
             ) : (
               <tr>
-                <td colSpan="8" className="text-center">
-                  No Products Found
+                <td colSpan="5" className="text-center">
+                  No Brands Found
                 </td>
               </tr>
             )}
@@ -196,4 +186,4 @@ function Products() {
   );
 }
 
-export default Products;
+export default Brand;

@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import AdminHeader from "./AdminHeader";
 import AdminFooter from "./AdminFooter";
+import { FaChevronRight } from "react-icons/fa";
 
 function AdminLayout({ children }) {
   const navigate = useNavigate();
@@ -32,109 +33,88 @@ function AdminLayout({ children }) {
           </div>
 
           <div className="list-group list-group-flush">
-            <button
-              className="list-group-item list-group-item-action"
-              onClick={() => navigate("/admin/dashboard")}
-            >
+            <button className="list-group-item list-group-item-action" onClick={() => navigate("/admin/dashboard")}>
               Dashboard
             </button>
 
-            <button
-              className="list-group-item list-group-item-action"
-              onClick={() => navigate("/admin/users")}
-            >
+            <button className="list-group-item list-group-item-action" onClick={() => navigate("/admin/users")}>
               Users
             </button>
 
-            <button
-              className="list-group-item list-group-item-action"
-              onClick={() => navigate("/admin/orders")}
+            <button className="list-group-item list-group-item-action" onClick={() => navigate("/admin/orders")}
             >
               Orders
             </button>
 
-            <button
-              className="list-group-item list-group-item-action"
-              onClick={() => navigate("/admin/products")}
-            >
+            <button className="list-group-item list-group-item-action" onClick={() => navigate("/admin/products")}>
               Products
             </button>
 
-            <button
-              className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#bannerMenu"
-              aria-expanded="false"
-              aria-controls="bannerMenu"
-            >
+            <button className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#bannerMenu" aria-expanded="false" aria-controls="bannerMenu">
               <span>Banner</span>
-              <span>&gt;</span>
+              <span>
+                <FaChevronRight />
+              </span>
             </button>
 
             <div className="collapse" id="bannerMenu">
-              <button
-                className="list-group-item list-group-item-action ps-4"
-                onClick={() => navigate("/admin/banner")}
-              >
+              <button className="list-group-item list-group-item-action ps-4" onClick={() => navigate("/admin/banner")}>
                 → Banner
               </button>
 
-              <button
-                className="list-group-item list-group-item-action ps-4"
-                onClick={() => navigate("/admin/add-banner")}
-              >
+              <button className="list-group-item list-group-item-action ps-4" onClick={() => navigate("/admin/add-banner")}>
                 → Add Banner
               </button>
             </div>
 
-            <button
-              className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#blogMenu" aria-expanded="false" aria-controls="blogMenu">
+            <button className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#blogMenu" aria-expanded="false" aria-controls="blogMenu">
               <span>Blog</span>
-              <span>&gt;</span>
+              <span>
+                <FaChevronRight />
+              </span>
             </button>
 
             <div className="collapse" id="blogMenu">
-              <button
-                className="list-group-item list-group-item-action ps-4"
-                onClick={() => navigate("/admin/blog")}
-              >
+              <button className="list-group-item list-group-item-action ps-4" onClick={() => navigate("/admin/blog")}>
                 → Blog
               </button>
 
-              <button
-                className="list-group-item list-group-item-action ps-4"
-                onClick={() => navigate("/admin/add-blog")}
-              >
+              <button className="list-group-item list-group-item-action ps-4" onClick={() => navigate("/admin/add-blog")}>
                 → Add Blog
               </button>
             </div>
 
-            <button
-              className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#categoryMenu"
-              aria-expanded="false"
-              aria-controls="categoryMenu"
-            >
+            <button className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#categoryMenu" aria-expanded="false" aria-controls="categoryMenu">
               <span>Category</span>
-              <span>&gt;</span>
+              <span>
+                <FaChevronRight />
+              </span>
             </button>
 
             <div className="collapse" id="categoryMenu">
-              <button
-                className="list-group-item list-group-item-action ps-4"
-                onClick={() => navigate("/admin/category")}
-              >
+              <button className="list-group-item list-group-item-action ps-4" onClick={() => navigate("/admin/category")}>
                 → Category
               </button>
 
-              <button
-                className="list-group-item list-group-item-action ps-4"
-                onClick={() => navigate("/admin/add-category")}
-              >
+              <button className="list-group-item list-group-item-action ps-4" onClick={() => navigate("/admin/add-category")}>
                 → Add Category
+              </button>
+            </div>
+
+            <button className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#brandMenu" aria-expanded="false" aria-controls="brandMenu">
+              <span>Brand</span>
+              <span>
+                <FaChevronRight />
+              </span>
+            </button>
+
+            <div className="collapse" id="brandMenu">
+              <button className="list-group-item list-group-item-action ps-4" onClick={() => navigate("/admin/brand")}>
+                → Brand
+              </button>
+
+              <button className="list-group-item list-group-item-action ps-4" onClick={() => navigate("/admin/add-brand")}>
+                → Add Brand
               </button>
             </div>
 
