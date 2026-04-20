@@ -292,7 +292,7 @@ const Home = () => {
             <div className="home-blog-card" key={blog.id}>
               <div className="home-blog-image-wrap">
                 <img
-                  src={blog.image}
+                  src={`https://harsh.skmysticastrologer.in/CodeIgniter/${blog.image}`}
                   alt={blog.title}
                   className="home-blog-image"
                 />
