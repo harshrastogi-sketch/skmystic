@@ -6,13 +6,14 @@ export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
 
-  // ✅ Load cart from localStorage (optional but recommended)
   const [cartItems, setCartItems] = useState(() => {
     const savedCart = localStorage.getItem("cart");
     return savedCart ? JSON.parse(savedCart) : [];
   });
 
-  // ✅ Sync with localStorage
+  // ✅ NEW: global message state
+  const [message, setMessage] = useState("");
+
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cartItems));
   }, [cartItems]);
@@ -31,6 +32,13 @@ export const CartProvider = ({ children }) => {
         return [...prevItems, { ...product, quantity: 1 }];
       }
     });
+
+    // ✅ SHOW MESSAGE
+    setMessage("Product has been added!");
+
+    setTimeout(() => {
+      setMessage("");
+    }, 2000);
   };
 
   const removeFromCart = (id) => {
@@ -39,10 +47,9 @@ export const CartProvider = ({ children }) => {
     );
   };
 
-  // ✅ NEW: Clear Cart
   const clearCart = () => {
     setCartItems([]);
-    localStorage.removeItem("cart"); // important
+    localStorage.removeItem("cart");
   };
 
   const subtotal = cartItems.reduce(
@@ -56,8 +63,9 @@ export const CartProvider = ({ children }) => {
         cartItems,
         addToCart,
         removeFromCart,
-        clearCart, // ✅ export it
+        clearCart,
         subtotal,
+        message, // ✅ export message
       }}
     >
       {children}

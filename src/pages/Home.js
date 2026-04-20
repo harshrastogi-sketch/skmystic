@@ -3,8 +3,10 @@ import "./Home.css";
 import { useCart } from "../context/CartContext";
 import { Link } from "react-router-dom";
 
+
 const Home = () => {
-  const { addToCart } = useCart();
+
+  const { addToCart, message } = useCart();
 
   const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
 
@@ -112,6 +114,7 @@ const Home = () => {
 
   return (
     <div className="home">
+      {message && <div className="success-msg">{message}</div>}
       {/* HERO */}
       <div className="hero">
         {banners.length > 0 ? (
