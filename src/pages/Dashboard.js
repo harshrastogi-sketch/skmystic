@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import "./Dashboard.css";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { apiRequest } from "../api";
-
 
 function Dashboard() {
 
-
     const navigate = useNavigate();
+
     const [form, setForm] = useState({
         name: "",
         email: "",
@@ -21,42 +20,42 @@ function Dashboard() {
         address: ""
     });
 
+    const [image, setImage] = useState(null);
+    const [preview, setPreview] = useState(null);
+
     // ✅ Get user from localStorage
     const storedUser = JSON.parse(localStorage.getItem("user"));
     const userId = storedUser?.id;
-    // ✅ Fetch user data
+
+    // ===========================
+    // ✅ FETCH USER DATA
+    // ===========================
     useEffect(() => {
         if (!userId) return;
 
         const fetchUser = async () => {
             const data = await apiRequest(
                 "https://harsh.skmysticastrologer.in/CodeIgniter/api/users",
-                {
-                    method: "GET",
-                }
+                { method: "GET" }
             );
 
-            // 🔥 if token expired → apiRequest already redirected
             if (!data) return;
-
-            console.log("API RESPONSE:", data);
 
             if (data.status && data.data.length > 0) {
                 const userData = data.data.find((u) => u.id === userId);
-
                 if (!userData) return;
 
                 setForm({
-                    name: userData.name || "",
-                    email: userData.email || "",
-                    mobile: userData.mobile || "",
-                    house: userData.house || "",
-                    street: userData.street || "",
-                    city: userData.city || "",
-                    state: userData.state || "",
-                    pincode: userData.pincode || "",
-                    country: userData.country || "",
-                    address: userData.address || "",
+                    name: userData.name ?? storedUser.name ?? "",
+                    email: userData.email ?? storedUser.email ?? "",
+                    mobile: userData.mobile ?? storedUser.mobile ?? "",
+                    house: userData.house ?? storedUser.house ?? "",
+                    street: userData.street ?? storedUser.street ?? "",
+                    city: userData.city ?? storedUser.city ?? "",
+                    state: userData.state ?? storedUser.state ?? "",
+                    pincode: userData.pincode ?? storedUser.pincode ?? "",
+                    country: userData.country ?? storedUser.country ?? "",
+                    address: userData.address ?? storedUser.address ?? "",
                 });
             }
         };
@@ -64,7 +63,9 @@ function Dashboard() {
         fetchUser();
     }, [userId]);
 
-    // ✅ Handle input
+    // ===========================
+    // ✅ HANDLE INPUT
+    // ===========================
     const handleChange = (e) => {
         setForm({
             ...form,
@@ -72,26 +73,99 @@ function Dashboard() {
         });
     };
 
-    // ✅ Submit (for update later)
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log(form);
-        alert("Profile Updated ✅");
+    // ===========================
+    // ✅ HANDLE IMAGE
+    // ===========================
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        setImage(file);
+
+        if (file) {
+            setPreview(URL.createObjectURL(file));
+        }
     };
 
+    // ===========================
+    // ✅ SUBMIT PROFILE
+    // ===========================
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            const token = localStorage.getItem("token");
+
+            const formData = new FormData();
+
+            // append text fields
+            Object.keys(form).forEach((key) => {
+                formData.append(key, form[key]);
+            });
+
+            // append image
+            if (image) {
+                formData.append("profile_image", image);
+            }
+
+            const res = await fetch(
+                "http://localhost/CodeIgniter/api/update-profile",
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: "Bearer " + token
+                    },
+                    body: formData
+                }
+            );
+
+            const data = await res.json();
+
+            console.log("UPDATE RESPONSE:", data);
+
+            if (data.status) {
+                alert("Profile Updated ✅");
+
+                const updatedUser = {
+                    ...storedUser,
+                    ...data.user
+                };
+
+                localStorage.setItem("user", JSON.stringify(updatedUser));
+
+                // update preview with new image
+                if (data.user?.profile_image) {
+                    setPreview(
+                        `http://localhost/CodeIgniter/uploads/users/${data.user.profile_image}`
+                    );
+                }
+
+            } else {
+                alert(data.message || "Update failed ❌");
+            }
+
+        } catch (error) {
+            console.error("Update Error:", error);
+            alert("Something went wrong ❌");
+        }
+    };
+
+    // ===========================
+    // ✅ LOGOUT
+    // ===========================
     const handleLogout = async () => {
         try {
-            await fetch("https://harsh.skmysticastrologer.in/CodeIgniter/api/logout", {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
+            await fetch(
+                "https://harsh.skmysticastrologer.in/CodeIgniter/api/logout",
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`
+                    }
                 }
-            });
+            );
         } catch (error) {
             console.error("Logout error:", error);
         }
 
-        // ✅ Always clear storage
         localStorage.removeItem("token");
         localStorage.removeItem("user");
 
@@ -99,9 +173,7 @@ function Dashboard() {
     };
 
     const handleorders = () => {
-        navigate("/my-order", {
-            state: { userId }
-        });
+        navigate("/my-order", { state: { userId } });
     };
 
     return (
@@ -113,6 +185,7 @@ function Dashboard() {
 
             <div className="main-container">
 
+                {/* Sidebar */}
                 <div className="sidebar">
                     <div className="sidebar-title">Dashboard</div>
                     <ul>
@@ -122,6 +195,7 @@ function Dashboard() {
                     </ul>
                 </div>
 
+                {/* Content */}
                 <div className="content">
 
                     <div className="content-header">
@@ -130,19 +204,30 @@ function Dashboard() {
 
                     <form onSubmit={handleSubmit} className="form-section">
 
+                        {/* LEFT */}
                         <div className="profile-left">
                             <div className="profile-img-box">
-                                <img src="https://www.skmystic.com/assets/user/user.png" alt="profile" />
+                                <img
+                                    src={
+                                        preview
+                                            ? preview
+                                            : storedUser?.profile_image
+                                                ? `http://localhost/CodeIgniter/uploads/users/${storedUser.profile_image}`
+                                                : "https://www.skmystic.com/assets/user/user.png"
+                                    }
+                                    alt="profile"
+                                />
                             </div>
+
                             <input
                                 type="file"
-                                name="foto"
+                                name="profile_image"
+                                onChange={handleFileChange}
                                 style={{ marginBottom: "20px", marginTop: "5px" }}
                             />
-
-                            <input type="hidden" name="fotos" value="user.png" />
                         </div>
 
+                        {/* RIGHT */}
                         <div className="profile-right">
 
                             <div className="row">

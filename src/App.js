@@ -19,6 +19,10 @@ import Dashboard from "./pages/Dashboard";
 import Checkout from "./pages/Checkout";
 import MyOrder from "./pages/MyOrder";
 import ViewCart from "./pages/ViewCart";
+import Privacypolicy from "./pages/Privacypolicy";
+import Terms from "./pages/Terms";
+import Shipping from "./pages/Shipping";
+import Faq from "./pages/Faq";
 
 
 
@@ -62,6 +66,11 @@ function App() {
     "/checkout": "Your checkout",
     "/my-order": "Order History",
     "/viewCart": "Your shopping cart",
+    "/privacy-policy": "Privacy Policy",
+    "/terms": "Terms & Conditions",
+    "/shipping": "Shipping/Delivery Policy",
+    "/about": "About Us",
+    "/faq": "Faq",
   };
 
   const breadcrumbTitle = breadcrumbTitles[location.pathname];
@@ -89,6 +98,11 @@ function App() {
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/my-order" element={<MyOrder />} />
         <Route path="/viewCart" element={<ViewCart />} />
+        <Route path="/privacy-policy" element={<Privacypolicy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/shipping" element={<Shipping />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/faq" element={<Faq />} />
 
         {/* ✅ ADMIN ROUTES */}
         <Route path="/admin/dashboard" element={<AdminLayout><AdminDashboard /></AdminLayout>} />

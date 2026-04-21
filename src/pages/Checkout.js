@@ -45,7 +45,7 @@ const Checkout = () => {
   // ✅ Empty cart redirect
   useEffect(() => {
     if (cartItems.length === 0) {
-      navigate("/");
+      navigate("/my-order");
     }
   }, [cartItems, navigate]);
 

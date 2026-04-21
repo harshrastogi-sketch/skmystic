@@ -1,9 +1,32 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./Footer.css";
-
+import { Link } from "react-router-dom";
 
 
 const Footer = () => {
+
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const getCategories = async () => {
+      try {
+        const res = await fetch(
+          "https://harsh.skmysticastrologer.in/CodeIgniter/categories"
+        );
+        const data = await res.json();
+
+        const activeCategories = (data.data || []).filter(
+          (item) => String(item.status) === "1"
+        );
+
+        setCategories(activeCategories);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    getCategories();
+  }, []);
   const newsletterBg = "https://www.skmystic.com/assets/image/newsletter-image.webp";
   return (
     <>
@@ -45,9 +68,13 @@ const Footer = () => {
           <div className="footer-col">
             <h4>Astrology</h4>
             <ul>
-              <li>Gems and Rings</li>
-              <li>Rudraksh</li>
-              <li>Isht Dev</li>
+              {categories.slice(0, 5).map((cat) => (
+                <li key={cat.id}>
+                  <Link to={`/collection?category=${cat.slug || cat.name}`} className="text-white text-decoration-none">
+                    {cat.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -55,9 +82,9 @@ const Footer = () => {
           <div className="footer-col">
             <h4>Quick Link</h4>
             <ul>
-              <li>Privacy Policy</li>
-              <li>Terms & Conditions</li>
-              <li>Shipping / Delivery Policy</li>
+              <li><Link to="/privacy-policy"  className="text-white text-decoration-none">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="text-white text-decoration-none">Terms & Conditions</Link></li>
+              <li><Link to="/shipping" className="text-white text-decoration-none">Shipping / Delivery Policy</Link></li>
             </ul>
           </div>
 
@@ -65,10 +92,10 @@ const Footer = () => {
           <div className="footer-col">
             <h4>Helpful Link</h4>
             <ul>
-              <li>About Us</li>
-              <li>Contact Us</li>
-              <li>Faq's</li>
-              <li>Blog</li>
+              <li><Link to="/about" className="text-white text-decoration-none" >About Us</Link></li>
+              <li><Link to="/contact" className="text-white text-decoration-none" >Contact Us</Link></li>
+              <li><Link to="/faq" className="text-white text-decoration-none" >Faq's</Link></li>
+              <li><Link to="/blogs" className="text-white text-decoration-none" >Blog</Link></li>
             </ul>
           </div>
 
@@ -76,9 +103,9 @@ const Footer = () => {
           <div className="footer-col">
             <h4>Social Media</h4>
             <div className="social-icons">
-              <span>f</span>
-              <span>t</span>
-              <span>in</span>
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"><span>f</span></a>
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer"><span>t</span></a>
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer"><span>in</span></a>
             </div>
           </div>
 
