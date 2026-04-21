@@ -17,7 +17,7 @@ function EditBrand() {
   const fetchBrand = async () => {
     try {
       const res = await fetch(
-        `http://localhost/CodeIgniter/brands/view/${id}`
+        `https://harsh.skmysticastrologer.in/CodeIgniter//brands/view/${id}`
       );
       const result = await res.json();
       console.log("View brand response:", result);
@@ -69,7 +69,7 @@ function EditBrand() {
       setLoading(true);
 
       const res = await fetch(
-        `http://localhost/CodeIgniter/brands/update/${id}`,
+        `https://harsh.skmysticastrologer.in/CodeIgniter//brands/update/${id}`,
         {
           method: "POST",
           body: data,
@@ -135,7 +135,7 @@ function EditBrand() {
           <div className="mb-3">
             <label className="form-label d-block">Current Image</label>
             <img
-              src={`http://localhost/CodeIgniter/${oldImage}`}
+              src={`https://harsh.skmysticastrologer.in/CodeIgniter//${oldImage}`}
               alt="brand"
               width="100"
               height="80"

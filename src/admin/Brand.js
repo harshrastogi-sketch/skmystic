@@ -8,7 +8,7 @@ function Brand() {
 
   const fetchBrands = async () => {
     try {
-      const res = await apiRequest("http://localhost/CodeIgniter/brands");
+      const res = await apiRequest("https://harsh.skmysticastrologer.in/CodeIgniter//brands");
       console.log("Brands response:", res);
       setBrands(res.data || []);
     } catch (err) {
@@ -35,7 +35,7 @@ function Brand() {
       const newStatus = isActive ? 0 : 1;
 
       const res = await fetch(
-        `http://localhost/CodeIgniter/brands/update_status/${id}`,
+        `https://harsh.skmysticastrologer.in/CodeIgniter//brands/update_status/${id}`,
         {
           method: "PUT",
           headers: {
@@ -72,7 +72,7 @@ function Brand() {
 
     try {
       const res = await fetch(
-        `http://localhost/CodeIgniter/brands/delete/${id}`,
+        `https://harsh.skmysticastrologer.in/CodeIgniter//brands/delete/${id}`,
         {
           method: "POST",
         }
@@ -131,7 +131,7 @@ function Brand() {
                     <td>
                       {item.image ? (
                         <img
-                          src={`http://localhost/CodeIgniter/${item.image}`}
+                          src={`https://harsh.skmysticastrologer.in/CodeIgniter//${item.image}`}
                           alt={item.name}
                           width="70"
                           height="50"

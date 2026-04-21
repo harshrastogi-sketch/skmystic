@@ -38,7 +38,7 @@ function AddBrand() {
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost/CodeIgniter/brands/store", {
+      const res = await fetch("https://harsh.skmysticastrologer.in/CodeIgniter//brands/store", {
         method: "POST",
         body: data,
       });

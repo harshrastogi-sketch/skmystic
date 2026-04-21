@@ -25,7 +25,7 @@ function Contact() {
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost/CodeIgniter/api/contact", {
+      const res = await fetch("https://harsh.skmysticastrologer.in/CodeIgniter//api/contact", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
