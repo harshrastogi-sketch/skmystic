@@ -57,6 +57,18 @@ export const CartProvider = ({ children }) => {
     0
   );
 
+  const updateQuantity = (id, newQuantity) => {
+  setCartItems((prevItems) => {
+    return prevItems.map((item) => {
+      if (item.id === id) {
+        if (newQuantity < 1) return item;
+        return { ...item, quantity: newQuantity };
+      }
+      return item;
+    });
+  });
+};
+
   return (
     <CartContext.Provider
       value={{
@@ -64,6 +76,7 @@ export const CartProvider = ({ children }) => {
         addToCart,
         removeFromCart,
         clearCart,
+        updateQuantity,
         subtotal,
         message, // ✅ export message
       }}
