@@ -4,8 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { apiRequest } from "../api";
 
 function Dashboard() {
-
     const navigate = useNavigate();
+
+    const BASE_URL = "http://localhost/CodeIgniter/";
 
     const [form, setForm] = useState({
         name: "",
@@ -23,49 +24,61 @@ function Dashboard() {
     const [image, setImage] = useState(null);
     const [preview, setPreview] = useState(null);
 
-    // ✅ Get user from localStorage
     const storedUser = JSON.parse(localStorage.getItem("user"));
     const userId = storedUser?.id;
 
     // ===========================
-    // ✅ FETCH USER DATA
+    // FETCH USER DATA
     // ===========================
     useEffect(() => {
         if (!userId) return;
 
         const fetchUser = async () => {
+            const token = localStorage.getItem("token");
+
             const data = await apiRequest(
-                "https://harsh.skmysticastrologer.in/CodeIgniter/api/users",
-                { method: "GET" }
+                `${BASE_URL}api/userprofile`,
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization: "Bearer " + token
+                    }
+                }
             );
 
-            if (!data) return;
+            if (!data || !data.status) return;
 
-            if (data.status && data.data.length > 0) {
-                const userData = data.data.find((u) => u.id === userId);
-                if (!userData) return;
+            const userData = data.data;
 
-                setForm({
-                    name: userData.name ?? storedUser.name ?? "",
-                    email: userData.email ?? storedUser.email ?? "",
-                    mobile: userData.mobile ?? storedUser.mobile ?? "",
-                    house: userData.house ?? storedUser.house ?? "",
-                    street: userData.street ?? storedUser.street ?? "",
-                    city: userData.city ?? storedUser.city ?? "",
-                    state: userData.state ?? storedUser.state ?? "",
-                    pincode: userData.pincode ?? storedUser.pincode ?? "",
-                    country: userData.country ?? storedUser.country ?? "",
-                    address: userData.address ?? storedUser.address ?? "",
-                });
+            setForm({
+                name: userData.name ?? "",
+                email: userData.email ?? "",
+                mobile: userData.mobile ?? "",
+                house: userData.house ?? "",
+                street: userData.street ?? "",
+                city: userData.city ?? "",
+                state: userData.state ?? "",
+                pincode: userData.pincode ?? "",
+                country: userData.country ?? "",
+                address: userData.address ?? ""
+            });
+
+            if (userData.profile_image) {
+                setPreview(`${BASE_URL}uploads/users/${userData.profile_image}`);
             }
         };
 
         fetchUser();
     }, [userId]);
 
-    // ===========================
-    // ✅ HANDLE INPUT
-    // ===========================
+    useEffect(() => {
+        return () => {
+            if (preview && preview.startsWith("blob:")) {
+                URL.revokeObjectURL(preview);
+            }
+        };
+    }, [preview]);
+
     const handleChange = (e) => {
         setForm({
             ...form,
@@ -73,21 +86,24 @@ function Dashboard() {
         });
     };
 
-    // ===========================
-    // ✅ HANDLE IMAGE
-    // ===========================
+
     const handleFileChange = (e) => {
         const file = e.target.files[0];
+
+        if (!file) return;
+
         setImage(file);
 
-        if (file) {
-            setPreview(URL.createObjectURL(file));
+        // remove old preview if blob
+        if (preview && preview.startsWith("blob:")) {
+            URL.revokeObjectURL(preview);
         }
+
+        const newPreview = URL.createObjectURL(file);
+        setPreview(newPreview);
     };
 
-    // ===========================
-    // ✅ SUBMIT PROFILE
-    // ===========================
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -96,33 +112,26 @@ function Dashboard() {
 
             const formData = new FormData();
 
-            // append text fields
             Object.keys(form).forEach((key) => {
                 formData.append(key, form[key]);
             });
 
-            // append image
             if (image) {
                 formData.append("profile_image", image);
             }
 
-            const res = await fetch(
-                "http://localhost/CodeIgniter/api/update-profile",
-                {
-                    method: "POST",
-                    headers: {
-                        Authorization: "Bearer " + token
-                    },
-                    body: formData
-                }
-            );
+            const res = await fetch(`${BASE_URL}api/update-profile`, {
+                method: "POST",
+                headers: {
+                    Authorization: "Bearer " + token
+                },
+                body: formData
+            });
 
             const data = await res.json();
 
-            console.log("UPDATE RESPONSE:", data);
-
             if (data.status) {
-                alert("Profile Updated ✅");
+                alert("Profile Updated ");
 
                 const updatedUser = {
                     ...storedUser,
@@ -131,13 +140,14 @@ function Dashboard() {
 
                 localStorage.setItem("user", JSON.stringify(updatedUser));
 
-                // update preview with new image
+
                 if (data.user?.profile_image) {
                     setPreview(
-                        `http://localhost/CodeIgniter/uploads/users/${data.user.profile_image}`
+                        `${BASE_URL}uploads/users/${data.user.profile_image}`
                     );
                 }
 
+                setImage(null); // reset file
             } else {
                 alert(data.message || "Update failed ❌");
             }
@@ -148,20 +158,14 @@ function Dashboard() {
         }
     };
 
-    // ===========================
-    // ✅ LOGOUT
-    // ===========================
     const handleLogout = async () => {
         try {
-            await fetch(
-                "https://harsh.skmysticastrologer.in/CodeIgniter/api/logout",
-                {
-                    method: "POST",
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`
-                    }
+            await fetch(`${BASE_URL}api/logout`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
                 }
-            );
+            });
         } catch (error) {
             console.error("Logout error:", error);
         }
@@ -178,7 +182,6 @@ function Dashboard() {
 
     return (
         <div className="dashboard">
-
             <div className="top-banner">
                 <span>Home | User Dashboard</span>
             </div>
@@ -197,7 +200,6 @@ function Dashboard() {
 
                 {/* Content */}
                 <div className="content">
-
                     <div className="content-header">
                         EDIT USER PROFILE
                     </div>
@@ -211,9 +213,7 @@ function Dashboard() {
                                     src={
                                         preview
                                             ? preview
-                                            : storedUser?.profile_image
-                                                ? `http://localhost/CodeIgniter/uploads/users/${storedUser.profile_image}`
-                                                : "https://www.skmystic.com/assets/user/user.png"
+                                            : "https://www.skmystic.com/assets/user/user.png"
                                     }
                                     alt="profile"
                                 />
@@ -223,7 +223,6 @@ function Dashboard() {
                                 type="file"
                                 name="profile_image"
                                 onChange={handleFileChange}
-                                style={{ marginBottom: "20px", marginTop: "5px" }}
                             />
                         </div>
 
@@ -237,7 +236,7 @@ function Dashboard() {
                                 </div>
 
                                 <div>
-                                    <label>Email Id</label>
+                                    <label>Email</label>
                                     <input name="email" value={form.email} onChange={handleChange} />
                                 </div>
                             </div>
@@ -249,14 +248,14 @@ function Dashboard() {
                                 </div>
 
                                 <div>
-                                    <label>House No</label>
+                                    <label>House</label>
                                     <input name="house" value={form.house} onChange={handleChange} />
                                 </div>
                             </div>
 
                             <div className="row">
                                 <div>
-                                    <label>Street No</label>
+                                    <label>Street</label>
                                     <input name="street" value={form.street} onChange={handleChange} />
                                 </div>
 
@@ -293,9 +292,7 @@ function Dashboard() {
                             <button className="submit-btn">SUBMIT</button>
 
                         </div>
-
                     </form>
-
                 </div>
             </div>
         </div>
