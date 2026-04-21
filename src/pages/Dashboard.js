@@ -6,7 +6,7 @@ import { apiRequest } from "../api";
 function Dashboard() {
     const navigate = useNavigate();
 
-    const BASE_URL = "http://localhost/CodeIgniter/";
+    const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
 
     const [form, setForm] = useState({
         name: "",
