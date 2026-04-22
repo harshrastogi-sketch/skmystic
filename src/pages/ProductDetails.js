@@ -6,6 +6,9 @@ import { FaTruck } from "react-icons/fa";
 import { FiRefreshCw } from "react-icons/fi";
 import { HiOutlineIdentification } from "react-icons/hi";
 
+// const BASE_URL = "http://localhost/CodeIgniter/";
+const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
+
 const ProductDetails = () => {
   const { id } = useParams();
   const { addToCart } = useCart();
@@ -15,19 +18,27 @@ const ProductDetails = () => {
   const [selectedImage, setSelectedImage] = useState("");
   const [message, setMessage] = useState("");
 
+  // ✅ Helper: Get first image safely
+  const getFirstImage = (item) => {
+    return item?.images && item.images.length > 0
+      ? `${BASE_URL}${item.images[0].image}`
+      : "/no-image.png";
+  };
+
   // ✅ Fetch Single Product
   useEffect(() => {
     const getProduct = async () => {
       try {
         const res = await fetch(
-          `https://harsh.skmysticastrologer.in/CodeIgniter/products/view/${id}`
+          `${BASE_URL}products/view/${id}`
         );
         const data = await res.json();
 
-        setProduct(data.data);
-        setSelectedImage(
-          `https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${data.data.image1}`
-        );
+        const productData = data.data;
+        setProduct(productData);
+
+        // ✅ Set default image
+        setSelectedImage(getFirstImage(productData));
       } catch (err) {
         console.error("Error fetching product:", err);
       }
@@ -36,17 +47,17 @@ const ProductDetails = () => {
     getProduct();
   }, [id]);
 
-  // ✅ Fetch All Products (Related)
+  // ✅ Fetch Related Products
   useEffect(() => {
     if (!product?.category_id) return;
 
     const getRelatedProducts = async () => {
       try {
         const res = await fetch(
-          `https://harsh.skmysticastrologer.in/CodeIgniter/products?category_id=${product.category_id}`
+          `${BASE_URL}products?category_id=${product.category_id}`
         );
         const data = await res.json();
-        setAllProducts(data.data);
+        setAllProducts(data.data || []);
       } catch (err) {
         console.error("Error fetching related products:", err);
       }
@@ -55,15 +66,27 @@ const ProductDetails = () => {
     getRelatedProducts();
   }, [product]);
 
+  // ✅ Add to cart handler (reusable)
+  const handleAddToCart = (item) => {
+    addToCart(item);
+    setMessage("Product has been added!");
+    setTimeout(() => setMessage(""), 2000);
+  };
+
   if (!product) {
     return <h2 className="not-found">Loading...</h2>;
   }
+
+  // ✅ Calculate old price (based on discount)
+  const oldPrice =
+    product.discount > 0
+      ? product.price / (1 - product.discount / 100)
+      : product.price;
 
   return (
     <>
       {message && <div className="success-msg">{message}</div>}
 
-      {/* ✅ MAIN SECTION */}
       <div className="product-details-container">
 
         {/* LEFT SIDE */}
@@ -76,22 +99,19 @@ const ProductDetails = () => {
             </div>
 
             <div className="thumbnail-row">
-              {[product.image1, product.image2]
-                .filter(Boolean)
-                .map((img, index) => {
-                  const fullPath = `https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${img}`;
-                  return (
-                    <img
-                      key={index}
-                      src={fullPath}
-                      alt={`thumb-${index}`}
-                      className={
-                        selectedImage === fullPath ? "active" : ""
-                      }
-                      onClick={() => setSelectedImage(fullPath)}
-                    />
-                  );
-                })}
+              {product.images?.map((imgObj, index) => {
+                const fullPath = `${BASE_URL}${imgObj.image}`;
+
+                return (
+                  <img
+                    key={index}
+                    src={fullPath}
+                    alt={`thumb-${index}`}
+                    className={selectedImage === fullPath ? "active" : ""}
+                    onClick={() => setSelectedImage(fullPath)}
+                  />
+                );
+              })}
             </div>
           </div>
 
@@ -100,7 +120,10 @@ const ProductDetails = () => {
             <h2>{product.name}</h2>
 
             <div className="rating">
-              ⭐⭐⭐⭐⭐ <span className="rating-badge">4.5★</span>
+              ⭐⭐⭐⭐⭐{" "}
+              <span className="rating-badge">
+                {product.rating}★
+              </span>
             </div>
 
             <p className="availability">
@@ -112,30 +135,34 @@ const ProductDetails = () => {
                 <span className="new-price">
                   ₹ {Number(product.price).toLocaleString()}
                 </span>
-                <span className="old-price">₹ 5,000.00</span>
-                <span className="discount-tag">-50%</span>
+
+                {product.discount > 0 && (
+                  <>
+                    <span className="old-price">
+                      ₹{" "}
+                      {oldPrice.toLocaleString(undefined, {
+                        maximumFractionDigits: 0,
+                      })}
+                    </span>
+                    <span className="discount-tag">
+                      -{product.discount}%
+                    </span>
+                  </>
+                )}
               </div>
             </div>
 
             <div className="buttons">
               <button
                 className="add-to-cart"
-                onClick={() => {
-                  addToCart(product);
-                  setMessage("Product has been added!");
-                  setTimeout(() => setMessage(""), 2000);
-                }}
+                onClick={() => handleAddToCart(product)}
               >
                 ADD TO CART
               </button>
 
               <button
                 className="add-to-cart"
-                onClick={() => {
-                  addToCart(product);
-                  setMessage("Product has been added!");
-                  setTimeout(() => setMessage(""), 2000);
-                }}
+                onClick={() => handleAddToCart(product)}
               >
                 BUY NOW
               </button>
@@ -143,7 +170,9 @@ const ProductDetails = () => {
           </div>
         </div>
 
-        {/* ✅ RIGHT SIDE INFO SECTION */}
+        
+
+        {/* RIGHT SIDE INFO */}
         <div className="right-info-section">
 
           <div className="info-box">
@@ -179,7 +208,7 @@ const ProductDetails = () => {
         </div>
       </div>
 
-      {/* ✅ RELATED PRODUCTS */}
+      {/* RELATED PRODUCTS */}
       <div className="related-section">
         <h2 className="related-title">Related Products</h2>
 
@@ -189,10 +218,15 @@ const ProductDetails = () => {
             .slice(0, 4)
             .map((item) => (
               <div key={item.id} className="related-card">
-                <div className="discount-badge">10%</div>
+
+                {item.discount > 0 && (
+                  <div className="discount-badge">
+                    {item.discount}%
+                  </div>
+                )}
 
                 <img
-                  src={`https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${item.image1}`}
+                  src={getFirstImage(item)}
                   alt={item.name}
                 />
 
@@ -204,11 +238,7 @@ const ProductDetails = () => {
 
                 <button
                   className="cart-btn"
-                  onClick={() => {
-                    addToCart(item);
-                    setMessage("Product has been added!");
-                    setTimeout(() => setMessage(""), 2000);
-                  }}
+                  onClick={() => handleAddToCart(item)}
                 >
                   ADD TO CART
                 </button>

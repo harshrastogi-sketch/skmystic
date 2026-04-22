@@ -4,6 +4,9 @@ import { useCart } from "../context/CartContext";
 import { Link, useLocation } from "react-router-dom";
 
 const Collection = () => {
+   const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
+  //const BASE_URL = "http://localhost/CodeIgniter/";
+
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -15,12 +18,20 @@ const Collection = () => {
   const queryParams = new URLSearchParams(location.search);
   const categoryFromURL = queryParams.get("category");
 
+  // ✅ IMAGE HELPER
+  const getImage = (item, index = 0) => {
+    if (item.images && item.images.length > index) {
+      return BASE_URL + item.images[index].image;
+    }
+    return "https://via.placeholder.com/300x300?text=No+Image";
+  };
+
   useEffect(() => {
     const getData = async () => {
       try {
         const [productRes, categoryRes] = await Promise.all([
-          fetch("https://harsh.skmysticastrologer.in/CodeIgniter/products"),
-          fetch("https://harsh.skmysticastrologer.in/CodeIgniter/categories"),
+          fetch(`${BASE_URL}products`),
+          fetch(`${BASE_URL}categories`),
         ]);
 
         const productData = await productRes.json();
@@ -89,6 +100,8 @@ const Collection = () => {
 
   return (
     <div className="collection-container">
+
+      {/* SIDEBAR */}
       <aside className="collection-sidebar">
         <h3>Categories</h3>
         <hr />
@@ -119,24 +132,31 @@ const Collection = () => {
 
       {message && <div className="success-msg">{message}</div>}
 
+      {/* PRODUCTS */}
       <div className="products">
         {filteredProducts.length > 0 ? (
           filteredProducts.map((item) => (
             <div className="card" key={item.id}>
-              <div className="discount">{item.discount}</div>
+
+              <div className="discount">{item.discount}%</div>
 
               <Link to={`/product/${item.id}`}>
                 <div className="image-wrapper">
+
+                  {/* ✅ FIRST IMAGE */}
                   <img
-                    src={`https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${item.image1}`}
+                    src={getImage(item, 0)}
                     alt={item.name}
                     className="img1"
                   />
+
+                  {/* ✅ SECOND IMAGE (HOVER) */}
                   <img
-                    src={`https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${item.image2}`}
+                    src={getImage(item, 1)}
                     alt={item.name}
                     className="img2"
                   />
+
                 </div>
               </Link>
 
@@ -168,6 +188,7 @@ const Collection = () => {
           <p>No products found</p>
         )}
       </div>
+
     </div>
   );
 };

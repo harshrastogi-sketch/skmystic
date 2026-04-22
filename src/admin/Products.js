@@ -3,14 +3,15 @@ import { apiRequest } from "../api";
 import { useNavigate } from "react-router-dom";
 
 function Products() {
+
+  //const BASE_URL = "http://localhost/CodeIgniter/";
+    const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
 
   const fetchProducts = async () => {
     try {
-      const res = await apiRequest(
-        "https://harsh.skmysticastrologer.in/CodeIgniter/api/admin-product"
-      );
+      const res = await apiRequest(`${BASE_URL}api/admin-product`);
       console.log("Products response:", res);
       setProducts(res.data || []);
     } catch (err) {
@@ -22,6 +23,7 @@ function Products() {
     fetchProducts();
   }, []);
 
+  // ✅ Toggle Status
   const handleToggleStatus = async (id, currentStatus) => {
     const isActive = String(currentStatus) === "1";
 
@@ -36,8 +38,7 @@ function Products() {
     try {
       const newStatus = isActive ? 0 : 1;
 
-      const res = await fetch(
-        `https://harsh.skmysticastrologer.in/CodeIgniter/products/update_status/${id}`,
+      const res = await fetch(`${BASE_URL}products/update_status/${id}`,
         {
           method: "PUT",
           headers: {
@@ -48,7 +49,6 @@ function Products() {
       );
 
       const data = await res.json();
-      console.log("Toggle product status response:", data);
 
       if (data.status === true) {
         alert(data.message || "Product status updated successfully");
@@ -69,19 +69,18 @@ function Products() {
     }
   };
 
+  // ✅ Delete Product
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
 
     try {
-      const res = await fetch(
-        `https://harsh.skmysticastrologer.in/CodeIgniter/products/delete/${id}`,
+      const res = await fetch(`${BASE_URL}products/delete/${id}`,
         {
           method: "POST",
         }
       );
 
       const data = await res.json();
-      console.log("Delete product response:", data);
 
       if (data.status === true) {
         alert(data.message || "Product deleted successfully");
@@ -115,7 +114,7 @@ function Products() {
           <thead className="table-dark">
             <tr>
               <th>#</th>
-              <th>Image</th>
+              <th>Images</th>
               <th>Name</th>
               <th>Category</th>
               <th>Price</th>
@@ -126,23 +125,34 @@ function Products() {
           </thead>
 
           <tbody>
+
             {products.length > 0 ? (
               products.map((item, index) => {
                 const isActive = String(item.status) === "1";
-
+                console.log(products);
                 return (
                   <tr key={item.id}>
                     <td>{index + 1}</td>
 
+                    {/* ✅ MULTIPLE IMAGES */}
                     <td>
-                      {item.image1 ? (
-                        <img
-                          src={`https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${item.image1}`}
-                          alt={item.name}
-                          width="50"
-                          height="50"
-                          style={{ objectFit: "cover", borderRadius: "4px" }}
-                        />
+                      {item.images && item.images.length > 0 ? (
+                        <div style={{ display: "flex", gap: "5px" }}>
+                          {item.images.slice(0, 10).map((img, i) => (
+                            <img
+                              key={i}
+                              src={`${BASE_URL}${img}`}
+                              alt={item.name}
+                              width="45"
+                              height="45"
+                              style={{
+                                objectFit: "cover",
+                                borderRadius: "4px",
+                                border: "1px solid #ddd",
+                              }}
+                            />
+                          ))}
+                        </div>
                       ) : (
                         "No Image"
                       )}
@@ -153,29 +163,20 @@ function Products() {
                     <td>₹{Number(item.price || 0).toLocaleString()}</td>
                     <td>{item.discount || 0}%</td>
 
+                    {/* STATUS */}
                     <td>
-                      <button
-                        className={`btn btn-sm ${
-                          isActive ? "btn-success" : "btn-secondary"
-                        }`}
-                        onClick={() => handleToggleStatus(item.id, item.status)}
-                      >
+                      <button className={`btn btn-sm ${isActive ? "btn-success" : "btn-secondary"}`} onClick={() => handleToggleStatus(item.id, item.status)}>
                         {isActive ? "Active" : "Inactive"}
                       </button>
                     </td>
 
+                    {/* ACTIONS */}
                     <td>
-                      <button
-                        className="btn btn-sm btn-warning me-2"
-                        onClick={() => navigate(`/admin/edit-product/${item.id}`)}
-                      >
+                      <button className="btn btn-sm btn-warning me-2" onClick={() => navigate(`/admin/edit-product/${item.id}`)}>
                         Edit
                       </button>
 
-                      <button
-                        className="btn btn-sm btn-danger"
-                        onClick={() => handleDelete(item.id)}
-                      >
+                      <button className="btn btn-sm btn-danger" onClick={() => handleDelete(item.id)}>
                         Delete
                       </button>
                     </td>
