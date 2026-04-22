@@ -712,3 +712,23 @@
     font-size: 14px;
   }
 }
+
+.read-more-btn {
+  display: flex;              /* key change */
+  justify-content: center;    /* horizontal center */
+  align-items: center;        /* vertical center (optional) */
+  width: fit-content;
+  margin: 10px auto 0;        /* centers the button */
+  padding: 8px 18px;
+  text-decoration: none;
+  color: #111;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.read-more-btn:hover {
+  background: #ff7a00;
+  color: #fff;
+}

@@ -189,6 +189,7 @@ const Home = () => {
 
               <h3>{blog.title}</h3>
               <p>{blog.description}</p>
+              <button className="read-more-btn">Read more</button>
             </div>
           ))}
         </div>
