@@ -1,89 +1,68 @@
+/* ================= MAIN CONTAINER ================= */
 .product-details-container {
   display: flex;
-  gap: 40px;
+  gap: 30px; /* 🔥 reduced from 60px */
   padding: 50px;
   background: #f5f5f5;
+  align-items: flex-start;
 }
 
-.product-image-section img {
-  width: 400px;
-  background: white;
+/* ================= LEFT SECTION ================= */
+.left-section {
+  flex: 0 0 70%; /* 🔥 controlled width */
+  display: flex;
+  gap: 40px;
+}
+
+/* ================= IMAGE SECTION ================= */
+.product-image-section {
+  width: 420px;
+}
+
+.main-image {
+  background: #fff;
   padding: 20px;
+  border-radius: 6px;
 }
 
+.main-image img {
+  width: 100%;
+}
+
+/* ================= THUMBNAILS ================= */
+.thumbnail-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.thumbnail-row img {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  cursor: pointer;
+  background: #fff;
+  padding: 5px;
+  border: 1px solid #ddd;
+  transition: 0.3s;
+}
+
+.thumbnail-row img:hover,
+.thumbnail-row img.active {
+  border: 2px solid #000;
+}
+
+/* ================= PRODUCT INFO ================= */
 .product-info-section {
   flex: 1;
 }
 
-.rating {
-  margin: 10px 0;
-  color: orange;
+.product-info-section h2 {
+  font-size: 28px;
+  margin-bottom: 10px;
 }
 
-.rating-badge {
-  background: green;
-  color: white;
-  padding: 2px 6px;
-  font-size: 12px;
-  border-radius: 4px;
-  margin-left: 10px;
-}
-
-.stock span {
-  color: orange;
-  font-weight: bold;
-}
-
-.price-section {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.old-price {
-  text-decoration: line-through;
-  color: gray;
-}
-
-.discount {
-  background: red;
-  color: white;
-  padding: 3px 8px;
-  font-size: 12px;
-  border-radius: 4px;
-}
-
-.description {
-  margin: 20px 0;
-  color: #555;
-}
-
-.buttons {
-  display: flex;
-  gap: 15px;
-}
-
-.add-to-cart {
-  background: black;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  cursor: pointer;
-}
-
-.buy-now {
-  background: #333;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  cursor: pointer;
-}
-
-
-
-.not-found {
-  padding: 40px;
-}
+/* RATING */
 .rating {
   margin: 10px 0;
   color: orange;
@@ -92,13 +71,14 @@
 
 .rating-badge {
   background: green;
-  color: white;
+  color: #fff;
   padding: 2px 6px;
   font-size: 12px;
   border-radius: 4px;
   margin-left: 8px;
 }
 
+/* AVAILABILITY */
 .availability {
   margin: 10px 0;
   font-weight: 600;
@@ -109,140 +89,102 @@
   font-weight: bold;
 }
 
-.description {
-  margin: 20px 0;
-  color: #777;
-  line-height: 1.6;
-  font-size: 14px;
-}
-.product-image-section {
-  width: 420px;
+/* PRICE */
+.price-wrapper {
+  margin: 15px 0;
 }
 
-.main-image {
-  background: white;
-  padding: 20px;
+.price-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.main-image img {
-  width: 100%;
+.new-price {
+  font-size: 22px;
+  font-weight: bold;
 }
 
-.thumbnail-row {
+.old-price {
+  text-decoration: line-through;
+  color: #888;
+}
+
+.discount-tag {
+  background: red;
+  color: white;
+  padding: 3px 8px;
+  font-size: 12px;
+  border-radius: 4px;
+}
+
+/* BUTTONS */
+.buttons {
   display: flex;
   gap: 15px;
-  margin-top: 15px;
+  margin-top: 20px;
 }
 
-.thumbnail-row img {
-  width: 70px;
-  height: 70px;
-  object-fit: cover;
+.add-to-cart {
+  background: black;
+  color: white;
+  padding: 12px 22px;
+  border: none;
   cursor: pointer;
-  background: white;
-  padding: 5px;
-  border: 1px solid #ddd;
-  transition: 0.3s;
+  font-weight: 600;
 }
 
-.thumbnail-row img:hover {
-  border: 2px solid black;
-}
-/* RELATED PRODUCTS */
-
-.related-section {
-  margin-top: 60px;
-  padding: 40px 0;
-  background: #f8f8f8;
+.add-to-cart:hover {
+  background: #333;
 }
 
-.related-title {
-  text-align: center;
-  color: #ff6600;
-  margin-bottom: 40px;
-}
-
-.related-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+/* ================= RIGHT INFO SECTION ================= */
+.right-info-section {
+  flex: 0 0 28%; /* 🔥 controlled width */
+  display: flex;
+  flex-direction: column;
   gap: 25px;
-  padding: 0 50px;
 }
 
-.related-card {
-  background: white;
+/* CARD */
+.info-box {
+  background: #f3f3f3;
   padding: 20px;
-  text-align: center;
-  position: relative;
-  transition: 0.3s;
+  border-radius: 6px;
+  transition: 0.3s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.related-card:hover {
-  transform: translateY(-5px);
+.info-box:hover {
+  transform: translateY(-4px);
 }
 
-.related-card img {
-  width: 100%;
-  height: 280px;   /* adjust if needed */
-  object-fit: contain;  /* keeps full image visible */
-  padding: 15px;
-  background: #f5f5f5;
-}
-
-.discount-badge {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: orange;
-  color: white;
-  padding: 4px 8px;
-  font-size: 12px;
-  font-weight: bold;
-}
-
-.related-rating {
-  margin: 10px 0;
-  color: orange;
+/* TITLE WITH ICON */
+.info-box h4 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-size: 14px;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 10px;
+  letter-spacing: 0.5px;
 }
 
-.rating-small {
-  background: green;
-  color: white;
-  padding: 2px 5px;
-  font-size: 11px;
-  border-radius: 4px;
-  margin-left: 6px;
+/* TEXT */
+.info-box p {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.6;
 }
 
-.related-price {
-  font-weight: bold;
-  margin: 10px 0;
+/* ICON */
+.icon {
+  font-size: 20px;
+  color: #ff6600;
 }
 
-.related-btn {
-  background: #ff6600;
-  color: white;
-  border: none;
-  padding: 10px;
-  width: 100%;
-  cursor: pointer;
-}
-
-.cart-btn {
-  width: 100%;
-  padding: 10px;
-  background: #ff8c00;
-  color: #fff;
-  border: none;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.cart-btn:hover {
-  background: #e67e00;
-}
-
+/* ================= SUCCESS MESSAGE ================= */
 .success-msg {
   position: fixed;
   top: 100px;
@@ -265,36 +207,113 @@
   }
 }
 
-
-
-.certified-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
+/* ================= RELATED PRODUCTS ================= */
+.related-section {
+  margin-top: 60px;
+  background: #f8f8f8;
+  padding: 40px 50px; /* 🔥 aligned with top section */
 }
 
-.certified-icon {
-  font-size: 18px;
-  color: orange;
+.related-title {
+  text-align: left; /* 🔥 FIXED */
+  color: #ff6600;
+  margin-bottom: 30px;
 }
 
-.certified-card h4 {
-  font-size: 14px;
-  font-weight: 600;
-  color: #222;
-  letter-spacing: 0.5px;
+.related-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 25px;
 }
 
-.certified-card p {
+.related-card {
+  background: #fff;
+  padding: 20px;
+  text-align: center;
+  position: relative;
+  transition: 0.3s;
+}
+
+.related-card:hover {
+  transform: translateY(-5px);
+}
+
+.related-card img {
+  width: 100%;
+  height: 260px;
+  object-fit: contain;
+  padding: 15px;
+  background: #f5f5f5;
+}
+
+.discount-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: orange;
+  color: white;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.related-price {
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.cart-btn {
+  width: 100%;
+  padding: 10px;
+  background: #ff8c00;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.cart-btn:hover {
+  background: #e67e00;
+}
+
+
+.info-box p {
   font-size: 13px;
   color: #666;
   line-height: 1.6;
+
+  max-width: 220px; /* 🔥 controls words per line */
+}
+/* ================= LOADING ================= */
+.not-found {
+  padding: 40px;
 }
 
-.right-section {
-  width: 300px;
-  display: flex;
-  flex-direction: column;
-  gap: 30px;   /* 🔥 Perfect equal spacing */
+/* ================= RESPONSIVE ================= */
+@media (max-width: 992px) {
+  .product-details-container {
+    flex-direction: column;
+  }
+
+  .left-section {
+    flex-direction: column;
+  }
+
+  .product-image-section {
+    width: 100%;
+  }
+
+  .right-info-section {
+    width: 100%;
+  }
+
+  .related-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .related-grid {
+    grid-template-columns: 1fr;
+  }
 }
