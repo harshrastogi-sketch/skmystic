@@ -23,6 +23,7 @@ import Privacypolicy from "./pages/Privacypolicy";
 import Terms from "./pages/Terms";
 import Shipping from "./pages/Shipping";
 import Faq from "./pages/Faq";
+import BlogDetails from "./pages/BlogDetails";
 
 
 
@@ -81,7 +82,7 @@ function App() {
       {!isAdminRoute && <Header setIsCartOpen={setIsCartOpen} />}
 
       {/* ✅ Hide Breadcrumb in Admin */}
-      {!isAdminRoute && !isHomePage && breadcrumbTitle && (
+      {!isAdminRoute && !isHomePage && breadcrumbTitle && location.pathname !== "/blog/:slug" && (
         <Breadcrumb title={breadcrumbTitle} />
       )}
 
@@ -103,6 +104,7 @@ function App() {
         <Route path="/shipping" element={<Shipping />} />
         <Route path="/about" element={<About />} />
         <Route path="/faq" element={<Faq />} />
+        <Route path="/blog/:slug" element={<BlogDetails />} />
 
         {/* ✅ ADMIN ROUTES */}
         <Route path="/admin/dashboard" element={<AdminLayout><AdminDashboard /></AdminLayout>} />

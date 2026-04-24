@@ -7,7 +7,7 @@ const Home = () => {
 
   const { addToCart, message } = useCart();
 
-   const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
+  const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
   //const BASE_URL = "http://localhost/CodeIgniter/";
 
   const [products, setProducts] = useState([]);
@@ -143,6 +143,83 @@ const Home = () => {
         </Link>
       </div>
 
+      <div className="review-section">
+        <h2>Customer review</h2>
+
+        <div className="review-grid">
+          <div className="review-card">
+            <div className="review-top">
+              <div className="review-profile">
+                <img src="https://i.pravatar.cc/80?img=1" alt="user" />
+                <div className="review-user">
+                  <h4>Sushmita</h4>
+                  <span>Noida</span>
+                </div>
+              </div>
+              <div className="quote">❞</div>
+            </div>
+
+            <div className="review-divider"></div>
+
+            <div className="review-content">
+              <p>
+                I liked all the products here and bought many of them for myself and
+                my family. Everyone loved them.
+              </p>
+              <div className="stars">★★★★★</div>
+            </div>
+          </div>
+
+          <div className="review-card">
+            <div className="review-top">
+              <div className="review-profile">
+                <img src="https://i.pravatar.cc/80?img=12" alt="user" />
+                <div className="review-user">
+                  <h4>Prashant</h4>
+                  <span>Haridwar</span>
+                </div>
+              </div>
+              <div className="quote">❞</div>
+            </div>
+
+            <div className="review-divider"></div>
+
+            <div className="review-content">
+              <p>
+                Finances were the biggest issue in my life which was never going to
+                end. But after wearing the Meru Ring it replaced the problems with
+                prosperity.
+              </p>
+              <div className="stars">★★★★★</div>
+            </div>
+          </div>
+
+          <div className="review-card">
+            <div className="review-top">
+              <div className="review-profile">
+                <img src="https://i.pravatar.cc/80?img=5" alt="user" />
+                <div className="review-user">
+                  <h4>Swati Nagar</h4>
+                  <span>Nagpur</span>
+                </div>
+              </div>
+              <div className="quote">❞</div>
+            </div>
+
+            <div className="review-divider"></div>
+
+            <div className="review-content">
+              <p>
+                My life was going well but still something always felt missing. And it
+                was spirituality which gave me my inner peace back. And it all
+                happened due to the blessing of the Meru Ring.
+              </p>
+              <div className="stars">★★★★★</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* FEATURED */}
       <div className="products-section">
         <h2>Featured product</h2>
@@ -176,20 +253,31 @@ const Home = () => {
 
       {/* BLOGS */}
       <div className="home-blog-section">
-        <h2>Latest blog</h2>
+        <h2 className="home-blog-heading">Latest blog</h2>
 
         <div className="home-blog-wrapper">
           {blogs.slice(0, 3).map((blog) => (
             <div className="home-blog-card" key={blog.id}>
-              <img
-                src={BASE_URL + blog.image}
-                alt={blog.title}
-                className="home-blog-image"
-              />
+              <div className="home-blog-image-wrap">
+                <img src={BASE_URL + blog.image} alt={blog.title} className="home-blog-image" />
 
-              <h3>{blog.title}</h3>
-              <p>{blog.description}</p>
-              <button className="read-more-btn">Read more</button>
+                <div className="home-blog-date-badge">
+                  {new Date(blog.created_at).toLocaleDateString()}
+                </div>
+              </div>
+
+              <div className="home-blog-content">
+                <div className="home-blog-meta">
+                  <span className="home-blog-meta-item"><i className="fa fa-user"></i> {blog.author}</span>
+                  <span className="home-blog-meta-item"><i className="fa fa-calendar"></i> Updated: {new Date(blog.created_at).toLocaleDateString()}</span>
+                </div>
+
+                <h3 className="home-blog-title">{blog.title}</h3>
+
+                <p className="home-blog-description">{blog.description}</p>
+
+                <Link to={`/blog/${blog.slug || blog.id}`} className="read-more-btn">Read more</Link>
+              </div>
             </div>
           ))}
         </div>
