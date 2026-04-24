@@ -15,15 +15,15 @@ const CartDrawer = ({ isOpen, setIsOpen }) => {
     }
   }, [cartItems, isOpen, setIsOpen]);
 
-    const handleCheckout = () => {
-  const token = localStorage.getItem("token");
+  const handleCheckout = () => {
+    const token = localStorage.getItem("token");
 
-  const res = verifyTokenRequest(token);
+    const res = verifyTokenRequest(token);
 
-  if (!res) return; // behaves like apiRequest
+    if (!res) return; // behaves like apiRequest
 
-  navigate("/checkout");
-};
+    navigate("/checkout");
+  };
 
   return (
     <div className={`cart-drawer ${isOpen ? "open" : ""}`}>
@@ -35,7 +35,7 @@ const CartDrawer = ({ isOpen, setIsOpen }) => {
       {cartItems.length > 0 ? (
         cartItems.map((item) => (
           <div key={item.id} className="cart-item">
-            <img src={`https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${item.image1}`} alt={item.name} />
+            <img src={`https://harsh.skmysticastrologer.in/CodeIgniter/${item.images?.[0]?.image}`} alt={item.name}/>
             <div>
               <p>{item.name}</p>
               <p>
