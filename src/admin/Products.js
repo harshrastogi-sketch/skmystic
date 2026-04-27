@@ -175,10 +175,9 @@ function Products() {
 
                     {/* ACTIONS */}
                     <td>
-                      <button className="btn btn-sm btn-warning me-2" onClick={() => navigate(`/admin/edit-product/${item.id}`)}>
-                        Edit
-                      </button>
+                      <button className="btn btn-sm btn-warning me-2" onClick={() => navigate(`/admin/edit-product/${item.id}`)}>Edit</button>
                       <button className="btn btn-sm btn-info me-2" onClick={() => navigate(`/admin/add-product-images/${item.id}`)}>Add Images</button>
+                      <button className="btn btn-sm btn-primary me-2" onClick={() => navigate(`/admin/product-details/${item.id}`)}>Details</button>
                       <button className="btn btn-sm btn-danger" onClick={() => handleDelete(item.id)}>
                         Delete
                       </button>

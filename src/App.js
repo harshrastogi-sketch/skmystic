@@ -49,6 +49,10 @@ import Category from "./admin/Category";
 import AddBrand from "./admin/AddBrand";
 import EditBrand from "./admin/EditBrand";
 import Brand from "./admin/Brand";
+import AdminProductDetails from "./admin/AdminProductDetails";
+
+
+
 
 function App() {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -113,6 +117,7 @@ function App() {
         <Route path="/admin/add-product-images/:id" element={<AdminLayout><AddProductImages /></AdminLayout>} />
         <Route path="/admin/Products" element={<AdminLayout><Products /></AdminLayout>} />
         <Route path="/admin/edit-product/:id" element={<AdminLayout><EditProduct /></AdminLayout>} />
+        <Route path="/admin/product-details/:id" element={<AdminLayout><AdminProductDetails /></AdminLayout>} />
         <Route path="/admin/orders" element={<AdminLayout><Orders /></AdminLayout>} />
         <Route path="/admin/users" element={<AdminLayout><Users /></AdminLayout>} />
         <Route path="/admin/banner" element={<AdminLayout><Banner /></AdminLayout>} />
