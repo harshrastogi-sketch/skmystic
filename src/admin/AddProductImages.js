@@ -3,7 +3,8 @@ import { useParams } from "react-router-dom";
 
 function AddProductImages() {
   const { id } = useParams();
-  const BASE_URL = "http://localhost/CodeIgniter/";
+  const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
+  // const BASE_URL = "http://localhost/CodeIgniter/";
 
   const [images, setImages] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
