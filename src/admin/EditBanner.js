@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 function EditBanner() {
   const navigate = useNavigate();
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
   const { id } = useParams();
 
   const [banner, setBanner] = useState(null);
@@ -27,7 +28,7 @@ function EditBanner() {
 
   const fetchBanner = async (token) => {
     try {
-      const res = await fetch(`https://harsh.skmysticastrologer.in/CodeIgniter/api/banner/${id}`, {
+      const res = await fetch(`${BASE_URL}api/banner/${id}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -45,7 +46,7 @@ function EditBanner() {
 
         setPreview(
           bannerData.image
-            ? `https://harsh.skmysticastrologer.in/CodeIgniter/${bannerData.image}`
+            ? `${BASE_URL}${bannerData.image}`
             : ""
         );
       } else {
@@ -86,7 +87,7 @@ function EditBanner() {
         formData.append("image", bannerImage);
       }
       console.log(bannerImage  );
-      const res = await fetch(`https://harsh.skmysticastrologer.in/CodeIgniter/api/update-banner/${id}`, {
+      const res = await fetch(`${BASE_URL}api/update-banner/${id}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

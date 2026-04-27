@@ -6,8 +6,8 @@ import { FaTruck } from "react-icons/fa";
 import { FiRefreshCw } from "react-icons/fi";
 import { HiOutlineIdentification } from "react-icons/hi";
 
-// const BASE_URL = "http://localhost/CodeIgniter/";
-const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
+
+const BASE_URL = process.env.REACT_APP_BASE_URL;
 
 const ProductDetails = () => {
   const { id } = useParams();

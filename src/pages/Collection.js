@@ -4,8 +4,7 @@ import { useCart } from "../context/CartContext";
 import { Link, useLocation } from "react-router-dom";
 
 const Collection = () => {
-   const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
-  //const BASE_URL = "http://localhost/CodeIgniter/";
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [products, setProducts] = useState([]);
@@ -79,24 +78,24 @@ const Collection = () => {
     selectedCategories.length === 0
       ? products
       : products.filter((product) => {
-          const productCategoryId = String(product.category_id || "");
-          const productCategoryName = String(
-            product.category_name || product.category || ""
-          ).toLowerCase();
+        const productCategoryId = String(product.category_id || "");
+        const productCategoryName = String(
+          product.category_name || product.category || ""
+        ).toLowerCase();
 
-          return selectedCategories.some((selectedId) => {
-            const matchedCategory = categories.find(
-              (cat) => String(cat.id) === String(selectedId)
-            );
+        return selectedCategories.some((selectedId) => {
+          const matchedCategory = categories.find(
+            (cat) => String(cat.id) === String(selectedId)
+          );
 
-            if (!matchedCategory) return false;
+          if (!matchedCategory) return false;
 
-            return (
-              productCategoryId === String(matchedCategory.id) ||
-              productCategoryName === String(matchedCategory.name).toLowerCase()
-            );
-          });
+          return (
+            productCategoryId === String(matchedCategory.id) ||
+            productCategoryName === String(matchedCategory.name).toLowerCase()
+          );
         });
+      });
 
   return (
     <div className="collection-container">

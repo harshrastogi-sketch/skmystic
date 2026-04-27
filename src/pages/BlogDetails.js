@@ -8,7 +8,7 @@ const BlogDetails = () => {
   const [blog, setBlog] = useState(null);
   const [recentBlogs, setRecentBlogs] = useState([]);
 
-  const BASE_URL = "http://localhost/CodeIgniter/";
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
   // const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
 
   useEffect(() => {

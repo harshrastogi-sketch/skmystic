@@ -4,7 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 function AddBanner() {
   const navigate = useNavigate();
-
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
   const [title, setTitle] = useState("");
   const [bannerImage, setBannerImage] = useState(null);
   const [preview, setPreview] = useState("");
@@ -52,7 +52,7 @@ function AddBanner() {
       formData.append("title", title.trim());
       formData.append("image", bannerImage);
 
-      const res = await fetch("https://harsh.skmysticastrologer.in/CodeIgniter/api/add-banner", {
+      const res = await fetch(`${BASE_URL}api/add-banner`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

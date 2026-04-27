@@ -8,7 +8,7 @@ function Banner() {
   const [banners, setBanners] = useState([]);
   const [filterText, setFilterText] = useState("");
 
-  const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   useEffect(() => {
     const token = localStorage.getItem("token");

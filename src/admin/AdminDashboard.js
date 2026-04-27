@@ -4,6 +4,7 @@ import AdminLayout from "./AdminLayout";
 
 function AdminDashboard() {
   const navigate = useNavigate();
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   const [stats, setStats] = useState({
     users: 0,
@@ -27,7 +28,7 @@ function AdminDashboard() {
 
   const fetchStats = async (token) => {
     try {
-      const res = await fetch("https://harsh.skmysticastrologer.in/CodeIgniter/dashboard-stats", {
+      const res = await fetch(`${BASE_URL}dashboard-stats`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,

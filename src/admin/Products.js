@@ -4,8 +4,9 @@ import { useNavigate } from "react-router-dom";
 
 function Products() {
 
-  //const BASE_URL = "http://localhost/CodeIgniter/";
-   const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
+  
+   //const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
 

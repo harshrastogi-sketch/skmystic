@@ -5,10 +5,11 @@ import { useNavigate } from "react-router-dom";
 function Blogs() {
   const [blogs, setBlogs] = useState([]);
   const navigate = useNavigate();
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   const fetchBlogs = async () => {
     try {
-      const res = await apiRequest("https://harsh.skmysticastrologer.in/CodeIgniter/blogs");
+      const res = await apiRequest(`${BASE_URL}blogs`);
       console.log("Blogs response:", res);
       setBlogs(res.data || []);
     } catch (err) {
@@ -35,7 +36,7 @@ function Blogs() {
       const newStatus = isActive ? 0 : 1;
 
       const res = await fetch(
-        `https://harsh.skmysticastrologer.in/CodeIgniter/blogs/update_status/${id}`,
+        `${BASE_URL}blogs/update_status/${id}`,
         {
           method: "POST",
           headers: {
@@ -72,7 +73,7 @@ function Blogs() {
 
     try {
       const res = await fetch(
-        `https://harsh.skmysticastrologer.in/CodeIgniter/blogs/delete/${id}`,
+       `${BASE_URL}blogs/delete/${id}`,
         {
           method: "POST",
         }
@@ -134,7 +135,7 @@ function Blogs() {
 
                     <td>
                       <img
-                        src={`https://harsh.skmysticastrologer.in/CodeIgniter/${item.image}`}
+                        src={`${BASE_URL}${item.image}`}
                         alt={item.title}
                         width="70"
                         height="50"
@@ -149,9 +150,8 @@ function Blogs() {
 
                     <td>
                       <button
-                        className={`btn btn-sm ${
-                          isActive ? "btn-success" : "btn-secondary"
-                        }`}
+                        className={`btn btn-sm ${isActive ? "btn-success" : "btn-secondary"
+                          }`}
                         onClick={() => handleToggleStatus(item.id, item.status)}
                       >
                         {isActive ? "Active" : "Inactive"}

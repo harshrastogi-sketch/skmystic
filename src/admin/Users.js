@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 function Users() {
-  const API_BASE = "https://harsh.skmysticastrologer.in/CodeIgniter/";
+  const API_BASE = process.env.REACT_APP_BASE_URL;
   const IMAGE_BASE = "https://harsh.skmysticastrologer.in/CodeIgniter/uploads/users/";
 
   const [users, setUsers] = useState([]);

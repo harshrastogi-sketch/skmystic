@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 
 function AddBrand() {
   const navigate = useNavigate();
-
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
+  
   const [formData, setFormData] = useState({
     name: "",
     status: "1",
@@ -38,7 +39,7 @@ function AddBrand() {
     try {
       setLoading(true);
 
-      const res = await fetch("https://harsh.skmysticastrologer.in/CodeIgniter//brands/store", {
+      const res = await fetch(`${BASE_URL}brands/store`, {
         method: "POST",
         body: data,
       });

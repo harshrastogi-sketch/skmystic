@@ -5,10 +5,11 @@ import { useNavigate } from "react-router-dom";
 function Category() {
   const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   const fetchCategories = async () => {
     try {
-      const res = await apiRequest("https://harsh.skmysticastrologer.in/CodeIgniter/categories");
+      const res = await apiRequest(`${BASE_URL}categories`);
       console.log("Categories response:", res);
       setCategories(res.data || []);
     } catch (err) {
@@ -34,9 +35,7 @@ function Category() {
     try {
       const newStatus = isActive ? 0 : 1;
 
-      const res = await fetch(
-        `https://harsh.skmysticastrologer.in/CodeIgniter/categories/update_status/${id}`,
-        {
+      const res = await fetch(`${BASE_URL}categories/update_status/${id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -71,9 +70,7 @@ function Category() {
     if (!window.confirm("Are you sure you want to delete this category?")) return;
 
     try {
-      const res = await fetch(
-        `https://harsh.skmysticastrologer.in/CodeIgniter/categories/delete/${id}`,
-        {
+      const res = await fetch(`${BASE_URL}categories/delete/${id}`, {
           method: "POST",
         }
       );
@@ -132,7 +129,7 @@ function Category() {
 
                     <td>
                       <img
-                        src={`https://harsh.skmysticastrologer.in/CodeIgniter/${item.image}`}
+                        src={`${BASE_URL}${item.image}`}
                         alt={item.name}
                         width="70"
                         height="50"

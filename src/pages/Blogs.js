@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 const Blogs = () => {
   const [blogs, setBlogs] = useState([]);
 
-  const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   useEffect(() => {
     const getBlogs = async () => {

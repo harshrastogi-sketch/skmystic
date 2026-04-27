@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 function AddCategory() {
   const navigate = useNavigate();
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   const [formData, setFormData] = useState({
     name: "",
@@ -37,7 +38,7 @@ function AddCategory() {
     try {
       setLoading(true);
 
-      const res = await fetch("https://harsh.skmysticastrologer.in/CodeIgniter/categories/store", {
+      const res = await fetch(`${BASE_URL}categories/store`, {
         method: "POST",
         body: data,
       });

@@ -6,8 +6,8 @@ function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-     const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
-  //const BASE_URL = "http://localhost/CodeIgniter/";
+  
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   const [product, setProduct] = useState(null);
 

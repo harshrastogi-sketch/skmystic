@@ -6,9 +6,8 @@ import { Link } from "react-router-dom";
 const Home = () => {
 
   const { addToCart, message } = useCart();
-
-  const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
-  //const BASE_URL = "http://localhost/CodeIgniter/";
+  
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   const [products, setProducts] = useState([]);
   const [blogs, setBlogs] = useState([]);

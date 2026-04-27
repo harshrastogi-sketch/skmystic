@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 export default function AdminLogin() {
     const navigate = useNavigate();
+    const BASE_URL = process.env.REACT_APP_BASE_URL;
+
     const [form, setForm] = useState({
         email: "",
         password: "",
@@ -64,7 +66,7 @@ export default function AdminLogin() {
             };
 
 
-            const res = await fetch("https://harsh.skmysticastrologer.in/CodeIgniter/api/login-user", {
+            const res = await fetch(`${BASE_URL}api/login-user`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

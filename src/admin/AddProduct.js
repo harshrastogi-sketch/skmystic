@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { apiRequest } from "../api";
 import { useNavigate } from "react-router-dom";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import "./EditProduct.css";
 
 function AddProduct() {
- // const BASE_URL = "http://localhost/CodeIgniter/";
-   const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
+   const BASE_URL = process.env.REACT_APP_BASE_URL;
+   
   const navigate = useNavigate();
 
   const [categories, setCategories] = useState([]);
@@ -191,7 +193,21 @@ function AddProduct() {
             <div className="row mb-3">
               <label className="col-sm-3 col-form-label">Description</label>
               <div className="col-sm-9">
-                <textarea name="description" className="form-control" rows="3" value={form.description} onChange={handleChange} />
+                <CKEditor
+                  editor={ClassicEditor}
+                  data={form.description || ""}
+                  onReady={(editor) => {
+                    console.log("Editor is ready", editor);
+                  }}
+                  onChange={(event, editor) => {
+                    const data = editor.getData();
+
+                    setForm((prev) => ({
+                      ...prev,
+                      description: data,
+                    }));
+                  }}
+                />
               </div>
             </div>
 
@@ -214,7 +230,7 @@ function AddProduct() {
             <div className="row mb-3">
               <label className="col-sm-3 col-form-label">Availability</label>
               <div className="col-sm-9">
-                <select name="stock_status"  className="form-control" value={form.stock_status} onChange={handleChange} >
+                <select name="stock_status" className="form-control" value={form.stock_status} onChange={handleChange} >
                   <option value="in_stock">In Stock</option>
                   <option value="out_of_stock">Out of Stock</option>
                 </select>

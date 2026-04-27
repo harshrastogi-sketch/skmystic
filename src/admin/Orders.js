@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 
 function Orders() {
   const [orders, setOrders] = useState([]);
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch("https://harsh.skmysticastrologer.in/CodeIgniter/api/all-orders");
+      const res = await fetch(`${BASE_URL}api/all-orders`);
       const data = await res.json();
 
       if (data.status === 200) {

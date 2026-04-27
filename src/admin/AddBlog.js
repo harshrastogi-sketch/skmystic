@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 function AddBlog() {
     const navigate = useNavigate();
+    const BASE_URL = process.env.REACT_APP_BASE_URL;
 
     const [formData, setFormData] = useState({
         title: "",
@@ -46,7 +47,7 @@ function AddBlog() {
         try {
             setLoading(true);
 
-            const res = await fetch("https://harsh.skmysticastrologer.in/CodeIgniter/blogs/store", {
+            const res = await fetch(`${BASE_URL}blogs/store`, {
                 method: "POST",
                 body: data,
             });

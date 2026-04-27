@@ -48,3 +48,11 @@
   font-size: 12px;
   cursor: pointer;
 }
+
+.ck-editor__editable {
+  min-height: 150px;
+}
+
+.ck.ck-editor {
+  width: 100%;
+}

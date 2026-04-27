@@ -15,7 +15,7 @@ function EditBlog() {
     const [preview, setPreview] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
+    const BASE_URL = process.env.REACT_APP_BASE_URL;
 
     useEffect(() => {
         const token = localStorage.getItem("token");

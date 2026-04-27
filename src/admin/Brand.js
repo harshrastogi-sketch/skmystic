@@ -5,10 +5,11 @@ import { useNavigate } from "react-router-dom";
 function Brand() {
   const [brands, setBrands] = useState([]);
   const navigate = useNavigate();
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   const fetchBrands = async () => {
     try {
-      const res = await apiRequest("https://harsh.skmysticastrologer.in/CodeIgniter//brands");
+      const res = await apiRequest(`${BASE_URL}brands`);
       console.log("Brands response:", res);
       setBrands(res.data || []);
     } catch (err) {
@@ -34,9 +35,7 @@ function Brand() {
     try {
       const newStatus = isActive ? 0 : 1;
 
-      const res = await fetch(
-        `https://harsh.skmysticastrologer.in/CodeIgniter//brands/update_status/${id}`,
-        {
+      const res = await fetch(`${BASE_URL}brands/update_status/${id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -71,9 +70,7 @@ function Brand() {
     if (!window.confirm("Are you sure you want to delete this brand?")) return;
 
     try {
-      const res = await fetch(
-        `https://harsh.skmysticastrologer.in/CodeIgniter//brands/delete/${id}`,
-        {
+      const res = await fetch(`${BASE_URL}brands/delete/${id}`, {
           method: "POST",
         }
       );
@@ -131,7 +128,7 @@ function Brand() {
                     <td>
                       {item.image ? (
                         <img
-                          src={`https://harsh.skmysticastrologer.in/CodeIgniter//${item.image}`}
+                          src={`${BASE_URL}${item.image}`}
                           alt={item.name}
                           width="70"
                           height="50"

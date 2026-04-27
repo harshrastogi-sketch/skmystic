@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 function EditCategory() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   const [formData, setFormData] = useState({
     name: "",
@@ -15,7 +16,7 @@ function EditCategory() {
 
   const fetchCategory = async () => {
     try {
-      const res = await fetch(`https://harsh.skmysticastrologer.in/CodeIgniter/categories/view/${id}`);
+      const res = await fetch(`${BASE_URL}categories/view/${id}`);
       const result = await res.json();
       console.log("View category response:", result);
 
@@ -65,7 +66,7 @@ function EditCategory() {
     try {
       setLoading(true);
 
-      const res = await fetch(`https://harsh.skmysticastrologer.in/CodeIgniter/categories/update/${id}`, {
+      const res = await fetch(`${BASE_URL}categories/update/${id}`, {
         method: "POST",
         body: data,
       });
@@ -129,7 +130,7 @@ function EditCategory() {
           <div className="mb-3">
             <label className="form-label d-block">Current Image</label>
             <img
-              src={`https://harsh.skmysticastrologer.in/CodeIgniter/${oldImage}`}
+              src={`${BASE_URL}${oldImage}`}
               alt="category"
               width="100"
               height="80"

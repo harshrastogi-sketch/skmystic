@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 
 function EditBrand() {
   const navigate = useNavigate();
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
+
   const { id } = useParams();
 
   const [formData, setFormData] = useState({
@@ -16,9 +18,7 @@ function EditBrand() {
 
   const fetchBrand = async () => {
     try {
-      const res = await fetch(
-        `https://harsh.skmysticastrologer.in/CodeIgniter//brands/view/${id}`
-      );
+      const res = await fetch(`${BASE_URL}brands/view/${id}`);
       const result = await res.json();
       console.log("View brand response:", result);
 
@@ -68,9 +68,7 @@ function EditBrand() {
     try {
       setLoading(true);
 
-      const res = await fetch(
-        `https://harsh.skmysticastrologer.in/CodeIgniter//brands/update/${id}`,
-        {
+      const res = await fetch(`${BASE_URL}brands/update/${id}`, {
           method: "POST",
           body: data,
         }
@@ -135,7 +133,7 @@ function EditBrand() {
           <div className="mb-3">
             <label className="form-label d-block">Current Image</label>
             <img
-              src={`https://harsh.skmysticastrologer.in/CodeIgniter//${oldImage}`}
+              src={`${BASE_URL}${oldImage}`}
               alt="brand"
               width="100"
               height="80"
