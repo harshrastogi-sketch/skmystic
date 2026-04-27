@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useCart } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
 
@@ -21,9 +21,15 @@ function Cart() {
 
   const user = getUserFromToken();
 
+  // ✅ Debug properly
+  useEffect(() => {
+    console.log("Cart Items:", cartItems);
+    console.table(cartItems);
+  }, [cartItems]);
+
   // ✅ Calculate subtotal
   const subtotal = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (total, item) => total + Number(item.price) * item.quantity,
     0
   );
 
@@ -37,6 +43,14 @@ function Cart() {
     navigate("/checkout");
   };
 
+  // ✅ Get Image (FIXED)
+  const getProductImage = (item) => {
+    if (item.images?.length > 0) {
+      return `https://harsh.skmysticastrologer.in/CodeIgniter/${item.images[0].image}`;
+    }
+    //return "/images/default-product.png"; // fallback
+  };
+
   return (
     <div className="container mt-5">
       <h3 className="mb-4">My Cart</h3>
@@ -48,27 +62,33 @@ function Cart() {
             <p>No items in cart</p>
           ) : (
             cartItems.map((item) => (
-              <div key={item.id} className="cart-item d-flex mb-3 p-3 border rounded">
-
-                {/* IMAGE */}
+              <div
+                key={item.id}
+                className="cart-item d-flex mb-3 p-3 border rounded"
+              >
+                {/* ✅ IMAGE FIXED */}
                 <img
-                  src={`https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${item.image1}`}
+                  src={getProductImage(item)}
                   alt={item.name}
                   width="80"
                   height="80"
                   style={{ objectFit: "cover" }}
+                  onError={(e) =>
+                    (e.target.src = "/images/default-product.png")
+                  }
                 />
 
                 {/* DETAILS */}
                 <div className="ms-3 flex-grow-1">
                   <h5>{item.name}</h5>
-                  <p>₹{item.price}</p>
+                  <p>₹{Number(item.price).toLocaleString("en-IN")}</p>
 
                   {/* QUANTITY */}
                   <div className="d-flex align-items-center gap-2">
                     <button
                       className="btn btn-sm btn-outline-secondary"
                       onClick={() =>
+                        item.quantity > 1 &&
                         updateQuantity(item.id, item.quantity - 1)
                       }
                     >
@@ -98,7 +118,12 @@ function Cart() {
 
                 {/* PRICE */}
                 <div className="text-end">
-                  <strong>₹{item.price * item.quantity}</strong>
+                  <strong>
+                    ₹
+                    {(Number(item.price) * item.quantity).toLocaleString(
+                      "en-IN"
+                    )}
+                  </strong>
                 </div>
               </div>
             ))
@@ -112,14 +137,14 @@ function Cart() {
 
             <div className="d-flex justify-content-between">
               <span>Subtotal</span>
-              <span>₹{subtotal}</span>
+              <span>₹{subtotal.toLocaleString("en-IN")}</span>
             </div>
 
             <hr />
 
             <div className="d-flex justify-content-between">
               <strong>Total</strong>
-              <strong>₹{subtotal}</strong>
+              <strong>₹{subtotal.toLocaleString("en-IN")}</strong>
             </div>
 
             <button
@@ -127,7 +152,9 @@ function Cart() {
               onClick={handleCheckout}
               disabled={user?.role === "admin"}
             >
-              {user?.role === "admin" ? "Admin Cannot Checkout" : "Checkout"}
+              {user?.role === "admin"
+                ? "Admin Cannot Checkout"
+                : "Checkout"}
             </button>
           </div>
         </div>
