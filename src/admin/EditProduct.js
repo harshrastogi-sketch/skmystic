@@ -235,9 +235,7 @@ function EditProduct() {
       <div className="card shadow">
 
         <div className="card-header bg-dark text-white d-flex justify-content-between">
-          <button className="btn btn-light btn-sm" onClick={() => navigate(-1)}>
-            ← Back
-          </button>
+          <button className="btn btn-light btn-sm" onClick={() => navigate(-1)}> ← Back </button>
           <h5>Edit Product</h5>
           <div></div>
         </div>

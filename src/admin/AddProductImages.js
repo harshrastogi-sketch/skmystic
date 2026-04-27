@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 function AddProductImages() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
   // const BASE_URL = "http://localhost/CodeIgniter/";
 
@@ -95,7 +96,9 @@ function AddProductImages() {
       <h5 className="mb-3">
         <b>PRODUCT IMAGES OF PRODUCT #{id}</b>
       </h5>
-
+      <div className="d-flex justify-content-end mb-3">
+        <button className="btn btn-secondary" onClick={() => navigate(-1)}> ← Back </button>
+      </div>
       {/* ✅ LIST TABLE */}
       <div className="card mb-4">
         <div className="card-body p-0">
