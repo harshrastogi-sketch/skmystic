@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 function Products() {
 
-  //const BASE_URL = "http://localhost/CodeIgniter/";
-    const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
+  const BASE_URL = "http://localhost/CodeIgniter/";
+  // const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
 
@@ -119,6 +119,7 @@ function Products() {
               <th>Category</th>
               <th>Price</th>
               <th>Discount</th>
+              <th>Availability</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -162,6 +163,8 @@ function Products() {
                     <td>{item.category_name || item.category || "-"}</td>
                     <td>₹{Number(item.price || 0).toLocaleString()}</td>
                     <td>{item.discount || 0}%</td>
+                    <td><span className={`badge ${item.stock_status === "in_stock" ? "bg-success" : "bg-danger"}`}>
+                      {item.stock_status === "in_stock" ? "In Stock" : "Out of Stock"}</span></td>
 
                     {/* STATUS */}
                     <td>
@@ -175,7 +178,7 @@ function Products() {
                       <button className="btn btn-sm btn-warning me-2" onClick={() => navigate(`/admin/edit-product/${item.id}`)}>
                         Edit
                       </button>
-
+                      <button className="btn btn-sm btn-info me-2" onClick={() => navigate(`/admin/add-product-images/${item.id}`)}>Add Images</button>
                       <button className="btn btn-sm btn-danger" onClick={() => handleDelete(item.id)}>
                         Delete
                       </button>

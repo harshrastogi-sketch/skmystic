@@ -31,6 +31,7 @@ import BlogDetails from "./pages/BlogDetails";
 import AdminLayout from "./admin/AdminLayout";
 import AdminDashboard from "./admin/AdminDashboard";
 import AddProduct from "./admin/AddProduct";
+import AddProductImages from "./admin/AddProductImages";
 import Products from "./admin/Products";
 import EditProduct from "./admin/EditProduct";
 import Orders from "./admin/Orders";
@@ -109,6 +110,7 @@ function App() {
         {/* ✅ ADMIN ROUTES */}
         <Route path="/admin/dashboard" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
         <Route path="/admin/add-product" element={<AdminLayout><AddProduct /></AdminLayout>} />
+        <Route path="/admin/add-product-images/:id" element={<AdminLayout><AddProductImages /></AdminLayout>} />
         <Route path="/admin/Products" element={<AdminLayout><Products /></AdminLayout>} />
         <Route path="/admin/edit-product/:id" element={<AdminLayout><EditProduct /></AdminLayout>} />
         <Route path="/admin/orders" element={<AdminLayout><Orders /></AdminLayout>} />
