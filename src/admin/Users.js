@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 
 function Users() {
-  const API_BASE = process.env.REACT_APP_BASE_URL;
-  const IMAGE_BASE = "https://harsh.skmysticastrologer.in/CodeIgniter/uploads/users/";
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
+  const IMAGE_BASE = `${BASE_URL}uploads/users/`;
 
   const [users, setUsers] = useState([]);
 
@@ -10,7 +10,7 @@ function Users() {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(API_BASE + "api/allusers", {
+      const res = await fetch(BASE_URL + "api/allusers", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
