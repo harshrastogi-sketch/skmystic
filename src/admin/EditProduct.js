@@ -7,13 +7,14 @@ function EditProduct() {
   const navigate = useNavigate();
 
   const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
-  // const BASE_URL = "http://localhost/CodeIgniter/";
+   //const BASE_URL = "http://localhost/CodeIgniter/";
 
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const [images, setImages] = useState([]); // new images
-  const [oldImages, setOldImages] = useState([]); // existing images
+  // ✅ unified images
+  const [items, setItems] = useState([]);
+  const [dragIndex, setDragIndex] = useState(null);
   const [deletedImages, setDeletedImages] = useState([]);
 
   const [form, setForm] = useState({
@@ -23,6 +24,7 @@ function EditProduct() {
     price: "",
     discount: "",
     status: "1",
+    stock_status: "in_stock",
   });
 
   useEffect(() => {
@@ -30,7 +32,7 @@ function EditProduct() {
     fetchCategories();
   }, [id]);
 
-  // ✅ FETCH PRODUCT
+  // ================= FETCH PRODUCT =================
   const fetchProduct = async () => {
     try {
       const res = await fetch(`${BASE_URL}products/view/${id}`);
@@ -38,7 +40,7 @@ function EditProduct() {
 
       if (data.status && data.data) {
         const product = data.data;
-
+        
         setForm({
           name: product.name || "",
           description: product.description || "",
@@ -46,9 +48,18 @@ function EditProduct() {
           price: product.price || "",
           discount: product.discount || "",
           status: String(product.status ?? "1"),
+          stock_status: product.stock_status || "in_stock",
         });
 
-        setOldImages(product.images || []);
+        const oldImgs = (product.images || []).map((img, index) => ({
+          id: `old-${img.id}`,
+          dbId: img.id,
+          url: `${BASE_URL}${img.image}`,
+          type: "old",
+          order: index,
+        }));
+
+        setItems(oldImgs);
       } else {
         alert("Product not found");
         navigate("/admin/products");
@@ -58,7 +69,7 @@ function EditProduct() {
     }
   };
 
-  // ✅ FETCH CATEGORIES
+  // ================= FETCH CATEGORIES =================
   const fetchCategories = async () => {
     try {
       const res = await fetch(`${BASE_URL}categories`);
@@ -74,7 +85,7 @@ function EditProduct() {
     }
   };
 
-  // ✅ FORM CHANGE
+  // ================= FORM =================
   const handleChange = (e) => {
     setForm((prev) => ({
       ...prev,
@@ -82,36 +93,71 @@ function EditProduct() {
     }));
   };
 
-  // ✅ ADD NEW IMAGES (append)
+  // ================= ADD NEW IMAGES =================
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    setImages((prev) => [...prev, ...files]);
+
+    const newItems = files.map((file, index) => ({
+      id: `new-${Date.now()}-${index}`,
+      file,
+      url: URL.createObjectURL(file),
+      type: "new",
+      order: items.length + index,
+    }));
+
+    setItems((prev) => [...prev, ...newItems]);
   };
 
-  // ✅ REMOVE NEW IMAGE
-  const handleRemoveNewImage = (index) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
+  // ================= REMOVE IMAGE =================
+  const handleRemove = (item) => {
+    if (item.type === "old") {
+      setDeletedImages((prev) => [...prev, item.dbId]);
+    }
+
+    setItems((prev) => prev.filter((i) => i.id !== item.id));
   };
 
-  // ✅ REMOVE OLD IMAGE
-  const handleRemoveOldImage = (index) => {
-    const img = oldImages[index];
-
-    setDeletedImages((prev) => [...prev, img.id]);
-
-    const updated = [...oldImages];
-    updated.splice(index, 1);
-    setOldImages(updated);
+  // ================= DRAG =================
+  const handleDragStart = (index) => {
+    setDragIndex(index);
   };
 
-  // ✅ CLEANUP (memory safe)
+  const handleDragOver = (e, index) => {
+    e.preventDefault();
+
+    if (dragIndex === null || dragIndex === index) return;
+
+    const updated = [...items];
+
+    const draggedItem = updated[dragIndex];
+    updated.splice(dragIndex, 1);
+    updated.splice(index, 0, draggedItem);
+
+    const reordered = updated.map((item, i) => ({
+      ...item,
+      order: i,
+    }));
+
+    setItems(reordered);
+    setDragIndex(index);
+  };
+
+  const handleDragEnd = () => {
+    setDragIndex(null);
+  };
+
+  // ================= CLEANUP =================
   useEffect(() => {
     return () => {
-      images.forEach((file) => URL.revokeObjectURL(file));
+      items.forEach((item) => {
+        if (item.type === "new") {
+          URL.revokeObjectURL(item.url);
+        }
+      });
     };
-  }, [images]);
+  }, [items]);
 
-  // ✅ SUBMIT
+  // ================= SUBMIT =================
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -126,21 +172,38 @@ function EditProduct() {
       formData.append("price", form.price);
       formData.append("discount", form.discount);
       formData.append("status", form.status);
+      formData.append("stock_status", form.stock_status);
 
       // keep old images
-      oldImages.forEach((img, i) => {
-        formData.append(`old_images[${i}]`, img.id);
-      });
+      items
+        .filter((i) => i.type === "old")
+        .forEach((img, i) => {
+          formData.append(`old_images[${i}]`, img.dbId);
+        });
 
-      // delete images
+      // deleted images
       deletedImages.forEach((id, i) => {
         formData.append(`delete_images[${i}]`, id);
       });
 
       // new images
-      images.forEach((img) => {
-        formData.append("images[]", img);
-      });
+      items
+        .filter((i) => i.type === "new")
+        .forEach((img) => {
+          formData.append("images[]", img.file);
+        });
+
+      // image order
+      formData.append(
+        "image_order",
+        JSON.stringify(
+          items.map((i) => ({
+            id: i.dbId || null,
+            type: i.type,
+            order: i.order,
+          }))
+        )
+      );
 
       const res = await fetch(`${BASE_URL}products/update/${id}`, {
         method: "POST",
@@ -163,6 +226,10 @@ function EditProduct() {
     }
   };
 
+  // ================= SORTED =================
+  const sortedItems = [...items].sort((a, b) => a.order - b.order);
+
+  // ================= UI =================
   return (
     <div className="container mt-5">
       <div className="card shadow">
@@ -245,31 +312,23 @@ function EditProduct() {
                 onChange={handleChange}
               />
             </div>
-
-            {/* EXISTING IMAGES */}
+            {/* AVAILABILITY */}
             <div className="mb-3">
-              <label>Existing Images</label>
-
-              <div className="image-grid">
-                {oldImages.map((img, i) => (
-                  <div key={i} className="image-card">
-                    <img src={`${BASE_URL}${img.image}`} alt="product" />
-
-                    <button
-                      type="button"
-                      className="delete-btn"
-                      onClick={() => handleRemoveOldImage(i)}
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
+              <label>Availability</label>
+              <select
+                name="stock_status"
+                className="form-control"
+                value={form.stock_status}
+                onChange={handleChange}
+              >
+                <option value="in_stock">In Stock</option>
+                <option value="out_of_stock">Out of Stock</option>
+              </select>
             </div>
 
-            {/* NEW IMAGES */}
+            {/* IMAGES (UNIFIED + DRAG) */}
             <div className="mb-3">
-              <label>Add New Images</label>
+              <label>Images (Drag to reorder)</label>
 
               <input
                 type="file"
@@ -278,27 +337,28 @@ function EditProduct() {
                 onChange={handleImageChange}
               />
 
-              {images.length > 0 && (
-                <div className="image-grid">
-                  {images.map((file, i) => {
-                    const previewUrl = URL.createObjectURL(file);
+              <div className="image-grid mt-3">
+                {sortedItems.map((item, index) => (
+                  <div
+                    key={item.id}
+                    className="image-card"
+                    draggable
+                    onDragStart={() => handleDragStart(index)}
+                    onDragOver={(e) => handleDragOver(e, index)}
+                    onDragEnd={handleDragEnd}
+                  >
+                    <img src={item.url} alt="" />
 
-                    return (
-                      <div key={i} className="image-card">
-                        <img src={previewUrl} alt="preview" />
-
-                        <button
-                          type="button"
-                          className="delete-btn"
-                          onClick={() => handleRemoveNewImage(i)}
-                        >
-                          ×
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+                    <button
+                      type="button"
+                      className="delete-btn"
+                      onClick={() => handleRemove(item)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* STATUS */}
