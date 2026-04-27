@@ -127,7 +127,16 @@ const ProductDetails = () => {
             </div>
 
             <p className="availability">
-              Availability: <span>In stock</span>
+              Availability: <span
+                className={`badge ${product.stock_status === "in_stock"
+                    ? "bg-success"
+                    : "bg-danger"
+                  }`}
+              >
+                {product.stock_status === "in_stock"
+                  ? "In Stock"
+                  : "Out of Stock"}
+              </span>
             </p>
 
             <div className="price-wrapper">
@@ -170,7 +179,7 @@ const ProductDetails = () => {
           </div>
         </div>
 
-        
+
 
         {/* RIGHT SIDE INFO */}
         <div className="right-info-section">
