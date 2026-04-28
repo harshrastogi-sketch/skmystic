@@ -109,7 +109,6 @@ function AddBrand() {
             className="form-control"
             value={formData.name}
             onChange={handleChange}
-            required
           />
         </div>
 
