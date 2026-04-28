@@ -190,3 +190,24 @@ input[type="file"] {
   border-bottom: 1px solid #eee;
   font-size: 14px;
 }
+.invoice-btn {
+    background: linear-gradient(135deg, #ff6a00, #ffb347);
+    border: none;
+    color: #fff;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.invoice-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.invoice-btn:active {
+    transform: scale(0.97);
+}
