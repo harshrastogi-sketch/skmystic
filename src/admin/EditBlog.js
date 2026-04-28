@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import AdminLayout from "./AdminLayout";
 
 function EditBlog() {
@@ -32,7 +34,7 @@ function EditBlog() {
 
     const fetchBlog = async (token) => {
         try {
-            const res = await fetch(`https://harsh.skmysticastrologer.in/CodeIgniter/api/blogs/${id}`, {
+            const res = await fetch(`${BASE_URL}api/blogs/${id}`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -113,7 +115,7 @@ function EditBlog() {
                 formData.append("image", blogImage);
             }
 
-            const res = await fetch(`https://harsh.skmysticastrologer.in/CodeIgniter/api/update-blog/${id}`, {
+            const res = await fetch(`${BASE_URL}api/update-blog/${id}`, {
                 method: "POST",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -223,14 +225,15 @@ function EditBlog() {
                             {/* Blog Description FULL WIDTH */}
                             <div className="mb-3 row">
                                 <label className="col-sm-3 col-form-label">Blog Description</label>
+
                                 <div className="col-sm-9">
-                                    <textarea
-                                        className="form-control"
-                                        rows="10"
-                                        value={content}
-                                        onChange={(e) => setContent(e.target.value)}
-                                        placeholder="Enter full blog content"
-                                        style={{ resize: "vertical" }}
+                                    <CKEditor
+                                        editor={ClassicEditor}
+                                        data={content || ""}
+                                        onChange={(event, editor) => {
+                                            const data = editor.getData();
+                                            setContent(data);
+                                        }}
                                     />
                                 </div>
                             </div>

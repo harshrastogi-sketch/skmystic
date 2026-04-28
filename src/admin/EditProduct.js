@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import "./EditProduct.css";
 
 function EditProduct() {
@@ -7,7 +9,6 @@ function EditProduct() {
   const navigate = useNavigate();
 
   const BASE_URL = process.env.REACT_APP_BASE_URL;
-   //const BASE_URL = "http://localhost/CodeIgniter/";
 
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -40,7 +41,7 @@ function EditProduct() {
 
       if (data.status && data.data) {
         const product = data.data;
-        
+
         setForm({
           name: product.name || "",
           description: product.description || "",
@@ -246,26 +247,13 @@ function EditProduct() {
             {/* NAME */}
             <div className="mb-3">
               <label>Product Name</label>
-              <input
-                type="text"
-                name="name"
-                className="form-control"
-                value={form.name}
-                onChange={handleChange}
-                required
-              />
+              <input type="text" name="name" className="form-control" value={form.name} onChange={handleChange} required/>
             </div>
 
             {/* CATEGORY */}
             <div className="mb-3">
               <label>Category</label>
-              <select
-                name="category_id"
-                className="form-control"
-                value={form.category_id}
-                onChange={handleChange}
-                required
-              >
+              <select name="category_id" className="form-control" value={form.category_id} onChange={handleChange} required>
                 <option value="">Select</option>
                 {categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
@@ -278,47 +266,34 @@ function EditProduct() {
             {/* DESCRIPTION */}
             <div className="mb-3">
               <label>Description</label>
-              <textarea
-                name="description"
-                className="form-control"
-                value={form.description}
-                onChange={handleChange}
+              <CKEditor
+                editor={ClassicEditor}
+                data={form.description || ""}
+                onChange={(event, editor) => {
+                  const data = editor.getData();
+
+                  setForm((prev) => ({
+                    ...prev,
+                    description: data,
+                  }));
+                }}
               />
             </div>
-
             {/* PRICE */}
             <div className="mb-3">
               <label>Price</label>
-              <input
-                type="number"
-                name="price"
-                className="form-control"
-                value={form.price}
-                onChange={handleChange}
-                required
-              />
+              <input type="number" name="price" className="form-control" value={form.price} onChange={handleChange} required/>
             </div>
 
             {/* DISCOUNT */}
             <div className="mb-3">
               <label>Discount</label>
-              <input
-                type="number"
-                name="discount"
-                className="form-control"
-                value={form.discount}
-                onChange={handleChange}
-              />
+              <input type="number" name="discount" className="form-control" value={form.discount} onChange={handleChange}/>
             </div>
             {/* AVAILABILITY */}
             <div className="mb-3">
               <label>Availability</label>
-              <select
-                name="stock_status"
-                className="form-control"
-                value={form.stock_status}
-                onChange={handleChange}
-              >
+              <select name="stock_status" className="form-control" value={form.stock_status} onChange={handleChange}>
                 <option value="in_stock">In Stock</option>
                 <option value="out_of_stock">Out of Stock</option>
               </select>
@@ -328,12 +303,7 @@ function EditProduct() {
             <div className="mb-3">
               <label>Images (Drag to reorder)</label>
 
-              <input
-                type="file"
-                multiple
-                className="form-control"
-                onChange={handleImageChange}
-              />
+              <input type="file" multiple className="form-control" onChange={handleImageChange}/>
 
               <div className="image-grid mt-3">
                 {sortedItems.map((item, index) => (
@@ -362,12 +332,7 @@ function EditProduct() {
             {/* STATUS */}
             <div className="mb-3">
               <label>Status</label>
-              <select
-                name="status"
-                className="form-control"
-                value={form.status}
-                onChange={handleChange}
-              >
+              <select name="status" className="form-control" value={form.status} onChange={handleChange}>
                 <option value="1">Active</option>
                 <option value="0">Inactive</option>
               </select>

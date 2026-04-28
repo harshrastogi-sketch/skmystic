@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
 function AddBlog() {
     const navigate = useNavigate();
@@ -107,13 +109,18 @@ function AddBlog() {
 
                 <div className="mb-3">
                     <label className="form-label">Description</label>
-                    <textarea
-                        name="description"
-                        className="form-control"
-                        rows="3"
-                        value={formData.description}
-                        onChange={handleChange}
-                        required
+
+                    <CKEditor
+                        editor={ClassicEditor}
+                        data={formData.description || ""}
+                        onChange={(event, editor) => {
+                            const data = editor.getData();
+
+                            setFormData((prev) => ({
+                                ...prev,
+                                description: data,
+                            }));
+                        }}
                     />
                 </div>
 
