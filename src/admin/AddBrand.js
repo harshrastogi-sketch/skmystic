@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 function AddBrand() {
   const navigate = useNavigate();
   const BASE_URL = process.env.REACT_APP_BASE_URL;
-  
+
   const [formData, setFormData] = useState({
     name: "",
     status: "1",
@@ -39,23 +40,49 @@ function AddBrand() {
     try {
       setLoading(true);
 
+      // 🔥 Loading
+      Swal.fire({
+        title: "Saving brand...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
       const res = await fetch(`${BASE_URL}brands/store`, {
         method: "POST",
         body: data,
       });
 
       const result = await res.json();
+      Swal.close();
+
       console.log("Add brand response:", result);
 
       if (result.status === true) {
-        alert(result.message || "Brand added successfully");
-        navigate("/admin/brand");
+        Swal.fire({
+          icon: "success",
+          title: result.message || "Brand added successfully",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
+        setTimeout(() => {
+          navigate("/admin/brand");
+        }, 1500);
       } else {
-        alert(result.message || "Failed to add brand");
+        Swal.fire({
+          icon: "error",
+          title: result.message || "Failed to add brand",
+        });
       }
     } catch (error) {
       console.log("Add brand error:", error);
-      alert("Error adding brand");
+      Swal.close();
+
+      Swal.fire({
+        icon: "error",
+        title: "Server Error",
+        text: "Error adding brand",
+      });
     } finally {
       setLoading(false);
     }
@@ -85,7 +112,6 @@ function AddBrand() {
             required
           />
         </div>
-
 
         <div className="mb-3">
           <label className="form-label">Status</label>

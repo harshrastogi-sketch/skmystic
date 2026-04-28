@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import Swal from "sweetalert2";
 import "./EditProduct.css";
 
 function EditProduct() {
@@ -13,7 +14,6 @@ function EditProduct() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // ✅ unified images
   const [items, setItems] = useState([]);
   const [dragIndex, setDragIndex] = useState(null);
   const [deletedImages, setDeletedImages] = useState([]);
@@ -62,11 +62,17 @@ function EditProduct() {
 
         setItems(oldImgs);
       } else {
-        alert("Product not found");
-        navigate("/admin/products");
+        Swal.fire({
+          icon: "error",
+          title: "Product not found",
+        }).then(() => navigate("/admin/products"));
       }
     } catch (err) {
-      console.log(err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to load product",
+      });
     }
   };
 
@@ -86,15 +92,11 @@ function EditProduct() {
     }
   };
 
-  // ================= FORM =================
   const handleChange = (e) => {
-    setForm((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  // ================= ADD NEW IMAGES =================
+  // ================= IMAGES =================
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
 
@@ -109,54 +111,31 @@ function EditProduct() {
     setItems((prev) => [...prev, ...newItems]);
   };
 
-  // ================= REMOVE IMAGE =================
   const handleRemove = (item) => {
     if (item.type === "old") {
       setDeletedImages((prev) => [...prev, item.dbId]);
     }
-
     setItems((prev) => prev.filter((i) => i.id !== item.id));
   };
 
   // ================= DRAG =================
-  const handleDragStart = (index) => {
-    setDragIndex(index);
-  };
+  const handleDragStart = (index) => setDragIndex(index);
 
   const handleDragOver = (e, index) => {
     e.preventDefault();
-
     if (dragIndex === null || dragIndex === index) return;
 
     const updated = [...items];
+    const dragged = updated[dragIndex];
 
-    const draggedItem = updated[dragIndex];
     updated.splice(dragIndex, 1);
-    updated.splice(index, 0, draggedItem);
+    updated.splice(index, 0, dragged);
 
-    const reordered = updated.map((item, i) => ({
-      ...item,
-      order: i,
-    }));
-
-    setItems(reordered);
+    setItems(updated.map((i, idx) => ({ ...i, order: idx })));
     setDragIndex(index);
   };
 
-  const handleDragEnd = () => {
-    setDragIndex(null);
-  };
-
-  // ================= CLEANUP =================
-  useEffect(() => {
-    return () => {
-      items.forEach((item) => {
-        if (item.type === "new") {
-          URL.revokeObjectURL(item.url);
-        }
-      });
-    };
-  }, [items]);
+  const handleDragEnd = () => setDragIndex(null);
 
   // ================= SUBMIT =================
   const handleSubmit = async (e) => {
@@ -165,36 +144,34 @@ function EditProduct() {
     try {
       setLoading(true);
 
+      Swal.fire({
+        title: "Updating product...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
       const formData = new FormData();
 
-      formData.append("name", form.name);
-      formData.append("description", form.description);
-      formData.append("category_id", form.category_id);
-      formData.append("price", form.price);
-      formData.append("discount", form.discount);
-      formData.append("status", form.status);
-      formData.append("stock_status", form.stock_status);
+      Object.entries(form).forEach(([k, v]) => {
+        formData.append(k, v);
+      });
 
-      // keep old images
       items
         .filter((i) => i.type === "old")
         .forEach((img, i) => {
           formData.append(`old_images[${i}]`, img.dbId);
         });
 
-      // deleted images
       deletedImages.forEach((id, i) => {
         formData.append(`delete_images[${i}]`, id);
       });
 
-      // new images
       items
         .filter((i) => i.type === "new")
         .forEach((img) => {
           formData.append("images[]", img.file);
         });
 
-      // image order
       formData.append(
         "image_order",
         JSON.stringify(
@@ -212,22 +189,37 @@ function EditProduct() {
       });
 
       const data = await res.json();
+      Swal.close();
 
       if (data.status) {
-        alert("Product updated successfully");
+        await Swal.fire({
+          icon: "success",
+          title: "Updated",
+          text: "Product updated successfully",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
         navigate("/admin/products");
       } else {
-        alert(data.message || "Update failed");
+        Swal.fire({
+          icon: "error",
+          title: "Failed",
+          text: data.message || "Update failed",
+        });
       }
     } catch (err) {
-      console.log(err);
-      alert("Error updating product");
+      Swal.close();
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Something went wrong",
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  // ================= SORTED =================
   const sortedItems = [...items].sort((a, b) => a.order - b.order);
 
   // ================= UI =================
@@ -236,109 +228,65 @@ function EditProduct() {
       <div className="card shadow">
 
         <div className="card-header bg-dark text-white d-flex justify-content-between">
-          <button className="btn btn-light btn-sm" onClick={() => navigate(-1)}> ← Back </button>
+          <button className="btn btn-light btn-sm" onClick={() => navigate(-1)}>
+            ← Back
+          </button>
           <h5>Edit Product</h5>
-          <div></div>
+          <div />
         </div>
 
         <div className="card-body">
           <form onSubmit={handleSubmit}>
 
-            {/* NAME */}
-            <div className="mb-3">
-              <label>Product Name</label>
-              <input type="text" name="name" className="form-control" value={form.name} onChange={handleChange} required/>
+            <input
+              className="form-control mb-2"
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              placeholder="Product Name"
+            />
+
+            <select
+              className="form-control mb-2"
+              name="category_id"
+              value={form.category_id}
+              onChange={handleChange}
+            >
+              <option value="">Select</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+
+            <CKEditor
+              editor={ClassicEditor}
+              data={form.description}
+              onChange={(e, editor) =>
+                setForm((p) => ({ ...p, description: editor.getData() }))
+              }
+            />
+
+            <input className="form-control mb-2" name="price" value={form.price} onChange={handleChange} />
+            <input className="form-control mb-2" name="discount" value={form.discount} onChange={handleChange} />
+
+            <input type="file" multiple className="form-control mb-3" onChange={handleImageChange} />
+
+            <div className="image-grid">
+              {sortedItems.map((item, index) => (
+                <div
+                  key={item.id}
+                  className="image-card"
+                  draggable
+                  onDragStart={() => handleDragStart(index)}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDragEnd={handleDragEnd}
+                >
+                  <img src={item.url} alt="" />
+                  <button type="button" onClick={() => handleRemove(item)}>×</button>
+                </div>
+              ))}
             </div>
 
-            {/* CATEGORY */}
-            <div className="mb-3">
-              <label>Category</label>
-              <select name="category_id" className="form-control" value={form.category_id} onChange={handleChange} required>
-                <option value="">Select</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* DESCRIPTION */}
-            <div className="mb-3">
-              <label>Description</label>
-              <CKEditor
-                editor={ClassicEditor}
-                data={form.description || ""}
-                onChange={(event, editor) => {
-                  const data = editor.getData();
-
-                  setForm((prev) => ({
-                    ...prev,
-                    description: data,
-                  }));
-                }}
-              />
-            </div>
-            {/* PRICE */}
-            <div className="mb-3">
-              <label>Price</label>
-              <input type="number" name="price" className="form-control" value={form.price} onChange={handleChange} required/>
-            </div>
-
-            {/* DISCOUNT */}
-            <div className="mb-3">
-              <label>Discount</label>
-              <input type="number" name="discount" className="form-control" value={form.discount} onChange={handleChange}/>
-            </div>
-            {/* AVAILABILITY */}
-            <div className="mb-3">
-              <label>Availability</label>
-              <select name="stock_status" className="form-control" value={form.stock_status} onChange={handleChange}>
-                <option value="in_stock">In Stock</option>
-                <option value="out_of_stock">Out of Stock</option>
-              </select>
-            </div>
-
-            {/* IMAGES (UNIFIED + DRAG) */}
-            <div className="mb-3">
-              <label>Images (Drag to reorder)</label>
-
-              <input type="file" multiple className="form-control" onChange={handleImageChange}/>
-
-              <div className="image-grid mt-3">
-                {sortedItems.map((item, index) => (
-                  <div
-                    key={item.id}
-                    className="image-card"
-                    draggable
-                    onDragStart={() => handleDragStart(index)}
-                    onDragOver={(e) => handleDragOver(e, index)}
-                    onDragEnd={handleDragEnd}
-                  >
-                    <img src={item.url} alt="" />
-
-                    <button
-                      type="button"
-                      className="delete-btn"
-                      onClick={() => handleRemove(item)}
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* STATUS */}
-            <div className="mb-3">
-              <label>Status</label>
-              <select name="status" className="form-control" value={form.status} onChange={handleChange}>
-                <option value="1">Active</option>
-                <option value="0">Inactive</option>
-              </select>
-            </div>
-
-            {/* SUBMIT */}
             <div className="text-end">
               <button className="btn btn-success" disabled={loading}>
                 {loading ? "Updating..." : "Update Product"}

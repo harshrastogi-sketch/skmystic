@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 
 function AddProductImages() {
   const { id } = useParams();
   const navigate = useNavigate();
-  
-    const BASE_URL = process.env.REACT_APP_BASE_URL;
+
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   const [images, setImages] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
 
-  // Fetch images
+  // ✅ Fetch images
   const fetchImages = async () => {
     try {
       const res = await fetch(`${BASE_URL}products/get_images/${id}`);
@@ -18,9 +19,17 @@ function AddProductImages() {
 
       if (data.status) {
         setImages(data.data || []);
+      } else {
+        setImages([]);
       }
     } catch (err) {
       console.log("Fetch images error:", err);
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to fetch images",
+      });
     }
   };
 
@@ -28,15 +37,19 @@ function AddProductImages() {
     fetchImages();
   }, []);
 
-  // File select
+  // ✅ File select
   const handleChange = (e) => {
     setSelectedFiles(e.target.files);
   };
 
-  // Upload
+  // ✅ Upload Images
   const handleUpload = async () => {
     if (!selectedFiles.length) {
-      alert("Please select images");
+      Swal.fire({
+        icon: "warning",
+        title: "No Files Selected",
+        text: "Please select images to upload",
+      });
       return;
     }
 
@@ -49,45 +62,101 @@ function AddProductImages() {
     formData.append("product_id", id);
 
     try {
+      // 🔥 Loading
+      Swal.fire({
+        title: "Uploading...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
       const res = await fetch(`${BASE_URL}products/upload_images`, {
         method: "POST",
         body: formData,
       });
 
       const data = await res.json();
+      Swal.close();
 
       if (data.status) {
-        alert("Images uploaded successfully");
+        Swal.fire({
+          icon: "success",
+          title: "Images uploaded successfully",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
         setSelectedFiles([]);
         fetchImages();
       } else {
-        alert(data.message || "Upload failed");
+        Swal.fire({
+          icon: "error",
+          title: data.message || "Upload failed",
+        });
       }
     } catch (err) {
       console.log(err);
-      alert("Error uploading images");
+      Swal.close();
+
+      Swal.fire({
+        icon: "error",
+        title: "Error uploading images",
+      });
     }
   };
 
-  // Delete
+  // ✅ Delete Image
   const handleDelete = async (imageId) => {
-    if (!window.confirm("Delete this image?")) return;
+    const result = await Swal.fire({
+      title: "Delete Image?",
+      text: "This action cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, Delete",
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
+      // 🔥 Loading
+      Swal.fire({
+        title: "Deleting...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
       const res = await fetch(
         `${BASE_URL}products/delete_image/${imageId}`,
         { method: "POST" }
       );
 
       const data = await res.json();
+      Swal.close();
 
       if (data.status) {
+        Swal.fire({
+          icon: "success",
+          title: "Image deleted successfully",
+          timer: 1200,
+          showConfirmButton: false,
+        });
+
         fetchImages();
       } else {
-        alert("Delete failed");
+        Swal.fire({
+          icon: "error",
+          title: "Delete failed",
+        });
       }
     } catch (err) {
       console.log(err);
+      Swal.close();
+
+      Swal.fire({
+        icon: "error",
+        title: "Error deleting image",
+      });
     }
   };
 
@@ -96,10 +165,17 @@ function AddProductImages() {
       <h5 className="mb-3">
         <b>PRODUCT IMAGES OF PRODUCT #{id}</b>
       </h5>
+
       <div className="d-flex justify-content-end mb-3">
-        <button className="btn btn-secondary" onClick={() => navigate(-1)}> ← Back </button>
+        <button
+          className="btn btn-secondary"
+          onClick={() => navigate(-1)}
+        >
+          ← Back
+        </button>
       </div>
-      {/* ✅ LIST TABLE */}
+
+      {/* ✅ IMAGE LIST */}
       <div className="card mb-4">
         <div className="card-body p-0">
           <table className="table table-bordered align-middle mb-0">
@@ -107,7 +183,6 @@ function AddProductImages() {
               <tr>
                 <th style={{ width: "60px" }}>#</th>
                 <th style={{ width: "120px" }}>Image</th>
-
                 <th style={{ width: "120px" }}>Action</th>
               </tr>
             </thead>
@@ -118,7 +193,6 @@ function AddProductImages() {
                   <tr key={img.id}>
                     <td>{index + 1}</td>
 
-                    {/* IMAGE */}
                     <td>
                       <img
                         src={`${BASE_URL}${img.image}`}
@@ -133,9 +207,6 @@ function AddProductImages() {
                       />
                     </td>
 
-
-
-                    {/* ACTION */}
                     <td>
                       <button
                         className="btn btn-danger btn-sm"
@@ -148,7 +219,7 @@ function AddProductImages() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" className="text-center">
+                  <td colSpan="3" className="text-center">
                     No Images Found
                   </td>
                 </tr>
@@ -158,7 +229,7 @@ function AddProductImages() {
         </div>
       </div>
 
-      {/* UPLOAD */}
+      {/* ✅ UPLOAD */}
       <div className="card">
         <div className="card-header bg-light">
           <b>➕ Add Product Images</b>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 
 function EditCategory() {
   const navigate = useNavigate();
@@ -18,21 +19,26 @@ function EditCategory() {
     try {
       const res = await fetch(`${BASE_URL}categories/view/${id}`);
       const result = await res.json();
-      console.log("View category response:", result);
 
-      if (result.status === true && result.data) {
+      if (result.status && result.data) {
         setFormData({
           name: result.data.name || "",
           status: String(result.data.status ?? "1"),
         });
         setOldImage(result.data.image || "");
       } else {
-        alert(result.message || "Category not found");
-        navigate("/admin/category");
+        Swal.fire({
+          icon: "error",
+          title: "Not Found",
+          text: result.message || "Category not found",
+        }).then(() => navigate("/admin/category"));
       }
     } catch (error) {
-      console.log("Fetch category error:", error);
-      alert("Error fetching category");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Error fetching category",
+      });
     }
   };
 
@@ -42,14 +48,7 @@ function EditCategory() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleImageChange = (e) => {
-    setImage(e.target.files[0]);
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -58,13 +57,16 @@ function EditCategory() {
     const data = new FormData();
     data.append("name", formData.name);
     data.append("status", formData.status);
-
-    if (image) {
-      data.append("image", image);
-    }
+    if (image) data.append("image", image);
 
     try {
       setLoading(true);
+
+      Swal.fire({
+        title: "Updating...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
 
       const res = await fetch(`${BASE_URL}categories/update/${id}`, {
         method: "POST",
@@ -72,17 +74,32 @@ function EditCategory() {
       });
 
       const result = await res.json();
-      console.log("Update category response:", result);
+      Swal.close();
 
-      if (result.status === true) {
-        alert(result.message || "Category updated successfully");
+      if (result.status) {
+        await Swal.fire({
+          icon: "success",
+          title: "Updated",
+          text: result.message || "Category updated successfully",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
         navigate("/admin/category");
       } else {
-        alert(result.message || "Failed to update category");
+        Swal.fire({
+          icon: "error",
+          title: "Failed",
+          text: result.message || "Update failed",
+        });
       }
     } catch (error) {
-      console.log("Update category error:", error);
-      alert("Error updating category");
+      Swal.close();
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Error updating category",
+      });
     } finally {
       setLoading(false);
     }
@@ -145,7 +162,7 @@ function EditCategory() {
             type="file"
             className="form-control"
             accept="image/*"
-            onChange={handleImageChange}
+            onChange={(e) => setImage(e.target.files[0])}
           />
         </div>
 

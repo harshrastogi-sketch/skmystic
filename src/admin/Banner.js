@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DataTable from "react-data-table-component";
 import "bootstrap/dist/css/bootstrap.min.css";
+import Swal from "sweetalert2";
 
 function Banner() {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ function Banner() {
 
   const fetchBanners = async (token) => {
     try {
-      const res = await fetch("https://harsh.skmysticastrologer.in/CodeIgniter/api/banner", {
+      const res = await fetch(`${BASE_URL}api/banner`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -42,37 +43,57 @@ function Banner() {
       }
     } catch (error) {
       console.log("Banner fetch error:", error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to fetch banners",
+      });
     }
   };
 
   const getImageUrl = (imagePath) => {
     if (!imagePath) return "";
 
-    if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+    if (
+      imagePath.startsWith("http://") ||
+      imagePath.startsWith("https://")
+    ) {
       return imagePath;
     }
 
     return `${BASE_URL}${imagePath}`;
   };
 
+  // ✅ TOGGLE STATUS (SWEETALERT)
   const handleToggleStatus = async (id, currentStatus) => {
-    const isCurrentlyActive =
+    const isActive =
       String(currentStatus) === "1" || currentStatus === "Active";
 
-    const confirmChange = window.confirm(
-      isCurrentlyActive
-        ? "Are you sure you want to deactivate this banner?"
-        : "Are you sure you want to activate this banner?"
-    );
+    const result = await Swal.fire({
+      title: isActive ? "Deactivate Banner?" : "Activate Banner?",
+      text: "Are you sure you want to change status?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+    });
 
-    if (!confirmChange) return;
+    if (!result.isConfirmed) return;
 
     try {
       const token = localStorage.getItem("token");
-      const newStatus = isCurrentlyActive ? 0 : 1;
+      const newStatus = isActive ? 0 : 1;
+
+      Swal.fire({
+        title: "Updating...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
 
       const res = await fetch(
-        `https://harsh.skmysticastrologer.in/CodeIgniter/api/banner-status/${id}`,
+        `${BASE_URL}api/banner-status/${id}`,
         {
           method: "PUT",
           headers: {
@@ -84,33 +105,62 @@ function Banner() {
       );
 
       const data = await res.json();
+      Swal.close();
 
       if (data.status) {
-        alert(
-          newStatus === 1
-            ? "Banner activated successfully"
-            : "Banner deactivated successfully"
-        );
+        Swal.fire({
+          icon: "success",
+          title:
+            newStatus === 1
+              ? "Banner activated successfully"
+              : "Banner deactivated successfully",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
         fetchBanners(token);
       } else {
-        alert(data.message || "Status update failed");
+        Swal.fire({
+          icon: "error",
+          title: data.message || "Status update failed",
+        });
       }
     } catch (error) {
       console.log("Status update error:", error);
+      Swal.close();
+
+      Swal.fire({
+        icon: "error",
+        title: "Error updating banner status",
+      });
     }
   };
 
+  // ✅ DELETE (SWEETALERT)
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this banner?"
-    );
-    if (!confirmDelete) return;
+    const result = await Swal.fire({
+      title: "Delete Banner?",
+      text: "This action cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, Delete",
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       const token = localStorage.getItem("token");
 
+      Swal.fire({
+        title: "Deleting...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
       const res = await fetch(
-        `https://harsh.skmysticastrologer.in/CodeIgniter/api/delete-banner/${id}`,
+        `${BASE_URL}api/delete-banner/${id}`,
         {
           method: "DELETE",
           headers: {
@@ -121,15 +171,31 @@ function Banner() {
       );
 
       const data = await res.json();
+      Swal.close();
 
       if (data.status) {
-        alert("Banner deleted successfully");
+        Swal.fire({
+          icon: "success",
+          title: "Banner deleted successfully",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
         fetchBanners(token);
       } else {
-        alert(data.message || "Delete failed");
+        Swal.fire({
+          icon: "error",
+          title: data.message || "Delete failed",
+        });
       }
     } catch (error) {
       console.log("Delete error:", error);
+      Swal.close();
+
+      Swal.fire({
+        icon: "error",
+        title: "Error deleting banner",
+      });
     }
   };
 
@@ -167,7 +233,6 @@ function Banner() {
 
         return (
           <button
-            type="button"
             className={`btn btn-sm ${
               isActive ? "btn-success" : "btn-secondary"
             }`}
@@ -177,7 +242,6 @@ function Banner() {
           </button>
         );
       },
-      sortable: false,
     },
     {
       name: "Action",
@@ -205,22 +269,6 @@ function Banner() {
   const filteredData = banners.filter((item) =>
     (item.title || "").toLowerCase().includes(filterText.toLowerCase())
   );
-
-  const customStyles = {
-    headCells: {
-      style: {
-        fontSize: "15px",
-        fontWeight: "bold",
-        backgroundColor: "#212529",
-        color: "#fff",
-      },
-    },
-    rows: {
-      style: {
-        minHeight: "72px",
-      },
-    },
-  };
 
   return (
     <div className="d-flex flex-column min-vh-100 bg-light">
@@ -256,7 +304,6 @@ function Banner() {
               highlightOnHover
               striped
               responsive
-              customStyles={customStyles}
               noDataComponent="No banners found"
             />
           </div>

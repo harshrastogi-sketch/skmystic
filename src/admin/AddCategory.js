@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 function AddCategory() {
   const navigate = useNavigate();
@@ -38,23 +39,49 @@ function AddCategory() {
     try {
       setLoading(true);
 
+      // 🔥 Loading
+      Swal.fire({
+        title: "Saving category...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
       const res = await fetch(`${BASE_URL}categories/store`, {
         method: "POST",
         body: data,
       });
 
       const result = await res.json();
+      Swal.close();
+
       console.log("Add category response:", result);
 
       if (result.status === true) {
-        alert(result.message || "Category added successfully");
-        navigate("/admin/category");
+        Swal.fire({
+          icon: "success",
+          title: result.message || "Category added successfully",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
+        setTimeout(() => {
+          navigate("/admin/category");
+        }, 1500);
       } else {
-        alert(result.message || "Failed to add category");
+        Swal.fire({
+          icon: "error",
+          title: result.message || "Failed to add category",
+        });
       }
     } catch (error) {
       console.log("Add category error:", error);
-      alert("Error adding category");
+      Swal.close();
+
+      Swal.fire({
+        icon: "error",
+        title: "Server Error",
+        text: "Error adding category",
+      });
     } finally {
       setLoading(false);
     }

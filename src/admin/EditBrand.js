@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 
 function EditBrand() {
   const navigate = useNavigate();
   const BASE_URL = process.env.REACT_APP_BASE_URL;
-
   const { id } = useParams();
 
   const [formData, setFormData] = useState({
@@ -20,7 +20,6 @@ function EditBrand() {
     try {
       const res = await fetch(`${BASE_URL}brands/view/${id}`);
       const result = await res.json();
-      console.log("View brand response:", result);
 
       if (result.status === true && result.data) {
         setFormData({
@@ -29,12 +28,21 @@ function EditBrand() {
         });
         setOldImage(result.data.image || "");
       } else {
-        alert(result.message || "Brand not found");
+        Swal.fire({
+          icon: "error",
+          title: "Not Found",
+          text: result.message || "Brand not found",
+        });
         navigate("/admin/brand");
       }
     } catch (error) {
       console.log("Fetch brand error:", error);
-      alert("Error fetching brand");
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Error fetching brand",
+      });
     }
   };
 
@@ -44,6 +52,7 @@ function EditBrand() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -57,35 +66,66 @@ function EditBrand() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const data = new FormData();
-    data.append("name", formData.name);
-    data.append("status", formData.status);
-
-    if (image) {
-      data.append("image", image);
+    if (!formData.name.trim()) {
+      Swal.fire({
+        icon: "warning",
+        title: "Validation",
+        text: "Brand name is required",
+      });
+      return;
     }
 
     try {
       setLoading(true);
 
+      const data = new FormData();
+      data.append("name", formData.name);
+      data.append("status", formData.status);
+
+      if (image) {
+        data.append("image", image);
+      }
+
+      Swal.fire({
+        title: "Updating brand...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
       const res = await fetch(`${BASE_URL}brands/update/${id}`, {
-          method: "POST",
-          body: data,
-        }
-      );
+        method: "POST",
+        body: data,
+      });
 
       const result = await res.json();
-      console.log("Update brand response:", result);
+      Swal.close();
 
       if (result.status === true) {
-        alert(result.message || "Brand updated successfully");
+        Swal.fire({
+          icon: "success",
+          title: "Updated",
+          text: result.message || "Brand updated successfully",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
         navigate("/admin/brand");
       } else {
-        alert(result.message || "Failed to update brand");
+        Swal.fire({
+          icon: "error",
+          title: "Update Failed",
+          text: result.message || "Failed to update brand",
+        });
       }
     } catch (error) {
       console.log("Update brand error:", error);
-      alert("Error updating brand");
+      Swal.close();
+
+      Swal.fire({
+        icon: "error",
+        title: "Server Error",
+        text: "Error updating brand",
+      });
     } finally {
       setLoading(false);
     }

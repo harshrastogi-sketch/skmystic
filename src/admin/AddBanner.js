@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import Swal from "sweetalert2";
 
 function AddBanner() {
   const navigate = useNavigate();
   const BASE_URL = process.env.REACT_APP_BASE_URL;
+
   const [title, setTitle] = useState("");
   const [bannerImage, setBannerImage] = useState(null);
   const [preview, setPreview] = useState("");
@@ -34,18 +36,32 @@ function AddBanner() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // ✅ Validation
     if (!title.trim()) {
-      alert("Title is required");
-      return;
+      return Swal.fire({
+        icon: "warning",
+        title: "Validation Error",
+        text: "Title is required",
+      });
     }
 
     if (!bannerImage) {
-      alert("Banner image is required");
-      return;
+      return Swal.fire({
+        icon: "warning",
+        title: "Validation Error",
+        text: "Banner image is required",
+      });
     }
 
     try {
       setLoading(true);
+
+      Swal.fire({
+        title: "Saving banner...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
       const token = localStorage.getItem("token");
 
       const formData = new FormData();
@@ -61,16 +77,34 @@ function AddBanner() {
       });
 
       const data = await res.json();
+      Swal.close();
 
       if (data.status) {
-        alert("Banner added successfully");
-        navigate("/admin/banner");
+        Swal.fire({
+          icon: "success",
+          title: "Banner added successfully",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
+        setTimeout(() => {
+          navigate("/admin/banner");
+        }, 1500);
       } else {
-        alert(data.message || "Add banner failed");
+        Swal.fire({
+          icon: "error",
+          title: data.message || "Add banner failed",
+        });
       }
     } catch (error) {
       console.log("Add banner error:", error);
-      alert("Something went wrong while adding banner");
+      Swal.close();
+
+      Swal.fire({
+        icon: "error",
+        title: "Server Error",
+        text: "Something went wrong while adding banner",
+      });
     } finally {
       setLoading(false);
     }

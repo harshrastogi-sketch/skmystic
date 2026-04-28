@@ -70,7 +70,7 @@ const Footer = () => {
             <ul>
               {categories.slice(0, 5).map((cat) => (
                 <li key={cat.id}>
-                  <Link to={`/collection?category=${cat.slug || cat.name}`} className="text-white text-decoration-none">
+                  <Link to={`/collection?category=${cat.slug || cat.name}`} onClick={() => window.scrollTo(0, 0)} className="text-white text-decoration-none">
                     {cat.name}
                   </Link>
                 </li>
@@ -82,9 +82,9 @@ const Footer = () => {
           <div className="footer-col">
             <h4>Quick Link</h4>
             <ul>
-              <li><Link to="/privacy-policy"  className="text-white text-decoration-none">Privacy Policy</Link></li>
-              <li><Link to="/terms" className="text-white text-decoration-none">Terms & Conditions</Link></li>
-              <li><Link to="/shipping" className="text-white text-decoration-none">Shipping / Delivery Policy</Link></li>
+              <li><Link to="/privacy-policy"  onClick={() => window.scrollTo(0, 0)} className="text-white text-decoration-none">Privacy Policy</Link></li>
+              <li><Link to="/terms" onClick={() => window.scrollTo(0, 0)} className="text-white text-decoration-none">Terms & Conditions</Link></li>
+              <li><Link to="/shipping" onClick={() => window.scrollTo(0, 0)} className="text-white text-decoration-none">Shipping / Delivery Policy</Link></li>
             </ul>
           </div>
 
@@ -92,10 +92,10 @@ const Footer = () => {
           <div className="footer-col">
             <h4>Helpful Link</h4>
             <ul>
-              <li><Link to="/about" className="text-white text-decoration-none" >About Us</Link></li>
-              <li><Link to="/contact" className="text-white text-decoration-none" >Contact Us</Link></li>
-              <li><Link to="/faq" className="text-white text-decoration-none" >Faq's</Link></li>
-              <li><Link to="/blogs" className="text-white text-decoration-none" >Blog</Link></li>
+              <li><Link to="/about" onClick={() => window.scrollTo(0, 0)} className="text-white text-decoration-none" >About Us</Link></li>
+              <li><Link to="/contact" onClick={() => window.scrollTo(0, 0)} className="text-white text-decoration-none" >Contact Us</Link></li>
+              <li><Link to="/faq" onClick={() => window.scrollTo(0, 0)} className="text-white text-decoration-none" >Faq's</Link></li>
+              <li><Link to="/blogs" onClick={() => window.scrollTo(0, 0)} className="text-white text-decoration-none" >Blog</Link></li>
             </ul>
           </div>
 

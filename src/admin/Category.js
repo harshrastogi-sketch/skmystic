@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { apiRequest } from "../api";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 function Category() {
   const [categories, setCategories] = useState([]);
@@ -14,6 +15,12 @@ function Category() {
       setCategories(res.data || []);
     } catch (err) {
       console.log("Fetch categories error:", err);
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to fetch categories",
+      });
     }
   };
 
@@ -21,21 +28,36 @@ function Category() {
     fetchCategories();
   }, []);
 
+  // ✅ TOGGLE STATUS (SWEETALERT)
   const handleToggleStatus = async (id, currentStatus) => {
     const isActive = String(currentStatus) === "1";
 
-    const confirmChange = window.confirm(
-      isActive
-        ? "Are you sure you want to deactivate this category?"
-        : "Are you sure you want to activate this category?"
-    );
+    const result = await Swal.fire({
+      title: isActive
+        ? "Deactivate Category?"
+        : "Activate Category?",
+      text: "Are you sure?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+    });
 
-    if (!confirmChange) return;
+    if (!result.isConfirmed) return;
 
     try {
       const newStatus = isActive ? 0 : 1;
 
-      const res = await fetch(`${BASE_URL}categories/update_status/${id}`, {
+      Swal.fire({
+        title: "Updating...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      const res = await fetch(
+        `${BASE_URL}categories/update_status/${id}`,
+        {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -45,10 +67,15 @@ function Category() {
       );
 
       const data = await res.json();
-      console.log("Toggle status response:", data);
+      Swal.close();
 
       if (data.status === true) {
-        alert(data.message || "Category status updated successfully");
+        Swal.fire({
+          icon: "success",
+          title: data.message || "Status updated",
+          timer: 1500,
+          showConfirmButton: false,
+        });
 
         setCategories((prev) =>
           prev.map((item) =>
@@ -58,38 +85,78 @@ function Category() {
           )
         );
       } else {
-        alert(data.message || "Failed to update category status");
+        Swal.fire({
+          icon: "error",
+          title: data.message || "Failed to update status",
+        });
       }
     } catch (err) {
       console.log("Toggle category status error:", err);
-      alert("Error updating category status");
+      Swal.close();
+
+      Swal.fire({
+        icon: "error",
+        title: "Error updating category status",
+      });
     }
   };
 
+  // ✅ DELETE (SWEETALERT)
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this category?")) return;
+    const result = await Swal.fire({
+      title: "Delete Category?",
+      text: "This action cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, Delete",
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
-      const res = await fetch(`${BASE_URL}categories/delete/${id}`, {
+      Swal.fire({
+        title: "Deleting...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      const res = await fetch(
+        `${BASE_URL}categories/delete/${id}`,
+        {
           method: "POST",
         }
       );
 
       const data = await res.json();
-      console.log("Delete response:", data);
+      Swal.close();
 
       if (data.status === true) {
-        alert(data.message || "Category deleted successfully");
+        Swal.fire({
+          icon: "success",
+          title: data.message || "Deleted successfully",
+          timer: 1500,
+          showConfirmButton: false,
+        });
 
         setCategories((prev) =>
           prev.filter((item) => String(item.id) !== String(id))
         );
       } else {
-        alert(data.message || "Delete failed");
+        Swal.fire({
+          icon: "error",
+          title: data.message || "Delete failed",
+        });
       }
     } catch (err) {
       console.log("Delete category error:", err);
-      alert("Error deleting category");
+      Swal.close();
+
+      Swal.fire({
+        icon: "error",
+        title: "Error deleting category",
+      });
     }
   };
 
@@ -133,7 +200,10 @@ function Category() {
                         alt={item.name}
                         width="70"
                         height="50"
-                        style={{ objectFit: "cover", borderRadius: "4px" }}
+                        style={{
+                          objectFit: "cover",
+                          borderRadius: "4px",
+                        }}
                       />
                     </td>
 
@@ -145,7 +215,9 @@ function Category() {
                         className={`btn btn-sm ${
                           isActive ? "btn-success" : "btn-secondary"
                         }`}
-                        onClick={() => handleToggleStatus(item.id, item.status)}
+                        onClick={() =>
+                          handleToggleStatus(item.id, item.status)
+                        }
                       >
                         {isActive ? "Active" : "Inactive"}
                       </button>
@@ -154,7 +226,9 @@ function Category() {
                     <td>
                       <button
                         className="btn btn-sm btn-warning me-2"
-                        onClick={() => navigate(`/admin/edit-category/${item.id}`)}
+                        onClick={() =>
+                          navigate(`/admin/edit-category/${item.id}`)
+                        }
                       >
                         Edit
                       </button>

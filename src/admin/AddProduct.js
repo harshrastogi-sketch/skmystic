@@ -3,17 +3,16 @@ import { apiRequest } from "../api";
 import { useNavigate } from "react-router-dom";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import Swal from "sweetalert2";
 import "./EditProduct.css";
 
 function AddProduct() {
-   const BASE_URL = process.env.REACT_APP_BASE_URL;
-   
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
   const navigate = useNavigate();
 
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // IMAGES WITH ORDER
   const [images, setImages] = useState([]);
   const [dragIndex, setDragIndex] = useState(null);
 
@@ -27,7 +26,7 @@ function AddProduct() {
     stock_status: "in_stock",
   });
 
-  // FETCH CATEGORIES
+  // ✅ FETCH CATEGORIES
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -40,13 +39,18 @@ function AddProduct() {
         setCategories(active);
       } catch (err) {
         console.log("Category fetch error:", err);
+
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to load categories",
+        });
       }
     };
 
     fetchCategories();
   }, []);
 
-  // FORM CHANGE
   const handleChange = (e) => {
     setForm((prev) => ({
       ...prev,
@@ -54,7 +58,7 @@ function AddProduct() {
     }));
   };
 
-  // ADD IMAGES WITH ORDER
+  // ✅ IMAGE HANDLING
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
 
@@ -68,29 +72,25 @@ function AddProduct() {
     setImages((prev) => [...prev, ...newImages]);
   };
 
-  // REMOVE IMAGE
   const handleRemoveImage = (id) => {
     setImages((prev) => prev.filter((img) => img.id !== id));
   };
 
-  // DRAG START
   const handleDragStart = (index) => {
     setDragIndex(index);
   };
 
-  // DRAG OVER
   const handleDragOver = (e, index) => {
     e.preventDefault();
 
     if (dragIndex === null || dragIndex === index) return;
 
     const updated = [...images];
-
     const draggedItem = updated[dragIndex];
+
     updated.splice(dragIndex, 1);
     updated.splice(index, 0, draggedItem);
 
-    // update order
     const reordered = updated.map((img, i) => ({
       ...img,
       order: i,
@@ -100,19 +100,17 @@ function AddProduct() {
     setDragIndex(index);
   };
 
-  // DRAG END
   const handleDragEnd = () => {
     setDragIndex(null);
   };
 
-  // CLEANUP MEMORY
   useEffect(() => {
     return () => {
       images.forEach((img) => URL.revokeObjectURL(img.preview));
     };
   }, [images]);
 
-  // SUBMIT
+  // ✅ SUBMIT PRODUCT
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -128,10 +126,16 @@ function AddProduct() {
       formData.append("status", form.status);
       formData.append("stock_status", form.stock_status);
 
-      // send images in order
       images.forEach((img) => {
         formData.append("images[]", img.file);
         formData.append("image_order[]", img.order);
+      });
+
+      // 🔥 loading popup
+      Swal.fire({
+        title: "Saving product...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
       });
 
       const res = await fetch(`${BASE_URL}/products/store`, {
@@ -140,16 +144,34 @@ function AddProduct() {
       });
 
       const data = await res.json();
+      Swal.close();
 
       if (data.status) {
-        alert("Product added successfully");
-        navigate("/admin/products");
+        Swal.fire({
+          icon: "success",
+          title: "Product added successfully",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
+        setTimeout(() => {
+          navigate("/admin/products");
+        }, 1500);
       } else {
-        alert(data.message || "Failed to add product");
+        Swal.fire({
+          icon: "error",
+          title: data.message || "Failed to add product",
+        });
       }
     } catch (err) {
       console.log(err);
-      alert("Error adding product");
+      Swal.close();
+
+      Swal.fire({
+        icon: "error",
+        title: "Server Error",
+        text: "Error adding product",
+      });
     } finally {
       setLoading(false);
     }
@@ -160,7 +182,13 @@ function AddProduct() {
       <div className="card shadow">
 
         <div className="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-          <button type="button" className="btn btn-light btn-sm" onClick={() => navigate(-1)}>← Back</button>
+          <button
+            type="button"
+            className="btn btn-light btn-sm"
+            onClick={() => navigate(-1)}
+          >
+            ← Back
+          </button>
           <h5 className="mb-0">Add Product</h5>
           <div></div>
         </div>
@@ -172,7 +200,14 @@ function AddProduct() {
             <div className="row mb-3">
               <label className="col-sm-3 col-form-label">Product Name</label>
               <div className="col-sm-9">
-                <input type="text" name="name" className="form-control" value={form.name} onChange={handleChange} required />
+                <input
+                  type="text"
+                  name="name"
+                  className="form-control"
+                  value={form.name}
+                  onChange={handleChange}
+                  required
+                />
               </div>
             </div>
 
@@ -180,10 +215,18 @@ function AddProduct() {
             <div className="row mb-3">
               <label className="col-sm-3 col-form-label">Category</label>
               <div className="col-sm-9">
-                <select name="category_id" className="form-control" value={form.category_id} onChange={handleChange} required>
+                <select
+                  name="category_id"
+                  className="form-control"
+                  value={form.category_id}
+                  onChange={handleChange}
+                  required
+                >
                   <option value="">Select Category</option>
                   {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -196,12 +239,8 @@ function AddProduct() {
                 <CKEditor
                   editor={ClassicEditor}
                   data={form.description || ""}
-                  onReady={(editor) => {
-                    console.log("Editor is ready", editor);
-                  }}
                   onChange={(event, editor) => {
                     const data = editor.getData();
-
                     setForm((prev) => ({
                       ...prev,
                       description: data,
@@ -215,7 +254,14 @@ function AddProduct() {
             <div className="row mb-3">
               <label className="col-sm-3 col-form-label">Price</label>
               <div className="col-sm-9">
-                <input type="number" name="price" className="form-control" value={form.price} onChange={handleChange} required />
+                <input
+                  type="number"
+                  name="price"
+                  className="form-control"
+                  value={form.price}
+                  onChange={handleChange}
+                  required
+                />
               </div>
             </div>
 
@@ -223,26 +269,43 @@ function AddProduct() {
             <div className="row mb-3">
               <label className="col-sm-3 col-form-label">Discount (%)</label>
               <div className="col-sm-9">
-                <input type="number" name="discount" className="form-control" value={form.discount} onChange={handleChange} />
+                <input
+                  type="number"
+                  name="discount"
+                  className="form-control"
+                  value={form.discount}
+                  onChange={handleChange}
+                />
               </div>
             </div>
 
+            {/* STOCK */}
             <div className="row mb-3">
               <label className="col-sm-3 col-form-label">Availability</label>
               <div className="col-sm-9">
-                <select name="stock_status" className="form-control" value={form.stock_status} onChange={handleChange} >
+                <select
+                  name="stock_status"
+                  className="form-control"
+                  value={form.stock_status}
+                  onChange={handleChange}
+                >
                   <option value="in_stock">In Stock</option>
                   <option value="out_of_stock">Out of Stock</option>
                 </select>
               </div>
             </div>
 
-
-            {/* IMAGE UPLOAD + DRAG DROP */}
+            {/* IMAGES */}
             <div className="row mb-3">
-              <label className="col-sm-3 col-form-label">Product Images</label>
+              <label className="col-sm-3 col-form-label">Images</label>
               <div className="col-sm-9">
-                <input type="file" multiple className="form-control" onChange={handleImageChange} required />
+                <input
+                  type="file"
+                  multiple
+                  className="form-control"
+                  onChange={handleImageChange}
+                  required
+                />
 
                 {images.length > 0 && (
                   <div className="image-grid">
@@ -276,7 +339,12 @@ function AddProduct() {
             <div className="row mb-3">
               <label className="col-sm-3 col-form-label">Status</label>
               <div className="col-sm-9">
-                <select name="status" className="form-control" value={form.status} onChange={handleChange}>
+                <select
+                  name="status"
+                  className="form-control"
+                  value={form.status}
+                  onChange={handleChange}
+                >
                   <option value="1">Active</option>
                   <option value="0">Inactive</option>
                 </select>

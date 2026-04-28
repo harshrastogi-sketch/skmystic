@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AdminLayout from "./AdminLayout";
+import Swal from "sweetalert2";
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -28,6 +28,13 @@ function AdminDashboard() {
 
   const fetchStats = async (token) => {
     try {
+      // 🔥 Loading popup
+      Swal.fire({
+        title: "Loading dashboard...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
       const res = await fetch(`${BASE_URL}dashboard-stats`, {
         method: "GET",
         headers: {
@@ -37,16 +44,31 @@ function AdminDashboard() {
       });
 
       const data = await res.json();
+      Swal.close();
 
       if (data.status) {
         setStats(data.data);
       } else {
+        Swal.fire({
+          icon: "warning",
+          title: "Session Expired",
+          text: "Please login again",
+        });
+
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+
         navigate("/admin");
       }
     } catch (error) {
       console.log("Dashboard stats error:", error);
+      Swal.close();
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to load dashboard data",
+      });
     }
   };
 

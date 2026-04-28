@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { apiRequest } from "../api";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 function Brand() {
   const [brands, setBrands] = useState([]);
@@ -10,10 +11,15 @@ function Brand() {
   const fetchBrands = async () => {
     try {
       const res = await apiRequest(`${BASE_URL}brands`);
-      console.log("Brands response:", res);
       setBrands(res.data || []);
     } catch (err) {
       console.log("Fetch brands error:", err);
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to fetch brands",
+      });
     }
   };
 
@@ -21,35 +27,52 @@ function Brand() {
     fetchBrands();
   }, []);
 
+  // ✅ TOGGLE STATUS
   const handleToggleStatus = async (id, currentStatus) => {
     const isActive = String(currentStatus) === "1";
 
-    const confirmChange = window.confirm(
-      isActive
-        ? "Are you sure you want to deactivate this brand?"
-        : "Are you sure you want to activate this brand?"
-    );
+    const result = await Swal.fire({
+      title: isActive ? "Deactivate Brand?" : "Activate Brand?",
+      text: "Are you sure you want to change status?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+    });
 
-    if (!confirmChange) return;
+    if (!result.isConfirmed) return;
 
     try {
       const newStatus = isActive ? 0 : 1;
 
+      // 🔥 Loading
+      Swal.fire({
+        title: "Updating...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
       const res = await fetch(`${BASE_URL}brands/update_status/${id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ status: newStatus }),
-        }
-      );
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
 
       const data = await res.json();
-      console.log("Toggle brand status response:", data);
+      Swal.close();
 
       if (data.status === true) {
-        alert(data.message || "Brand status updated successfully");
+        Swal.fire({
+          icon: "success",
+          title: data.message || "Status updated successfully",
+          timer: 1500,
+          showConfirmButton: false,
+        });
 
+        // update UI instantly
         setBrands((prev) =>
           prev.map((item) =>
             String(item.id) === String(id)
@@ -58,38 +81,77 @@ function Brand() {
           )
         );
       } else {
-        alert(data.message || "Failed to update brand status");
+        Swal.fire({
+          icon: "error",
+          title: data.message || "Failed to update status",
+        });
       }
     } catch (err) {
       console.log("Toggle brand status error:", err);
-      alert("Error updating brand status");
+      Swal.close();
+
+      Swal.fire({
+        icon: "error",
+        title: "Error updating brand status",
+      });
     }
   };
 
+  // ✅ DELETE BRAND
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this brand?")) return;
+    const result = await Swal.fire({
+      title: "Delete Brand?",
+      text: "This action cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, Delete",
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
+      // 🔥 Loading
+      Swal.fire({
+        title: "Deleting...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
       const res = await fetch(`${BASE_URL}brands/delete/${id}`, {
-          method: "POST",
-        }
-      );
+        method: "POST",
+      });
 
       const data = await res.json();
-      console.log("Delete brand response:", data);
+      Swal.close();
 
       if (data.status === true) {
-        alert(data.message || "Brand deleted successfully");
+        Swal.fire({
+          icon: "success",
+          title: data.message || "Deleted successfully",
+          timer: 1500,
+          showConfirmButton: false,
+        });
 
+        // remove from UI
         setBrands((prev) =>
           prev.filter((item) => String(item.id) !== String(id))
         );
       } else {
-        alert(data.message || "Delete failed");
+        Swal.fire({
+          icon: "error",
+          title: data.message || "Delete failed",
+        });
       }
     } catch (err) {
       console.log("Delete brand error:", err);
-      alert("Error deleting brand");
+      Swal.close();
+
+      Swal.fire({
+        icon: "error",
+        title: "Error deleting brand",
+      });
     }
   };
 
@@ -132,20 +194,24 @@ function Brand() {
                           alt={item.name}
                           width="70"
                           height="50"
-                          style={{ objectFit: "contain", borderRadius: "4px" }}
+                          style={{
+                            objectFit: "contain",
+                            borderRadius: "4px",
+                          }}
                         />
                       ) : (
                         item.name
                       )}
                     </td>
 
-
                     <td>
                       <button
                         className={`btn btn-sm ${
                           isActive ? "btn-success" : "btn-secondary"
                         }`}
-                        onClick={() => handleToggleStatus(item.id, item.status)}
+                        onClick={() =>
+                          handleToggleStatus(item.id, item.status)
+                        }
                       >
                         {isActive ? "Active" : "Inactive"}
                       </button>
@@ -154,7 +220,9 @@ function Brand() {
                     <td>
                       <button
                         className="btn btn-sm btn-warning me-2"
-                        onClick={() => navigate(`/admin/edit-brand/${item.id}`)}
+                        onClick={() =>
+                          navigate(`/admin/edit-brand/${item.id}`)
+                        }
                       >
                         Edit
                       </button>
@@ -171,7 +239,7 @@ function Brand() {
               })
             ) : (
               <tr>
-                <td colSpan="5" className="text-center">
+                <td colSpan="4" className="text-center">
                   No Brands Found
                 </td>
               </tr>

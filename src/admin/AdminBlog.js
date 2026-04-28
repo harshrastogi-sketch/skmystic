@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { apiRequest } from "../api";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 function Blogs() {
   const [blogs, setBlogs] = useState([]);
@@ -14,6 +15,12 @@ function Blogs() {
       setBlogs(res.data || []);
     } catch (err) {
       console.log("Fetch blogs error:", err);
+
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to fetch blogs",
+        icon: "error",
+      });
     }
   };
 
@@ -21,36 +28,51 @@ function Blogs() {
     fetchBlogs();
   }, []);
 
+  // ✅ Toggle Status
   const handleToggleStatus = async (id, currentStatus) => {
     const isActive = String(currentStatus) === "1";
 
-    const confirmChange = window.confirm(
-      isActive
-        ? "Are you sure you want to deactivate this blog?"
-        : "Are you sure you want to activate this blog?"
-    );
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: isActive
+        ? "You want to deactivate this blog?"
+        : "You want to activate this blog?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+    });
 
-    if (!confirmChange) return;
+    if (!result.isConfirmed) return;
 
     try {
       const newStatus = isActive ? 0 : 1;
 
-      const res = await fetch(
-        `${BASE_URL}blogs/update_status/${id}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ status: newStatus }),
-        }
-      );
+      // Loading
+      Swal.fire({
+        title: "Updating...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      const res = await fetch(`${BASE_URL}blogs/update_status/${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
 
       const data = await res.json();
-      console.log("Toggle response:", data);
+      Swal.close();
 
       if (data.status === true) {
-        alert(data.message || "Blog status updated successfully");
+        Swal.fire({
+          title: "Success!",
+          text: data.message || "Blog status updated",
+          icon: "success",
+        });
 
         setBlogs((prev) =>
           prev.map((item) =>
@@ -60,40 +82,59 @@ function Blogs() {
           )
         );
       } else {
-        alert(data.message || "Failed to update status");
+        Swal.fire("Failed!", data.message || "Update failed", "error");
       }
     } catch (err) {
       console.log("Toggle error:", err);
-      alert("Error updating blog status");
+      Swal.fire("Error!", "Something went wrong", "error");
     }
   };
 
+  // ✅ Delete Blog
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this blog?")) return;
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This blog will be permanently deleted!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
-      const res = await fetch(
-       `${BASE_URL}blogs/delete/${id}`,
-        {
-          method: "POST",
-        }
-      );
+      // Loading
+      Swal.fire({
+        title: "Deleting...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      const res = await fetch(`${BASE_URL}blogs/delete/${id}`, {
+        method: "POST",
+      });
 
       const data = await res.json();
-      console.log("Delete response:", data);
+      Swal.close();
 
       if (data.status === true) {
-        alert(data.message || "Blog deleted successfully");
+        Swal.fire({
+          title: "Deleted!",
+          text: data.message || "Blog deleted successfully",
+          icon: "success",
+        });
 
         setBlogs((prev) =>
           prev.filter((item) => String(item.id) !== String(id))
         );
       } else {
-        alert(data.message || "Delete failed");
+        Swal.fire("Failed!", data.message || "Delete failed", "error");
       }
     } catch (err) {
       console.log("Delete error:", err);
-      alert("Error deleting blog");
+      Swal.fire("Error!", "Error deleting blog", "error");
     }
   };
 
@@ -139,7 +180,10 @@ function Blogs() {
                         alt={item.title}
                         width="70"
                         height="50"
-                        style={{ objectFit: "cover", borderRadius: "4px" }}
+                        style={{
+                          objectFit: "cover",
+                          borderRadius: "4px",
+                        }}
                       />
                     </td>
 
@@ -152,7 +196,9 @@ function Blogs() {
                       <button
                         className={`btn btn-sm ${isActive ? "btn-success" : "btn-secondary"
                           }`}
-                        onClick={() => handleToggleStatus(item.id, item.status)}
+                        onClick={() =>
+                          handleToggleStatus(item.id, item.status)
+                        }
                       >
                         {isActive ? "Active" : "Inactive"}
                       </button>
@@ -161,7 +207,9 @@ function Blogs() {
                     <td>
                       <button
                         className="btn btn-sm btn-warning me-2"
-                        onClick={() => navigate(`/admin/edit-blog/${item.id}`)}
+                        onClick={() =>
+                          navigate(`/admin/edit-blog/${item.id}`)
+                        }
                       >
                         Edit
                       </button>

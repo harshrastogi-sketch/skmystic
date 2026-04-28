@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import Swal from "sweetalert2";
 
 function EditBanner() {
   const navigate = useNavigate();
   const BASE_URL = process.env.REACT_APP_BASE_URL;
   const { id } = useParams();
 
-  const [banner, setBanner] = useState(null);
-  const [title, setTitle] = useState(""); // ✅ NEW
+  const [title, setTitle] = useState("");
   const [bannerImage, setBannerImage] = useState(null);
   const [preview, setPreview] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,7 +32,6 @@ function EditBanner() {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
         },
       });
 
@@ -40,28 +39,30 @@ function EditBanner() {
 
       if (data.status && data.data) {
         const bannerData = data.data;
-        setBanner(bannerData);
 
-        setTitle(bannerData.title || ""); // ✅ SET TITLE
-
-        setPreview(
-          bannerData.image
-            ? `${BASE_URL}${bannerData.image}`
-            : ""
-        );
+        setTitle(bannerData.title || "");
+        setPreview(bannerData.image ? `${BASE_URL}${bannerData.image}` : "");
       } else {
-        alert(data.message || "Banner not found");
+        Swal.fire({
+          icon: "error",
+          title: "Not Found",
+          text: data.message || "Banner not found",
+        });
         navigate("/admin/banner");
       }
     } catch (error) {
       console.log("Fetch banner error:", error);
-      alert("Failed to load banner");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to load banner",
+      });
     }
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    setBannerImage(file);
+    setBannerImage(file || null);
 
     if (file) {
       setPreview(URL.createObjectURL(file));
@@ -71,22 +72,33 @@ function EditBanner() {
   const handleUpdate = async (e) => {
     e.preventDefault();
 
-    if (!title) {
-      alert("Title is required");
+    if (!title.trim()) {
+      Swal.fire({
+        icon: "warning",
+        title: "Validation Error",
+        text: "Title is required",
+      });
       return;
     }
 
     try {
       setLoading(true);
+
       const token = localStorage.getItem("token");
 
+      Swal.fire({
+        title: "Updating banner...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
       const formData = new FormData();
-      formData.append("title", title); // ✅ SEND TITLE
+      formData.append("title", title);
 
       if (bannerImage) {
         formData.append("image", bannerImage);
       }
-      console.log(bannerImage  );
+
       const res = await fetch(`${BASE_URL}api/update-banner/${id}`, {
         method: "POST",
         headers: {
@@ -96,16 +108,34 @@ function EditBanner() {
       });
 
       const data = await res.json();
+      Swal.close();
 
       if (data.status) {
-        alert("Banner updated successfully");
+        Swal.fire({
+          icon: "success",
+          title: "Updated",
+          text: "Banner updated successfully",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
         navigate("/admin/banner");
       } else {
-        alert(data.message || "Update failed");
+        Swal.fire({
+          icon: "error",
+          title: "Update Failed",
+          text: data.message || "Something went wrong",
+        });
       }
     } catch (error) {
       console.log("Update error:", error);
-      alert("Something went wrong while updating banner");
+      Swal.close();
+
+      Swal.fire({
+        icon: "error",
+        title: "Server Error",
+        text: "Something went wrong while updating banner",
+      });
     } finally {
       setLoading(false);
     }
@@ -120,8 +150,7 @@ function EditBanner() {
 
         <div className="card-body">
           <form onSubmit={handleUpdate}>
-
-            {/* ✅ TITLE FIELD */}
+            {/* TITLE */}
             <div className="mb-3 row align-items-center">
               <label className="col-sm-2 col-form-label">Title</label>
               <div className="col-sm-10">
@@ -155,7 +184,7 @@ function EditBanner() {
                 <div className="col-sm-10">
                   <img
                     src={preview}
-                    alt="Banner Preview"
+                    alt="preview"
                     style={{
                       width: "220px",
                       height: "110px",
@@ -188,7 +217,6 @@ function EditBanner() {
                 </button>
               </div>
             </div>
-
           </form>
         </div>
       </div>

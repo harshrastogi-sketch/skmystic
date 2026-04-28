@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { apiRequest } from "../api";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 function Products() {
-
   const BASE_URL = process.env.REACT_APP_BASE_URL;
-  
-   //const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
+
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
 
   const fetchProducts = async () => {
     try {
       const res = await apiRequest(`${BASE_URL}api/admin-product`);
-      console.log("Products response:", res);
       setProducts(res.data || []);
     } catch (err) {
       console.log("Fetch products error:", err);
@@ -24,22 +22,33 @@ function Products() {
     fetchProducts();
   }, []);
 
-  // ✅ Toggle Status
+  // ✅ Toggle Status (SweetAlert)
   const handleToggleStatus = async (id, currentStatus) => {
     const isActive = String(currentStatus) === "1";
 
-    const confirmChange = window.confirm(
-      isActive
-        ? "Are you sure you want to deactivate this product?"
-        : "Are you sure you want to activate this product?"
-    );
+    const result = await Swal.fire({
+      title: isActive ? "Deactivate Product?" : "Activate Product?",
+      text: "Are you sure you want to change status?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+    });
 
-    if (!confirmChange) return;
+    if (!result.isConfirmed) return;
 
     try {
       const newStatus = isActive ? 0 : 1;
 
-      const res = await fetch(`${BASE_URL}products/update_status/${id}`,
+      Swal.fire({
+        title: "Updating...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      const res = await fetch(
+        `${BASE_URL}products/update_status/${id}`,
         {
           method: "PUT",
           headers: {
@@ -50,9 +59,15 @@ function Products() {
       );
 
       const data = await res.json();
+      Swal.close();
 
       if (data.status === true) {
-        alert(data.message || "Product status updated successfully");
+        Swal.fire({
+          icon: "success",
+          title: data.message || "Status updated successfully",
+          timer: 1500,
+          showConfirmButton: false,
+        });
 
         setProducts((prev) =>
           prev.map((item) =>
@@ -62,39 +77,71 @@ function Products() {
           )
         );
       } else {
-        alert(data.message || "Failed to update status");
+        Swal.fire({
+          icon: "error",
+          title: data.message || "Failed to update status",
+        });
       }
     } catch (err) {
       console.log("Toggle status error:", err);
-      alert("Error updating product status");
+      Swal.fire({
+        icon: "error",
+        title: "Error updating product status",
+      });
     }
   };
 
-  // ✅ Delete Product
+  // ✅ Delete Product (SweetAlert)
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) return;
+    const result = await Swal.fire({
+      title: "Delete Product?",
+      text: "This action cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, Delete",
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
-      const res = await fetch(`${BASE_URL}products/delete/${id}`,
-        {
-          method: "POST",
-        }
-      );
+      Swal.fire({
+        title: "Deleting...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      const res = await fetch(`${BASE_URL}products/delete/${id}`, {
+        method: "POST",
+      });
 
       const data = await res.json();
+      Swal.close();
 
       if (data.status === true) {
-        alert(data.message || "Product deleted successfully");
+        Swal.fire({
+          icon: "success",
+          title: data.message || "Deleted successfully",
+          timer: 1500,
+          showConfirmButton: false,
+        });
 
         setProducts((prev) =>
           prev.filter((item) => String(item.id) !== String(id))
         );
       } else {
-        alert(data.message || "Delete failed");
+        Swal.fire({
+          icon: "error",
+          title: data.message || "Delete failed",
+        });
       }
     } catch (err) {
       console.log("Delete product error:", err);
-      alert("Error deleting product");
+      Swal.fire({
+        icon: "error",
+        title: "Error deleting product",
+      });
     }
   };
 
@@ -127,16 +174,14 @@ function Products() {
           </thead>
 
           <tbody>
-
             {products.length > 0 ? (
               products.map((item, index) => {
                 const isActive = String(item.status) === "1";
-                console.log(products);
+
                 return (
                   <tr key={item.id}>
                     <td>{index + 1}</td>
 
-                    {/* ✅ MULTIPLE IMAGES */}
                     <td>
                       {item.images && item.images.length > 0 ? (
                         <div style={{ display: "flex", gap: "5px" }}>
@@ -161,25 +206,60 @@ function Products() {
                     </td>
 
                     <td>{item.name}</td>
-                    <td>{item.category_name || item.category || "-"}</td>
+                    <td>{item.category_name || "-"}</td>
                     <td>₹{Number(item.price || 0).toLocaleString()}</td>
                     <td>{item.discount || 0}%</td>
-                    <td><span className={`badge ${item.stock_status === "in_stock" ? "bg-success" : "bg-danger"}`}>
-                      {item.stock_status === "in_stock" ? "In Stock" : "Out of Stock"}</span></td>
 
-                    {/* STATUS */}
                     <td>
-                      <button className={`btn btn-sm ${isActive ? "btn-success" : "btn-secondary"}`} onClick={() => handleToggleStatus(item.id, item.status)}>
+                      <span
+                        className={`badge ${
+                          item.stock_status === "in_stock"
+                            ? "bg-success"
+                            : "bg-danger"
+                        }`}
+                      >
+                        {item.stock_status === "in_stock"
+                          ? "In Stock"
+                          : "Out of Stock"}
+                      </span>
+                    </td>
+
+                    <td>
+                      <button
+                        className={`btn btn-sm ${
+                          isActive ? "btn-success" : "btn-secondary"
+                        }`}
+                        onClick={() =>
+                          handleToggleStatus(item.id, item.status)
+                        }
+                      >
                         {isActive ? "Active" : "Inactive"}
                       </button>
                     </td>
 
-                    {/* ACTIONS */}
                     <td>
-                      <button className="btn btn-sm btn-warning me-2" onClick={() => navigate(`/admin/edit-product/${item.id}`)}>Edit</button>
-                      <button className="btn btn-sm btn-info me-2" onClick={() => navigate(`/admin/add-product-images/${item.id}`)}>Add Images</button>
-                      <button className="btn btn-sm btn-primary me-2" onClick={() => navigate(`/admin/product-details/${item.id}`)}>Details</button>
-                      <button className="btn btn-sm btn-danger" onClick={() => handleDelete(item.id)}>
+                      <button
+                        className="btn btn-sm btn-warning me-2"
+                        onClick={() =>
+                          navigate(`/admin/edit-product/${item.id}`)
+                        }
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        className="btn btn-sm btn-info me-2"
+                        onClick={() =>
+                          navigate(`/admin/add-product-images/${item.id}`)
+                        }
+                      >
+                        Add Images
+                      </button>
+
+                      <button
+                        className="btn btn-sm btn-danger"
+                        onClick={() => handleDelete(item.id)}
+                      >
                         Delete
                       </button>
                     </td>
@@ -188,7 +268,7 @@ function Products() {
               })
             ) : (
               <tr>
-                <td colSpan="8" className="text-center">
+                <td colSpan="9" className="text-center">
                   No Products Found
                 </td>
               </tr>
