@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 const Register = () => {
 
     const navigate = useNavigate();
+    const BASE_URL = process.env.REACT_APP_BASE_URL;
+
     const [form, setForm] = useState({
         name: "",
         email: "",
@@ -57,7 +59,7 @@ const Register = () => {
 
         if (validate()) {
             try {
-                const res = await fetch("https://harsh.skmysticastrologer.in/CodeIgniter/api/insert-user", {
+                const res = await fetch(`${BASE_URL}api/insert-user`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"

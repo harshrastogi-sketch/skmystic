@@ -9,7 +9,6 @@ const BlogDetails = () => {
   const [recentBlogs, setRecentBlogs] = useState([]);
 
   const BASE_URL = process.env.REACT_APP_BASE_URL;
-  // const BASE_URL = "https://harsh.skmysticastrologer.in/CodeIgniter/";
 
   useEffect(() => {
     fetchBlog();

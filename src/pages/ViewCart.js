@@ -18,6 +18,7 @@ const getUserFromToken = () => {
 function Cart() {
   const { cartItems, removeFromCart, updateQuantity } = useCart();
   const navigate = useNavigate();
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   const user = getUserFromToken();
 
@@ -46,7 +47,7 @@ function Cart() {
   // ✅ Get Image (FIXED)
   const getProductImage = (item) => {
     if (item.images?.length > 0) {
-      return `https://harsh.skmysticastrologer.in/CodeIgniter/${item.images[0].image}`;
+      return `${BASE_URL}${item.images[0].image}`;
     }
     //return "/images/default-product.png"; // fallback
   };

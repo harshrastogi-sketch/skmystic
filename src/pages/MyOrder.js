@@ -6,6 +6,7 @@ const MyOrder = () => {
     const [orders, setOrders] = useState([]);
     const navigate = useNavigate();
     const location = useLocation();
+    const BASE_URL = process.env.REACT_APP_BASE_URL;
 
 
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -19,7 +20,7 @@ const MyOrder = () => {
             return;
         }
 
-        fetch(`https://harsh.skmysticastrologer.in/CodeIgniter/api/my-orders?userId=${userId}`, {
+        fetch(`${BASE_URL}api/my-orders?userId=${userId}`, {
             headers: {
                 Authorization: `Bearer ${token}` // 🔥 IMPORTANT
             }

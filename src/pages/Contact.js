@@ -10,6 +10,7 @@ function Contact() {
 
   const [loading, setLoading] = useState(false);
   const [responseMsg, setResponseMsg] = useState("");
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,7 +26,7 @@ function Contact() {
     try {
       setLoading(true);
 
-      const res = await fetch("https://harsh.skmysticastrologer.in/CodeIgniter//api/contact", {
+      const res = await fetch(`${BASE_URL}api/contact`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

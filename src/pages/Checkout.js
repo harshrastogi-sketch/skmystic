@@ -7,6 +7,7 @@ import { apiRequest } from "../api";
 const Checkout = () => {
   const { cartItems = [], clearCart } = useCart();
   const navigate = useNavigate();
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   const [loading, setLoading] = useState(false);
 
@@ -101,8 +102,7 @@ const Checkout = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const data = await apiRequest(
-        "https://harsh.skmysticastrologer.in/CodeIgniter/api/order-create",
+      const data = await apiRequest(`${BASE_URL}api/order-create`,
         {
           method: "POST",
           headers: {
@@ -157,7 +157,7 @@ const Checkout = () => {
 
                   <div className="checkout-product-image">
                     <img
-                      src={`https://harsh.skmysticastrologer.in/CodeIgniter/uploads/${item.image1}`}
+                      src={`${BASE_URL}${item.images?.[0]?.image}`}
                       alt={item.name}
                     />
                   </div>
