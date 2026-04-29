@@ -8,6 +8,7 @@ import { getUser } from "../api";
 const Header = ({ setIsCartOpen }) => {
   const { cartItems } = useCart();
   const navigate = useNavigate();
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   const [categories, setCategories] = useState([]);
   const [showAstrology, setShowAstrology] = useState(false);
@@ -23,7 +24,7 @@ const Header = ({ setIsCartOpen }) => {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch("https://harsh.skmysticastrologer.in/CodeIgniter/categories");
+      const res = await fetch(`${BASE_URL}categories`);
       const data = await res.json();
 
       if (data.status === true) {

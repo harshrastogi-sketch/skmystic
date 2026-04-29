@@ -7,6 +7,7 @@ import { verifyTokenRequest } from "../api";
 const CartDrawer = ({ isOpen, setIsOpen }) => {
   const { cartItems, removeFromCart, subtotal } = useCart();
   const navigate = useNavigate();
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   // ✅ AUTO CLOSE WHEN CART EMPTY
   useEffect(() => {
@@ -35,7 +36,7 @@ const CartDrawer = ({ isOpen, setIsOpen }) => {
       {cartItems.length > 0 ? (
         cartItems.map((item) => (
           <div key={item.id} className="cart-item">
-            <img src={`https://harsh.skmysticastrologer.in/CodeIgniter/${item.images?.[0]?.image}`} alt={item.name}/>
+            <img src={`${BASE_URL}${item.images?.[0]?.image}`} alt={item.name}/>
             <div>
               <p>{item.name}</p>
               <p>

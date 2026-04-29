@@ -6,13 +6,12 @@ import { Link } from "react-router-dom";
 const Footer = () => {
 
   const [categories, setCategories] = useState([]);
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   useEffect(() => {
     const getCategories = async () => {
       try {
-        const res = await fetch(
-          "https://harsh.skmysticastrologer.in/CodeIgniter/categories"
-        );
+        const res = await fetch(`${BASE_URL}categories`);
         const data = await res.json();
 
         const activeCategories = (data.data || []).filter(
