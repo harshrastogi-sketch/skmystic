@@ -81,9 +81,9 @@ const Footer = () => {
           <div className="footer-col">
             <h4>Quick Link</h4>
             <ul>
-              <li><Link to="/privacy-policy"  onClick={() => window.scrollTo(0, 0)} className="text-white text-decoration-none">Privacy Policy</Link></li>
-              <li><Link to="/terms" onClick={() => window.scrollTo(0, 0)} className="text-white text-decoration-none">Terms & Conditions</Link></li>
-              <li><Link to="/shipping" onClick={() => window.scrollTo(0, 0)} className="text-white text-decoration-none">Shipping / Delivery Policy</Link></li>
+              <li><Link to="/policies/privacy"  onClick={() => window.scrollTo(0, 0)} className="text-white text-decoration-none">Privacy Policy</Link></li>
+              <li><Link to="/policies/terms" onClick={() => window.scrollTo(0, 0)} className="text-white text-decoration-none">Terms & Conditions</Link></li>
+              <li><Link to="/policies/shipping" onClick={() => window.scrollTo(0, 0)} className="text-white text-decoration-none">Shipping / Delivery Policy</Link></li>
             </ul>
           </div>
 

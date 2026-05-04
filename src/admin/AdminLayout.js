@@ -118,6 +118,25 @@ function AdminLayout({ children }) {
               </button>
             </div>
 
+
+
+            <button className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#policyMenu" aria-expanded="false" aria-controls="policyMenu">
+              <span>Policies</span>
+              <span>
+                <FaChevronRight />
+              </span>
+            </button>
+
+            <div className="collapse" id="policyMenu">
+              <button className="list-group-item list-group-item-action ps-4" onClick={() => navigate("/admin/policies")}>
+                → Policies
+              </button>
+
+              <button className="list-group-item list-group-item-action ps-4" onClick={() => navigate("/admin/add-brand")}>
+                → Add Policies
+              </button>
+            </div>
+
           </div>
         </div>
 

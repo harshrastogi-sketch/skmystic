@@ -7,7 +7,7 @@ const Home = () => {
 
   const { addToCart, message } = useCart();
   
-  const BASE_URL = process.env.REACT_APP_BASE_URL;
+   const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   const [products, setProducts] = useState([]);
   const [blogs, setBlogs] = useState([]);
