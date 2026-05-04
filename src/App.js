@@ -105,9 +105,6 @@ function App() {
         <Route path="/my-order" element={<MyOrder />} />
         <Route path="/viewCart" element={<ViewCart />} />
         <Route path="/policies/:type" element={<PolicyPage />} />
-        <Route path="/privacy-policy" element={<Privacypolicy />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/shipping" element={<Shipping />} />
         <Route path="/about" element={<About />} />
         <Route path="/faq" element={<Faq />} />
         <Route path="/blog/:slug" element={<BlogDetails />} />
