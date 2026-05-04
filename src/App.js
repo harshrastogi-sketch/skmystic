@@ -19,9 +19,7 @@ import Dashboard from "./pages/Dashboard";
 import Checkout from "./pages/Checkout";
 import MyOrder from "./pages/MyOrder";
 import ViewCart from "./pages/ViewCart";
-import Privacypolicy from "./pages/Privacypolicy";
-import Terms from "./pages/Terms";
-import Shipping from "./pages/Shipping";
+import PolicyPage from "./pages/PolicyPage";
 import Faq from "./pages/Faq";
 import BlogDetails from "./pages/BlogDetails";
 
@@ -50,7 +48,9 @@ import AddBrand from "./admin/AddBrand";
 import EditBrand from "./admin/EditBrand";
 import Brand from "./admin/Brand";
 import AdminProductDetails from "./admin/AdminProductDetails";
-
+import Policies from "./admin/Policies";
+import AddPolicies from "./admin/AddPolicies";
+import EditPolicies from "./admin/EditPolicies.js";
 
 
 
@@ -104,6 +104,7 @@ function App() {
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/my-order" element={<MyOrder />} />
         <Route path="/viewCart" element={<ViewCart />} />
+        <Route path="/policies/:type" element={<PolicyPage />} />
         <Route path="/privacy-policy" element={<Privacypolicy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/shipping" element={<Shipping />} />
@@ -132,6 +133,9 @@ function App() {
         <Route path="/admin/brand" element={<AdminLayout><Brand /></AdminLayout>} />
         <Route path="/admin/add-brand" element={<AdminLayout><AddBrand /></AdminLayout>} />
         <Route path="/admin/edit-brand/:id" element={<AdminLayout><EditBrand /></AdminLayout>} />
+        <Route path="/admin/policies" element={<AdminLayout><Policies /></AdminLayout>} />
+        <Route path="/admin/add-policies" element={<AdminLayout><AddPolicies /></AdminLayout>} />
+        <Route path="/admin/edit-policies/:id" element={<AdminLayout><EditPolicies /></AdminLayout>} />
 
 
         <Route path="/admin" element={<AdminLogin />} />
