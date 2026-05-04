@@ -132,8 +132,42 @@ function AdminLayout({ children }) {
                 → Policies
               </button>
 
-              <button className="list-group-item list-group-item-action ps-4" onClick={() => navigate("/admin/add-brand")}>
+              <button className="list-group-item list-group-item-action ps-4" onClick={() => navigate("/admin/add-policies")}>
                 → Add Policies
+              </button>
+            </div>
+
+            <button className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#faqMenu" aria-expanded="false" aria-controls="faqMenu">
+              <span>FAQ</span>
+              <span>
+                <FaChevronRight />
+              </span>
+            </button>
+
+            <div className="collapse" id="faqMenu">
+              <button className="list-group-item list-group-item-action ps-4" onClick={() => navigate("/admin/faq")}>
+                → FAQ
+              </button>
+
+              <button className="list-group-item list-group-item-action ps-4" onClick={() => navigate("/admin/add-faq")}>
+                → Add FAQ
+              </button>
+            </div>
+
+            <button className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#aboutMenu" aria-expanded="false" aria-controls="aboutMenu">
+              <span>About US</span>
+              <span>
+                <FaChevronRight />
+              </span>
+            </button>
+
+            <div className="collapse" id="aboutMenu">
+              <button className="list-group-item list-group-item-action ps-4" onClick={() => navigate("/admin/policies")}>
+                → About US
+              </button>
+
+              <button className="list-group-item list-group-item-action ps-4" onClick={() => navigate("/admin/add-brand")}>
+                → Add About US
               </button>
             </div>
 

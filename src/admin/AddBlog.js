@@ -20,20 +20,71 @@ function AddBlog() {
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // ✅ validation state
+  const [errors, setErrors] = useState({});
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
+    }));
+
+    // remove error while typing
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
     }));
   };
 
   const handleImageChange = (e) => {
     setImage(e.target.files[0]);
+
+    setErrors((prev) => ({
+      ...prev,
+      image: "",
+    }));
+  };
+
+  // ✅ validation function
+  const validate = () => {
+    let tempErrors = {};
+
+    if (!formData.title.trim()) {
+      tempErrors.title = "Title is required";
+    }
+
+    if (!formData.author.trim()) {
+      tempErrors.author = "Author is required";
+    }
+
+    if (!formData.description || formData.description === "<p><br></p>") {
+      tempErrors.description = "Description is required";
+    }
+
+    if (!formData.content.trim()) {
+      tempErrors.content = "Content is required";
+    }
+
+    if (!formData.date) {
+      tempErrors.date = "Date is required";
+    }
+
+    if (!image) {
+      tempErrors.image = "Blog image is required";
+    }
+
+    setErrors(tempErrors);
+
+    return Object.keys(tempErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // ❌ stop if invalid
+    if (!validate()) return;
 
     const data = new FormData();
     data.append("title", formData.title);
@@ -42,15 +93,11 @@ function AddBlog() {
     data.append("content", formData.content);
     data.append("date", formData.date);
     data.append("status", formData.status);
-
-    if (image) {
-      data.append("image", image);
-    }
+    data.append("image", image);
 
     try {
       setLoading(true);
 
-      // 🔥 Loading
       Swal.fire({
         title: "Saving blog...",
         allowOutsideClick: false,
@@ -64,8 +111,6 @@ function AddBlog() {
 
       const result = await res.json();
       Swal.close();
-
-      console.log("Add blog response:", result);
 
       if (result.status === true) {
         Swal.fire({
@@ -85,7 +130,6 @@ function AddBlog() {
         });
       }
     } catch (error) {
-      console.log("Add blog error:", error);
       Swal.close();
 
       Swal.fire({
@@ -111,69 +155,94 @@ function AddBlog() {
       </div>
 
       <form onSubmit={handleSubmit} className="card p-4 shadow-sm">
+
+        {/* TITLE */}
         <div className="mb-3">
           <label className="form-label">Title</label>
           <input
             type="text"
             name="title"
-            className="form-control"
+            className={`form-control ${errors.title ? "is-invalid" : ""}`}
             value={formData.title}
             onChange={handleChange}
-            required
           />
+          {errors.title && (
+            <div className="invalid-feedback">{errors.title}</div>
+          )}
         </div>
 
+        {/* AUTHOR */}
         <div className="mb-3">
           <label className="form-label">Author</label>
           <input
             type="text"
             name="author"
-            className="form-control"
+            className={`form-control ${errors.author ? "is-invalid" : ""}`}
             value={formData.author}
             onChange={handleChange}
-            required
           />
+          {errors.author && (
+            <div className="invalid-feedback">{errors.author}</div>
+          )}
         </div>
 
+        {/* DESCRIPTION (CKEditor) */}
         <div className="mb-3">
           <label className="form-label">Description</label>
-          <CKEditor
-            editor={ClassicEditor}
-            data={formData.description || ""}
-            onChange={(event, editor) => {
-              const data = editor.getData();
-              setFormData((prev) => ({
-                ...prev,
-                description: data,
-              }));
-            }}
-          />
+          <div className={errors.description ? "border border-danger rounded" : ""}>
+            <CKEditor
+              editor={ClassicEditor}
+              data={formData.description || ""}
+              onChange={(event, editor) => {
+                const data = editor.getData();
+                setFormData((prev) => ({
+                  ...prev,
+                  description: data,
+                }));
+
+                setErrors((prev) => ({
+                  ...prev,
+                  description: "",
+                }));
+              }}
+            />
+          </div>
+          {errors.description && (
+            <div className="text-danger mt-1">{errors.description}</div>
+          )}
         </div>
 
+        {/* CONTENT */}
         <div className="mb-3">
           <label className="form-label">Content</label>
           <textarea
             name="content"
-            className="form-control"
+            className={`form-control ${errors.content ? "is-invalid" : ""}`}
             rows="6"
             value={formData.content}
             onChange={handleChange}
-            required
           />
+          {errors.content && (
+            <div className="invalid-feedback">{errors.content}</div>
+          )}
         </div>
 
+        {/* DATE */}
         <div className="mb-3">
           <label className="form-label">Date</label>
           <input
             type="date"
             name="date"
-            className="form-control"
+            className={`form-control ${errors.date ? "is-invalid" : ""}`}
             value={formData.date}
             onChange={handleChange}
-            required
           />
+          {errors.date && (
+            <div className="invalid-feedback">{errors.date}</div>
+          )}
         </div>
 
+        {/* STATUS */}
         <div className="mb-3">
           <label className="form-label">Status</label>
           <select
@@ -187,15 +256,18 @@ function AddBlog() {
           </select>
         </div>
 
+        {/* IMAGE */}
         <div className="mb-3">
           <label className="form-label">Image</label>
           <input
             type="file"
-            className="form-control"
+            className={`form-control ${errors.image ? "is-invalid" : ""}`}
             accept="image/*"
             onChange={handleImageChange}
-            required
           />
+          {errors.image && (
+            <div className="invalid-feedback d-block">{errors.image}</div>
+          )}
         </div>
 
         <button type="submit" className="btn btn-primary" disabled={loading}>

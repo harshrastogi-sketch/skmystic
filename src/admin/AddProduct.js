@@ -12,7 +12,6 @@ function AddProduct() {
 
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
-
   const [images, setImages] = useState([]);
   const [dragIndex, setDragIndex] = useState(null);
 
@@ -26,6 +25,9 @@ function AddProduct() {
     stock_status: "in_stock",
   });
 
+  // ✅ validation state
+  const [errors, setErrors] = useState({});
+
   // ✅ FETCH CATEGORIES
   useEffect(() => {
     const fetchCategories = async () => {
@@ -38,8 +40,6 @@ function AddProduct() {
 
         setCategories(active);
       } catch (err) {
-        console.log("Category fetch error:", err);
-
         Swal.fire({
           icon: "error",
           title: "Error",
@@ -51,10 +51,18 @@ function AddProduct() {
     fetchCategories();
   }, []);
 
+  // ✅ HANDLE CHANGE
   const handleChange = (e) => {
+    const { name, value } = e.target;
+
     setForm((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
     }));
   };
 
@@ -70,6 +78,11 @@ function AddProduct() {
     }));
 
     setImages((prev) => [...prev, ...newImages]);
+
+    setErrors((prev) => ({
+      ...prev,
+      images: "",
+    }));
   };
 
   const handleRemoveImage = (id) => {
@@ -110,9 +123,49 @@ function AddProduct() {
     };
   }, [images]);
 
-  // ✅ SUBMIT PRODUCT
+  // ✅ VALIDATION
+  const validate = () => {
+    let tempErrors = {};
+
+    if (!form.name.trim()) {
+      tempErrors.name = "Product name is required";
+    }
+
+    if (!form.category_id) {
+      tempErrors.category_id = "Category is required";
+    }
+
+    if (!form.description.trim()) {
+      tempErrors.description = "Description is required";
+    }
+
+    if (!form.price) {
+      tempErrors.price = "Price is required";
+    } else if (Number(form.price) <= 0) {
+      tempErrors.price = "Price must be greater than 0";
+    }
+
+    if (form.discount && Number(form.discount) < 0) {
+      tempErrors.discount = "Discount cannot be negative";
+    }
+
+    if (form.discount && Number(form.discount) > 100) {
+      tempErrors.discount = "Discount cannot exceed 100%";
+    }
+
+    if (images.length === 0) {
+      tempErrors.images = "At least one image is required";
+    }
+
+    setErrors(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
+
+  // ✅ SUBMIT
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!validate()) return;
 
     try {
       setLoading(true);
@@ -131,7 +184,6 @@ function AddProduct() {
         formData.append("image_order[]", img.order);
       });
 
-      // 🔥 loading popup
       Swal.fire({
         title: "Saving product...",
         allowOutsideClick: false,
@@ -164,7 +216,6 @@ function AddProduct() {
         });
       }
     } catch (err) {
-      console.log(err);
       Swal.close();
 
       Swal.fire({
@@ -182,11 +233,7 @@ function AddProduct() {
       <div className="card shadow">
 
         <div className="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-          <button
-            type="button"
-            className="btn btn-light btn-sm"
-            onClick={() => navigate(-1)}
-          >
+          <button className="btn btn-light btn-sm" onClick={() => navigate(-1)}>
             ← Back
           </button>
           <h5 className="mb-0">Add Product</h5>
@@ -203,11 +250,11 @@ function AddProduct() {
                 <input
                   type="text"
                   name="name"
-                  className="form-control"
+                  className={`form-control ${errors.name ? "is-invalid" : ""}`}
                   value={form.name}
                   onChange={handleChange}
-                  required
                 />
+                {errors.name && <div className="invalid-feedback">{errors.name}</div>}
               </div>
             </div>
 
@@ -217,10 +264,9 @@ function AddProduct() {
               <div className="col-sm-9">
                 <select
                   name="category_id"
-                  className="form-control"
+                  className={`form-control ${errors.category_id ? "is-invalid" : ""}`}
                   value={form.category_id}
                   onChange={handleChange}
-                  required
                 >
                   <option value="">Select Category</option>
                   {categories.map((cat) => (
@@ -229,6 +275,9 @@ function AddProduct() {
                     </option>
                   ))}
                 </select>
+                {errors.category_id && (
+                  <div className="invalid-feedback">{errors.category_id}</div>
+                )}
               </div>
             </div>
 
@@ -238,15 +287,16 @@ function AddProduct() {
               <div className="col-sm-9">
                 <CKEditor
                   editor={ClassicEditor}
-                  data={form.description || ""}
+                  data={form.description}
                   onChange={(event, editor) => {
                     const data = editor.getData();
-                    setForm((prev) => ({
-                      ...prev,
-                      description: data,
-                    }));
+                    setForm((prev) => ({ ...prev, description: data }));
+                    setErrors((prev) => ({ ...prev, description: "" }));
                   }}
                 />
+                {errors.description && (
+                  <div className="text-danger mt-1">{errors.description}</div>
+                )}
               </div>
             </div>
 
@@ -257,11 +307,13 @@ function AddProduct() {
                 <input
                   type="number"
                   name="price"
-                  className="form-control"
+                  className={`form-control ${errors.price ? "is-invalid" : ""}`}
                   value={form.price}
                   onChange={handleChange}
-                  required
                 />
+                {errors.price && (
+                  <div className="invalid-feedback">{errors.price}</div>
+                )}
               </div>
             </div>
 
@@ -272,26 +324,13 @@ function AddProduct() {
                 <input
                   type="number"
                   name="discount"
-                  className="form-control"
+                  className={`form-control ${errors.discount ? "is-invalid" : ""}`}
                   value={form.discount}
                   onChange={handleChange}
                 />
-              </div>
-            </div>
-
-            {/* STOCK */}
-            <div className="row mb-3">
-              <label className="col-sm-3 col-form-label">Availability</label>
-              <div className="col-sm-9">
-                <select
-                  name="stock_status"
-                  className="form-control"
-                  value={form.stock_status}
-                  onChange={handleChange}
-                >
-                  <option value="in_stock">In Stock</option>
-                  <option value="out_of_stock">Out of Stock</option>
-                </select>
+                {errors.discount && (
+                  <div className="invalid-feedback">{errors.discount}</div>
+                )}
               </div>
             </div>
 
@@ -302,58 +341,18 @@ function AddProduct() {
                 <input
                   type="file"
                   multiple
-                  className="form-control"
+                  className={`form-control ${errors.images ? "is-invalid" : ""}`}
                   onChange={handleImageChange}
-                  required
                 />
-
-                {images.length > 0 && (
-                  <div className="image-grid">
-                    {images
-                      .sort((a, b) => a.order - b.order)
-                      .map((img, index) => (
-                        <div
-                          key={img.id}
-                          className="image-card"
-                          draggable
-                          onDragStart={() => handleDragStart(index)}
-                          onDragOver={(e) => handleDragOver(e, index)}
-                          onDragEnd={handleDragEnd}
-                        >
-                          <img src={img.preview} alt="preview" />
-                          <button
-                            type="button"
-                            className="delete-btn"
-                            onClick={() => handleRemoveImage(img.id)}
-                          >
-                            ×
-                          </button>
-                        </div>
-                      ))}
-                  </div>
+                {errors.images && (
+                  <div className="invalid-feedback d-block">{errors.images}</div>
                 )}
-              </div>
-            </div>
-
-            {/* STATUS */}
-            <div className="row mb-3">
-              <label className="col-sm-3 col-form-label">Status</label>
-              <div className="col-sm-9">
-                <select
-                  name="status"
-                  className="form-control"
-                  value={form.status}
-                  onChange={handleChange}
-                >
-                  <option value="1">Active</option>
-                  <option value="0">Inactive</option>
-                </select>
               </div>
             </div>
 
             {/* SUBMIT */}
             <div className="text-end">
-              <button className="btn btn-success px-4" disabled={loading}>
+              <button className="btn btn-success" disabled={loading}>
                 {loading ? "Saving..." : "Save Product"}
               </button>
             </div>

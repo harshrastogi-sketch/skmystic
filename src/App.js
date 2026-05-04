@@ -50,7 +50,10 @@ import Brand from "./admin/Brand";
 import AdminProductDetails from "./admin/AdminProductDetails";
 import Policies from "./admin/Policies";
 import AddPolicies from "./admin/AddPolicies";
-import EditPolicies from "./admin/EditPolicies.js";
+import EditPolicies from "./admin/EditPolicies";
+import FAQ from "./admin/AdminFAQ";
+import AddFAQ from "./admin/AddFAQ";
+import EditFAQ from "./admin/EditFAQ";
 
 
 
@@ -59,7 +62,7 @@ function App() {
   const location = useLocation();
 
   const isHomePage = location.pathname === "/";
-  const isAdminRoute = location.pathname.startsWith("/admin"); // ✅ NEW
+  const isAdminRoute = location.pathname.startsWith("/admin");
 
   const breadcrumbTitles = {
     "/astrology": "Astrology",
@@ -79,7 +82,19 @@ function App() {
     "/faq": "Faq",
   };
 
-  const breadcrumbTitle = breadcrumbTitles[location.pathname];
+  let breadcrumbTitle = breadcrumbTitles[location.pathname];
+
+  if (location.pathname.startsWith("/policies/")) {
+    const type = location.pathname.split("/")[2];
+
+    const map = {
+      privacy: "Privacy Policy",
+      terms: "Terms & Conditions",
+      shipping: "Shipping / Delivery Policy",
+    };
+
+    breadcrumbTitle = map[type] || "Policy";
+  }
 
   return (
     <>
@@ -133,6 +148,9 @@ function App() {
         <Route path="/admin/policies" element={<AdminLayout><Policies /></AdminLayout>} />
         <Route path="/admin/add-policies" element={<AdminLayout><AddPolicies /></AdminLayout>} />
         <Route path="/admin/edit-policies/:id" element={<AdminLayout><EditPolicies /></AdminLayout>} />
+        <Route path="/admin/faq" element={<AdminLayout><FAQ /></AdminLayout>} />
+        <Route path="/admin/add-faq" element={<AdminLayout><AddFAQ /></AdminLayout>} />
+        <Route path="/admin/edit-faq/:id" element={<AdminLayout><EditFAQ /></AdminLayout>} />
 
 
         <Route path="/admin" element={<AdminLogin />} />

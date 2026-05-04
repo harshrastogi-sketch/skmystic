@@ -12,6 +12,9 @@ function AddBanner() {
   const [preview, setPreview] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // ✅ validation state
+  const [errors, setErrors] = useState({});
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
@@ -22,6 +25,17 @@ function AddBanner() {
     }
   }, [navigate]);
 
+  // ✅ TITLE CHANGE
+  const handleTitleChange = (e) => {
+    setTitle(e.target.value);
+
+    setErrors((prev) => ({
+      ...prev,
+      title: "",
+    }));
+  };
+
+  // ✅ IMAGE CHANGE
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setBannerImage(file || null);
@@ -31,27 +45,35 @@ function AddBanner() {
     } else {
       setPreview("");
     }
+
+    setErrors((prev) => ({
+      ...prev,
+      image: "",
+    }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // ✅ VALIDATION
+  const validate = () => {
+    let tempErrors = {};
 
-    // ✅ Validation
     if (!title.trim()) {
-      return Swal.fire({
-        icon: "warning",
-        title: "Validation Error",
-        text: "Title is required",
-      });
+      tempErrors.title = "Title is required";
     }
 
     if (!bannerImage) {
-      return Swal.fire({
-        icon: "warning",
-        title: "Validation Error",
-        text: "Banner image is required",
-      });
+      tempErrors.image = "Banner image is required";
     }
+
+    setErrors(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
+
+  // ✅ SUBMIT
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // ❌ stop if invalid
+    if (!validate()) return;
 
     try {
       setLoading(true);
@@ -97,7 +119,6 @@ function AddBanner() {
         });
       }
     } catch (error) {
-      console.log("Add banner error:", error);
       Swal.close();
 
       Swal.fire({
@@ -119,31 +140,43 @@ function AddBanner() {
 
         <div className="card-body">
           <form onSubmit={handleSubmit}>
+
+            {/* TITLE */}
             <div className="mb-3 row align-items-center">
               <label className="col-sm-2 col-form-label">Title</label>
               <div className="col-sm-10">
                 <input
                   type="text"
-                  className="form-control"
+                  className={`form-control ${errors.title ? "is-invalid" : ""}`}
                   value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  onChange={handleTitleChange}
                   placeholder="Enter banner title"
                 />
+                {errors.title && (
+                  <div className="invalid-feedback">{errors.title}</div>
+                )}
               </div>
             </div>
 
+            {/* IMAGE */}
             <div className="mb-3 row align-items-center">
               <label className="col-sm-2 col-form-label">Banner</label>
               <div className="col-sm-10">
                 <input
                   type="file"
-                  className="form-control"
+                  className={`form-control ${errors.image ? "is-invalid" : ""}`}
                   accept="image/*"
                   onChange={handleImageChange}
                 />
+                {errors.image && (
+                  <div className="invalid-feedback d-block">
+                    {errors.image}
+                  </div>
+                )}
               </div>
             </div>
 
+            {/* PREVIEW */}
             {preview && (
               <div className="mb-3 row">
                 <label className="col-sm-2 col-form-label">Preview</label>
@@ -163,6 +196,7 @@ function AddBanner() {
               </div>
             )}
 
+            {/* BUTTONS */}
             <div className="row">
               <div className="col-sm-10 offset-sm-2 d-flex gap-2">
                 <button
@@ -182,6 +216,7 @@ function AddBanner() {
                 </button>
               </div>
             </div>
+
           </form>
         </div>
       </div>
