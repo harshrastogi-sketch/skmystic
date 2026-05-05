@@ -17,12 +17,13 @@ function EditFaq() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
+  // ✅ FETCH FAQ
   const fetchFaq = async () => {
     try {
       const res = await fetch(`${BASE_URL}faq/getByid/${id}`);
       const data = await res.json();
-      console.log(data.data.heading);
-      if (data.status) {
+
+      if (data.status && data.data) {
         setFormData({
           heading: data.data.heading || "",
           description: data.data.description || "",
@@ -40,29 +41,39 @@ function EditFaq() {
     fetchFaq();
   }, []);
 
+  // ✅ FIXED (no state override issue)
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
 
-    setErrors({ ...errors, [e.target.name]: "" });
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
   };
 
+  // ✅ FIXED (important)
   const handleEditorChange = (event, editor) => {
     const data = editor.getData();
 
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       description: data,
-    });
+    }));
 
-    setErrors({ ...errors, description: "" });
+    setErrors((prev) => ({
+      ...prev,
+      description: "",
+    }));
   };
 
   const isEmptyHTML = (html) => {
     const div = document.createElement("div");
-    div.innerHTML = html;
+    div.innerHTML = html || "";
     return div.textContent.trim() === "" && div.querySelector("img") === null;
   };
 
@@ -112,6 +123,7 @@ function EditFaq() {
     setLoading(false);
   };
 
+  // ✅ IMAGE UPLOAD
   function MyUploadAdapterPlugin(editor) {
     editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
       return createUploadAdapter(loader);
@@ -119,7 +131,6 @@ function EditFaq() {
   }
 
   function createUploadAdapter(loader) {
-
     return {
       upload: () => {
         return loader.file.then((file) => {
@@ -137,15 +148,13 @@ function EditFaq() {
               }
 
               return {
-                default: res.url, // ✅ same as before
+                default: res.url,
               };
             });
         });
       },
 
-      abort: () => {
-        // optional: handle cancel upload
-      },
+      abort: () => {},
     };
   }
 
@@ -154,6 +163,7 @@ function EditFaq() {
       <h2>Edit FAQ</h2>
 
       <form onSubmit={handleSubmit} className="card p-4">
+        {/* HEADING */}
         <div className="mb-3">
           <label className="form-label">Heading</label>
           <input
@@ -168,6 +178,7 @@ function EditFaq() {
           )}
         </div>
 
+        {/* DESCRIPTION */}
         <div className="mb-3">
           <label className="form-label">Description</label>
 
@@ -187,6 +198,7 @@ function EditFaq() {
           )}
         </div>
 
+        {/* BUTTONS */}
         <div className="d-flex gap-2">
           <button type="submit" className="btn btn-success" disabled={loading}>
             {loading ? "Updating..." : "Update FAQ"}
