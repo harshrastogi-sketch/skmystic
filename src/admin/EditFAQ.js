@@ -21,7 +21,7 @@ function EditFaq() {
     try {
       const res = await fetch(`${BASE_URL}faq/getByid/${id}`);
       const data = await res.json();
-
+      console.log(data);
       if (data.status) {
         setFormData({
           heading: data.data.heading || "",
