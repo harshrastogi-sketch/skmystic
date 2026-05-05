@@ -1,22 +1,50 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+
+function FaqDescription({ html }) {
+  const div = document.createElement("div");
+  div.innerHTML = html || "";
+
+  const img = div.querySelector("img");
+  const text = div.textContent || "";
+
+  return (
+    <div>
+      {img && (
+        <img
+          src={img.getAttribute("src")}
+          alt="FAQ"
+          style={{
+            width: "120px",
+            height: "70px",
+            objectFit: "cover",
+            borderRadius: "6px",
+            marginBottom: "6px",
+            display: "block",
+          }}
+        />
+      )}
+
+      <div>
+        {text.length > 120 ? text.substring(0, 120) + "..." : text}
+      </div>
+    </div>
+  );
+}
 
 function FAQ() {
   const [faqs, setFaqs] = useState([]);
   const navigate = useNavigate();
   const BASE_URL = process.env.REACT_APP_BASE_URL;
 
-  // ✅ FETCH FAQ
   const fetchFaqs = async () => {
     try {
       const res = await fetch(`${BASE_URL}faq`);
       const data = await res.json();
 
       if (data.status) {
-        setFaqs(data.data);   // ✅ FIXED
+        setFaqs(data.data);
       } else {
         setFaqs([]);
       }
@@ -24,11 +52,11 @@ function FAQ() {
       Swal.fire("Error", "Failed to fetch FAQs", "error");
     }
   };
+
   useEffect(() => {
     fetchFaqs();
   }, []);
 
-  // ✅ TOGGLE STATUS
   const handleToggleStatus = async (id, currentStatus) => {
     const isActive = String(currentStatus) === "1";
 
@@ -52,13 +80,14 @@ function FAQ() {
       if (data.status) {
         fetchFaqs();
         Swal.fire("Success", "Status updated", "success");
+      } else {
+        Swal.fire("Error", data.message || "Status update failed", "error");
       }
     } catch {
       Swal.fire("Error", "Update failed", "error");
     }
   };
 
-  // ✅ DELETE FAQ
   const handleDelete = async (id) => {
     const confirm = await Swal.fire({
       title: "Delete FAQ?",
@@ -78,6 +107,8 @@ function FAQ() {
       if (data.status) {
         setFaqs((prev) => prev.filter((f) => f.id !== id));
         Swal.fire("Deleted", "FAQ removed", "success");
+      } else {
+        Swal.fire("Error", data.message || "Delete failed", "error");
       }
     } catch {
       Swal.fire("Error", "Delete failed", "error");
@@ -88,6 +119,7 @@ function FAQ() {
     <div className="container mt-4">
       <div className="d-flex justify-content-between mb-3">
         <h2>FAQs</h2>
+
         <button
           className="btn btn-primary"
           onClick={() => navigate("/admin/add-faq")}
@@ -116,34 +148,26 @@ function FAQ() {
                 <td>{item.heading}</td>
 
                 <td style={{ maxWidth: "300px" }}>
-                  <div
-                    dangerouslySetInnerHTML={{
-                      __html:
-                        item.description?.substring(0, 120) + "...",
-                    }}
-                  />
+                  <FaqDescription html={item.description} />
                 </td>
 
-                {/* ✅ STATUS BUTTON */}
                 <td>
                   <button
-                    className={`btn btn-sm ${item.status == 1 ? "btn-success" : "btn-secondary"
-                      }`}
-                    onClick={() =>
-                      handleToggleStatus(item.id, item.status)
-                    }
+                    className={`btn btn-sm ${
+                      String(item.status) === "1"
+                        ? "btn-success"
+                        : "btn-secondary"
+                    }`}
+                    onClick={() => handleToggleStatus(item.id, item.status)}
                   >
-                    {item.status == 1 ? "Active" : "Inactive"}
+                    {String(item.status) === "1" ? "Active" : "Inactive"}
                   </button>
                 </td>
 
-                {/* ✅ ACTION BUTTONS */}
                 <td>
                   <button
                     className="btn btn-warning btn-sm me-2"
-                    onClick={() =>
-                      navigate(`/admin/edit-faq/${item.id}`)
-                    }
+                    onClick={() => navigate(`/admin/edit-faq/${item.id}`)}
                   >
                     Edit
                   </button>

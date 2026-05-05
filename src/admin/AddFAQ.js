@@ -86,8 +86,57 @@ function AddFaq() {
     setLoading(false);
   };
 
+
+  function MyUploadAdapterPlugin(editor) {
+    editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
+      return createUploadAdapter(loader);
+    };
+  }
+
+  function createUploadAdapter(loader) {
+
+    return {
+      upload: () => {
+        return loader.file.then((file) => {
+          const formData = new FormData();
+          formData.append("image", file);
+
+          return fetch(`${BASE_URL}api/editor-image`, {
+            method: "POST",
+            body: formData,
+          })
+            .then((res) => res.json())
+            .then((res) => {
+              if (!res.status) {
+                throw new Error(res.message || "Image upload failed");
+              }
+
+              return {
+                default: res.url, // ✅ same as before
+              };
+            });
+        });
+      },
+
+      abort: () => {
+        // optional: handle cancel upload
+      },
+    };
+  }
   return (
     <div className="container mt-4">
+      <style>
+        {`
+        .ck-content img {
+          max-width: 100%;
+          height: auto;
+        }
+
+        .ck-content figure.image {
+          max-width: 100%;
+        }
+      `}
+      </style>
       <h2>Add FAQ</h2>
 
       <form onSubmit={handleSubmit} className="card p-4">
@@ -115,6 +164,9 @@ function AddFaq() {
             <CKEditor
               editor={ClassicEditor}
               data={formData.description}
+              config={{
+                extraPlugins: [MyUploadAdapterPlugin],
+              }}
               onChange={handleEditorChange}
             />
           </div>

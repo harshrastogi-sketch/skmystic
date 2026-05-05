@@ -6,10 +6,9 @@ const FAQ = () => {
   const [faqs, setFaqs] = useState([]);
   const BASE_URL = process.env.REACT_APP_BASE_URL;
 
-  // ✅ FETCH FAQ FROM API
   const fetchFaqs = async () => {
     try {
-      const res = await fetch(`${BASE_URL}faq`);
+      const res = await fetch(`${BASE_URL}faq_users`);
       const data = await res.json();
 
       if (data.status) {
@@ -27,14 +26,37 @@ const FAQ = () => {
   }, []);
 
   return (
-    <div className="container my-5">
+    <div className="container my-5 faq-page">
+      <style>
+        {`
+          .faq-description img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 8px;
+            margin: 10px 0;
+          }
+
+          .faq-description figure {
+            margin: 0;
+            max-width: 100%;
+          }
+
+          .faq-description .image {
+            max-width: 100%;
+          }
+
+          .faq-description p {
+            margin-bottom: 8px;
+          }
+        `}
+      </style>
+
       <h2 className="mb-4 text-center">Frequently Asked Questions</h2>
 
       {faqs.length > 0 ? (
         faqs.map((faq, index) => (
           <div key={faq.id} className="mb-3">
-            
-            {/* QUESTION */}
             <div
               className="d-flex align-items-start"
               style={{ backgroundColor: "orange", padding: "0.5rem" }}
@@ -53,21 +75,14 @@ const FAQ = () => {
                 Q.{index + 1}
               </span>
 
-              <strong style={{ color: "white" }}>
-                {faq.heading} {/* ✅ from API */}
-              </strong>
+              <strong style={{ color: "white" }}>{faq.heading}</strong>
             </div>
 
-            {/* ANSWER */}
             <div className="p-3 border" style={{ borderTop: "0" }}>
-              
-              {/* If plain text */}
-              {/* {faq.description} */}
-
-              {/* If using CKEditor HTML */}
               <div
+                className="faq-description"
                 dangerouslySetInnerHTML={{
-                  __html: faq.description,
+                  __html: faq.description || "",
                 }}
               />
             </div>

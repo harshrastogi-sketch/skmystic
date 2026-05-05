@@ -17,7 +17,6 @@ function EditFaq() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
-  // ✅ FETCH SINGLE FAQ
   const fetchFaq = async () => {
     try {
       const res = await fetch(`${BASE_URL}faq/getByid/${id}`);
@@ -41,7 +40,6 @@ function EditFaq() {
     fetchFaq();
   }, []);
 
-  // ✅ INPUT CHANGE
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -51,7 +49,6 @@ function EditFaq() {
     setErrors({ ...errors, [e.target.name]: "" });
   };
 
-  // ✅ CKEDITOR CHANGE
   const handleEditorChange = (event, editor) => {
     const data = editor.getData();
 
@@ -63,11 +60,10 @@ function EditFaq() {
     setErrors({ ...errors, description: "" });
   };
 
-  // ✅ VALIDATION
   const isEmptyHTML = (html) => {
     const div = document.createElement("div");
     div.innerHTML = html;
-    return div.textContent.trim() === "";
+    return div.textContent.trim() === "" && div.querySelector("img") === null;
   };
 
   const validate = () => {
@@ -85,7 +81,6 @@ function EditFaq() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // ✅ UPDATE FAQ
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -117,12 +112,48 @@ function EditFaq() {
     setLoading(false);
   };
 
+  function MyUploadAdapterPlugin(editor) {
+    editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
+      return createUploadAdapter(loader);
+    };
+  }
+
+  function createUploadAdapter(loader) {
+
+    return {
+      upload: () => {
+        return loader.file.then((file) => {
+          const formData = new FormData();
+          formData.append("image", file);
+
+          return fetch(`${BASE_URL}api/editor-image`, {
+            method: "POST",
+            body: formData,
+          })
+            .then((res) => res.json())
+            .then((res) => {
+              if (!res.status) {
+                throw new Error(res.message || "Image upload failed");
+              }
+
+              return {
+                default: res.url, // ✅ same as before
+              };
+            });
+        });
+      },
+
+      abort: () => {
+        // optional: handle cancel upload
+      },
+    };
+  }
+
   return (
     <div className="container mt-4">
       <h2>Edit FAQ</h2>
 
       <form onSubmit={handleSubmit} className="card p-4">
-        {/* Heading */}
         <div className="mb-3">
           <label className="form-label">Heading</label>
           <input
@@ -137,7 +168,6 @@ function EditFaq() {
           )}
         </div>
 
-        {/* Description */}
         <div className="mb-3">
           <label className="form-label">Description</label>
 
@@ -145,24 +175,20 @@ function EditFaq() {
             <CKEditor
               editor={ClassicEditor}
               data={formData.description}
+              config={{
+                extraPlugins: [MyUploadAdapterPlugin],
+              }}
               onChange={handleEditorChange}
             />
           </div>
 
           {errors.description && (
-            <div className="text-danger mt-1">
-              {errors.description}
-            </div>
+            <div className="text-danger mt-1">{errors.description}</div>
           )}
         </div>
 
-        {/* Buttons */}
         <div className="d-flex gap-2">
-          <button
-            type="submit"
-            className="btn btn-success"
-            disabled={loading}
-          >
+          <button type="submit" className="btn btn-success" disabled={loading}>
             {loading ? "Updating..." : "Update FAQ"}
           </button>
 
