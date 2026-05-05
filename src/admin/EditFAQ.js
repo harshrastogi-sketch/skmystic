@@ -24,7 +24,7 @@ function EditFaq() {
       console.log(data);
       if (data.status) {
         setFormData({
-          heading: data.data.heading || "",
+          heading: data.heading || "",
           description: data.data.description || "",
         });
       } else {
