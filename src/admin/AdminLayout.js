@@ -154,7 +154,7 @@ function AdminLayout({ children }) {
               </button>
             </div>
 
-            {/* <button className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#aboutMenu" aria-expanded="false" aria-controls="aboutMenu">
+             <button className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#aboutMenu" aria-expanded="false" aria-controls="aboutMenu">
               <span>About US</span>
               <span>
                 <FaChevronRight />
@@ -162,14 +162,14 @@ function AdminLayout({ children }) {
             </button>
 
             <div className="collapse" id="aboutMenu">
-              <button className="list-group-item list-group-item-action ps-4" onClick={() => navigate("/admin/policies")}>
+              <button className="list-group-item list-group-item-action ps-4" onClick={() => navigate("/admin/about-us")}>
                 → About US
               </button>
 
-              <button className="list-group-item list-group-item-action ps-4" onClick={() => navigate("/admin/add-brand")}>
+              <button className="list-group-item list-group-item-action ps-4" onClick={() => navigate("/admin/add-aboutus")}>
                 → Add About US
               </button>
-            </div> */}
+            </div> 
 
           </div>
         </div>

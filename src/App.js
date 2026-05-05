@@ -54,6 +54,9 @@ import EditPolicies from "./admin/EditPolicies";
 import FAQ from "./admin/AdminFAQ";
 import AddFAQ from "./admin/AddFAQ";
 import EditFAQ from "./admin/EditFAQ";
+import AdminAboutus from "./admin/AdminAboutus";
+import AddAboutus from "./admin/AddAboutus";
+import EditAboutus from "./admin/EditAboutus";
 
 
 
@@ -151,6 +154,9 @@ function App() {
         <Route path="/admin/faq" element={<AdminLayout><FAQ /></AdminLayout>} />
         <Route path="/admin/add-faq" element={<AdminLayout><AddFAQ /></AdminLayout>} />
         <Route path="/admin/edit-faq/:id" element={<AdminLayout><EditFAQ /></AdminLayout>} />
+         <Route path="/admin/about-us" element={<AdminLayout><AdminAboutus /></AdminLayout>} />
+        <Route path="/admin/add-aboutus" element={<AdminLayout><AddAboutus /></AdminLayout>} />
+        <Route path="/admin/edit-aboutus/:id" element={<AdminLayout><EditAboutus /></AdminLayout>} /> 
 
 
         <Route path="/admin" element={<AdminLogin />} />
