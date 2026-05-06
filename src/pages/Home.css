@@ -732,3 +732,134 @@
   background: #ff7a00;
   color: #fff;
 }
+
+.review-section {
+  background: #062636;
+  padding: 70px 8%;
+  position: relative;
+}
+
+.review-section h2 {
+  text-align: center;
+  color: #ff650f;
+  font-size: 30px;
+  font-weight: 700;
+  margin-bottom: 55px;
+}
+
+.review-slider .slick-slide {
+  padding: 0 14px;
+}
+
+.review-card {
+  background: #fff;
+  min-height: 360px;
+  box-shadow: 5px 5px 0 rgba(255, 255, 255, 0.12);
+}
+
+.review-top {
+  padding: 42px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.review-profile {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.review-profile img {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.review-user h4 {
+  margin: 0;
+  color: #333;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.review-user span {
+  color: #666;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.quote {
+  color: #ea9585;
+  font-size: 72px;
+  line-height: 50px;
+  font-weight: bold;
+}
+
+.review-divider {
+  border-top: 1px solid #eee;
+}
+
+.review-content {
+  padding: 35px 40px;
+}
+
+.review-content p {
+  color: #666;
+  font-size: 16px;
+  line-height: 1.9;
+  margin-bottom: 22px;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.stars {
+  color: #f5a019;
+  font-size: 16px;
+  letter-spacing: 3px;
+}
+
+/* ARROWS */
+
+.review-slider .slick-prev,
+.review-slider .slick-next {
+  width: 38px;
+  height: 38px;
+  z-index: 99;
+}
+
+.review-slider .slick-prev {
+  left: -5px;
+}
+
+.review-slider .slick-next {
+  right: -5px;
+}
+
+.review-slider .slick-prev:before,
+.review-slider .slick-next:before {
+  font-size: 20px;
+  opacity: 1;
+  color: #fff;
+}
+
+.review-slider .slick-prev,
+.review-slider .slick-next {
+  background: #ef4e1b;
+  border-radius: 4px;
+}
+
+.review-slider .slick-prev:hover,
+.review-slider .slick-next:hover {
+  background: #d94414;
+}
+
+@media (max-width: 992px) {
+  .review-section {
+    padding: 50px 20px;
+  }
+}

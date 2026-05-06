@@ -2,17 +2,21 @@ import React, { useState, useEffect } from "react";
 import "./Home.css";
 import { useCart } from "../context/CartContext";
 import { Link } from "react-router-dom";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 const Home = () => {
 
   const { addToCart, message } = useCart();
-  
-   const BASE_URL = process.env.REACT_APP_BASE_URL;
+
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   const [products, setProducts] = useState([]);
   const [blogs, setBlogs] = useState([]);
   const [banners, setBanners] = useState([]);
   const [currentBanner, setCurrentBanner] = useState(0);
+  const [reviews, setReviews] = useState([]);
 
   // ✅ GET IMAGE HELPER (IMPORTANT)
   const getImage = (item) => {
@@ -92,7 +96,48 @@ const Home = () => {
     if (img.startsWith("http")) return img;
     return BASE_URL + img;
   };
+  // CUSTOMER REVIEWS
+  useEffect(() => {
+    const getReviews = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}api/customerreview_users`);
+        const data = await res.json();
 
+        if (data.status) {
+          setReviews(data.data || []);
+        }
+      } catch (error) {
+        console.log("Customer review fetch error:", error);
+      }
+    };
+
+    getReviews();
+  }, []);
+
+  const getReviewImage = (img) => {
+    if (!img) return "https://via.placeholder.com/80x80?text=User";
+    if (img.startsWith("http")) return img;
+    return BASE_URL + img;
+  };
+
+  const reviewSettings = {
+  dots: false,
+  infinite: true,
+  speed: 600,
+  slidesToShow: 3,
+  slidesToScroll: 1,
+  arrows: true,
+  autoplay: true,
+  autoplaySpeed: 4000,
+  responsive: [
+    {
+      breakpoint: 992,
+      settings: {
+        slidesToShow: 1,
+      },
+    },
+  ],
+};
   return (
     <div className="home">
 
@@ -142,82 +187,45 @@ const Home = () => {
         </Link>
       </div>
 
-      <div className="review-section">
-        <h2>Customer review</h2>
+     <div className="review-section">
+  <h2>Customer review</h2>
 
-        <div className="review-grid">
+  {reviews.length > 0 ? (
+    <Slider {...reviewSettings} className="review-slider">
+      {reviews.map((review) => (
+        <div key={review.id}>
           <div className="review-card">
             <div className="review-top">
               <div className="review-profile">
-                <img src="https://i.pravatar.cc/80?img=1" alt="user" />
+                <img
+                  src={getReviewImage(review.image)}
+                  alt={review.name}
+                />
+
                 <div className="review-user">
-                  <h4>Sushmita</h4>
-                  <span>Noida</span>
+                  <h4>{review.name}</h4>
+                  <span>{review.title}</span>
                 </div>
               </div>
+
               <div className="quote">❞</div>
             </div>
 
             <div className="review-divider"></div>
 
             <div className="review-content">
-              <p>
-                I liked all the products here and bought many of them for myself and
-                my family. Everyone loved them.
-              </p>
-              <div className="stars">★★★★★</div>
-            </div>
-          </div>
+              <p>{review.description}</p>
 
-          <div className="review-card">
-            <div className="review-top">
-              <div className="review-profile">
-                <img src="https://i.pravatar.cc/80?img=12" alt="user" />
-                <div className="review-user">
-                  <h4>Prashant</h4>
-                  <span>Haridwar</span>
-                </div>
-              </div>
-              <div className="quote">❞</div>
-            </div>
-
-            <div className="review-divider"></div>
-
-            <div className="review-content">
-              <p>
-                Finances were the biggest issue in my life which was never going to
-                end. But after wearing the Meru Ring it replaced the problems with
-                prosperity.
-              </p>
-              <div className="stars">★★★★★</div>
-            </div>
-          </div>
-
-          <div className="review-card">
-            <div className="review-top">
-              <div className="review-profile">
-                <img src="https://i.pravatar.cc/80?img=5" alt="user" />
-                <div className="review-user">
-                  <h4>Swati Nagar</h4>
-                  <span>Nagpur</span>
-                </div>
-              </div>
-              <div className="quote">❞</div>
-            </div>
-
-            <div className="review-divider"></div>
-
-            <div className="review-content">
-              <p>
-                My life was going well but still something always felt missing. And it
-                was spirituality which gave me my inner peace back. And it all
-                happened due to the blessing of the Meru Ring.
-              </p>
               <div className="stars">★★★★★</div>
             </div>
           </div>
         </div>
-      </div>
+      ))}
+    </Slider>
+  ) : (
+    <p className="no-review">No customer reviews found.</p>
+  )}
+</div>
 
       {/* FEATURED */}
       <div className="products-section">

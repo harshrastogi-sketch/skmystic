@@ -57,6 +57,9 @@ import EditFAQ from "./admin/EditFAQ";
 import AdminAboutus from "./admin/AdminAboutus";
 import AddAboutus from "./admin/AddAboutus";
 import EditAboutus from "./admin/EditAboutus";
+import AdminCustomerreview from "./admin/AdminCustomerreview";
+import AddCustomerreview from "./admin/AddCustomerreview";
+import EditCustomerreview from "./admin/EditCustomerreview";
 
 
 
@@ -157,6 +160,9 @@ function App() {
          <Route path="/admin/about-us" element={<AdminLayout><AdminAboutus /></AdminLayout>} />
         <Route path="/admin/add-aboutus" element={<AdminLayout><AddAboutus /></AdminLayout>} />
         <Route path="/admin/edit-aboutus/:id" element={<AdminLayout><EditAboutus /></AdminLayout>} /> 
+         <Route path="/admin/customer-review" element={<AdminLayout><AdminCustomerreview /></AdminLayout>} />
+         <Route path="/admin/add-customerreview" element={<AdminLayout><AddCustomerreview /></AdminLayout>} />
+        <Route path="/admin/edit-customerreview/:id" element={<AdminLayout><EditCustomerreview /></AdminLayout>} /> 
 
 
         <Route path="/admin" element={<AdminLogin />} />

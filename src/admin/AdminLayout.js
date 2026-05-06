@@ -84,6 +84,23 @@ function AdminLayout({ children }) {
               </button>
             </div>
 
+            <button className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#reviewMenu" aria-expanded="false" aria-controls="reviewMenu">
+              <span>Customer Review</span>
+              <span>
+                <FaChevronRight />
+              </span>
+            </button>
+
+            <div className="collapse" id="reviewMenu">
+              <button className="list-group-item list-group-item-action ps-4" onClick={() => navigate("/admin/customer-review")}>
+                → Customer Review
+              </button>
+
+              <button className="list-group-item list-group-item-action ps-4" onClick={() => navigate("/admin/add-customerreview")}>
+                → Add Customer Review
+              </button>
+            </div> 
+
             <button className="list-group-item list-group-item-action d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#categoryMenu" aria-expanded="false" aria-controls="categoryMenu">
               <span>Category</span>
               <span>
