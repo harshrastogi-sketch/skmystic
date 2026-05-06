@@ -83,7 +83,6 @@ function AddBlog() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // ❌ stop if invalid
     if (!validate()) return;
 
     const data = new FormData();
@@ -142,6 +141,40 @@ function AddBlog() {
     }
   };
 
+   function MyUploadAdapterPlugin(editor) {
+    editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
+      return createUploadAdapter(loader);
+    };
+  }
+
+  function createUploadAdapter(loader) {
+    return {
+      upload: () => {
+        return loader.file.then((file) => {
+          const imageFormData = new FormData();
+          imageFormData.append("image", file);
+
+          return fetch(`${BASE_URL}api/editor-image`, {
+            method: "POST",
+            body: imageFormData,
+          })
+            .then((res) => res.json())
+            .then((res) => {
+              if (!res.status) {
+                throw new Error(res.message || "Image upload failed");
+              }
+
+              return {
+                default: res.url,
+              };
+            });
+        });
+      },
+
+      abort: () => { },
+    };
+  }
+
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -193,6 +226,9 @@ function AddBlog() {
             <CKEditor
               editor={ClassicEditor}
               data={formData.description || ""}
+              config={{
+                    extraPlugins: [MyUploadAdapterPlugin],
+                  }}
               onChange={(event, editor) => {
                 const data = editor.getData();
                 setFormData((prev) => ({

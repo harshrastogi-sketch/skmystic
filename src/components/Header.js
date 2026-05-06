@@ -69,7 +69,7 @@ const Header = ({ setIsCartOpen }) => {
                 ) : (
                   <>
                     {!isAdmin && <Link to="/dashboard">My Profile</Link>}
-                    {isAdmin && <Link to="/admin">Admin Panel</Link>}
+                    {isAdmin && <Link to="/admin/dashboard">Admin Panel</Link>}
 
                     <button
                       type="button"

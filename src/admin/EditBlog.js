@@ -7,109 +7,134 @@ import Swal from "sweetalert2";
 function EditBlog() {
     const navigate = useNavigate();
     const { id } = useParams();
-
-    const [title, setTitle] = useState("");
-    const [author, setAuthor] = useState("");
-    const [shortDescription, setShortDescription] = useState("");
-    const [content, setContent] = useState("");
-    const [blogImage, setBlogImage] = useState(null);
-    const [preview, setPreview] = useState("");
-    const [loading, setLoading] = useState(false);
-
     const BASE_URL = process.env.REACT_APP_BASE_URL;
 
+    const [formData, setFormData] = useState({
+        title: "",
+        author: "",
+        description: "",
+        content: "",
+        date: "",
+        status: "1",
+    });
+
+    const [image, setImage] = useState(null);
+    const [preview, setPreview] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState({});
+
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        const userData = localStorage.getItem("user");
-        const user = userData ? JSON.parse(userData) : null;
+        fetchBlog();
+    }, [id]);
 
-        if (!token || !user || user.role !== "admin") {
-            navigate("/admin");
-            return;
-        }
-
-        fetchBlog(token);
-    }, [id, navigate]);
-
-    const fetchBlog = async (token) => {
+    const fetchBlog = async () => {
         try {
-            const res = await fetch(`${BASE_URL}api/blogs/${id}`, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            const res = await fetch(`${BASE_URL}api/blogs/${id}`);
+            const result = await res.json();
 
-            const data = await res.json();
+            if (result.status === true && result.data) {
+                const blog = result.data;
 
-            if (data.status && data.data) {
-                const blog = data.data;
-
-                setTitle(blog.title || "");
-                setAuthor(blog.author || "");
-                setShortDescription(blog.description || "");
-                setContent(blog.content || "");
+                setFormData({
+                    title: blog.title || "",
+                    author: blog.author || "",
+                    description: blog.description || "",
+                    content: blog.content || "",
+                    date: blog.date || "",
+                    status: blog.status !== undefined ? String(blog.status) : "1",
+                });
 
                 if (blog.image) {
-                    const imageUrl =
+                    setPreview(
                         blog.image.startsWith("http")
                             ? blog.image
-                            : `${BASE_URL}${blog.image}`;
-
-                    setPreview(imageUrl);
+                            : `${BASE_URL}${blog.image}`
+                    );
                 }
             } else {
-                Swal.fire({
-                    icon: "error",
-                    title: "Not Found",
-                    text: data.message || "Blog not found",
-                });
+                Swal.fire("Error", result.message || "Blog not found", "error");
                 navigate("/admin/blog");
             }
         } catch (error) {
-            console.log("Fetch blog error:", error);
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: "Failed to load blog",
-            });
+            Swal.fire("Error", "Failed to load blog", "error");
         }
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+
+        setErrors((prev) => ({
+            ...prev,
+            [name]: "",
+        }));
     };
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
-        setBlogImage(file || null);
+        setImage(file || null);
 
-        if (file) setPreview(URL.createObjectURL(file));
+        if (file) {
+            setPreview(URL.createObjectURL(file));
+        }
+
+        setErrors((prev) => ({
+            ...prev,
+            image: "",
+        }));
+    };
+
+    const validate = () => {
+        let tempErrors = {};
+
+        if (!formData.title.trim()) {
+            tempErrors.title = "Title is required";
+        }
+
+        if (!formData.author.trim()) {
+            tempErrors.author = "Author is required";
+        }
+
+        if (!formData.description || formData.description === "<p><br></p>") {
+            tempErrors.description = "Description is required";
+        }
+
+        if (!formData.content.trim()) {
+            tempErrors.content = "Content is required";
+        }
+
+        if (!formData.date) {
+            tempErrors.date = "Date is required";
+        }
+
+        setErrors(tempErrors);
+
+        return Object.keys(tempErrors).length === 0;
     };
 
     const handleUpdate = async (e) => {
         e.preventDefault();
 
-        if (!title.trim()) {
-            Swal.fire("Validation Error", "Blog title is required", "warning");
-            return;
-        }
+        if (!validate()) return;
 
-        if (!author.trim()) {
-            Swal.fire("Validation Error", "Author is required", "warning");
-            return;
-        }
+        const data = new FormData();
+        data.append("title", formData.title);
+        data.append("author", formData.author);
+        data.append("description", formData.description);
+        data.append("content", formData.content);
+        data.append("date", formData.date);
+        data.append("status", formData.status);
 
-        if (!shortDescription.trim()) {
-            Swal.fire("Validation Error", "Short description is required", "warning");
-            return;
-        }
-
-        if (!content.trim()) {
-            Swal.fire("Validation Error", "Blog content is required", "warning");
-            return;
+        if (image) {
+            data.append("image", image);
         }
 
         try {
             setLoading(true);
-
-            const token = localStorage.getItem("token");
 
             Swal.fire({
                 title: "Updating blog...",
@@ -117,171 +142,236 @@ function EditBlog() {
                 didOpen: () => Swal.showLoading(),
             });
 
-            const formData = new FormData();
-            formData.append("title", title);
-            formData.append("author", author);
-            formData.append("description", shortDescription);
-            formData.append("content", content);
-
-            if (blogImage) {
-                formData.append("image", blogImage);
-            }
-
             const res = await fetch(`${BASE_URL}api/update-blog/${id}`, {
                 method: "POST",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-                body: formData,
+                body: data,
             });
 
-            const data = await res.json();
+            const result = await res.json();
             Swal.close();
 
-            if (data.status) {
+            if (result.status === true) {
                 Swal.fire({
                     icon: "success",
-                    title: "Updated",
-                    text: "Blog updated successfully",
+                    title: result.message || "Blog updated successfully",
                     timer: 1500,
                     showConfirmButton: false,
                 });
 
-                navigate("/admin/blog");
+                setTimeout(() => {
+                    navigate("/admin/blog");
+                }, 1500);
             } else {
                 Swal.fire({
                     icon: "error",
-                    title: "Update Failed",
-                    text: data.message || "Something went wrong",
+                    title: result.message || "Failed to update blog",
                 });
             }
         } catch (error) {
-            console.log("Update blog error:", error);
             Swal.close();
 
             Swal.fire({
                 icon: "error",
                 title: "Server Error",
-                text: "Something went wrong while updating blog",
+                text: "Error updating blog",
             });
         } finally {
             setLoading(false);
         }
     };
 
+    function MyUploadAdapterPlugin(editor) {
+        editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
+            return createUploadAdapter(loader);
+        };
+    }
+
+    function createUploadAdapter(loader) {
+        return {
+            upload: () => {
+                return loader.file.then((file) => {
+                    const imageFormData = new FormData();
+                    imageFormData.append("image", file);
+
+                    return fetch(`${BASE_URL}api/editor-image`, {
+                        method: "POST",
+                        body: imageFormData,
+                    })
+                        .then((res) => res.json())
+                        .then((res) => {
+                            if (!res.status) {
+                                throw new Error(res.message || "Image upload failed");
+                            }
+
+                            return {
+                                default: res.url,
+                            };
+                        });
+                });
+            },
+
+            abort: () => { },
+        };
+    }
+
     return (
-        <div className="container py-4">
-            <div className="card shadow-sm border-0">
-                <div className="card-header bg-white">
-                    <h3 className="mb-0 text-info fw-bold">Edit Blog</h3>
-                </div>
-
-                <div className="card-body">
-                    <form onSubmit={handleUpdate}>
-                        <div className="mb-3 row align-items-center">
-                            <label className="col-sm-3 col-form-label">Blog Title</label>
-                            <div className="col-sm-9">
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="mb-3 row align-items-center">
-                            <label className="col-sm-3 col-form-label">Author</label>
-                            <div className="col-sm-9">
-                                <input
-                                    type="text"
-                                    className="form-control"
-                                    value={author}
-                                    onChange={(e) => setAuthor(e.target.value)}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="mb-3 row">
-                            <label className="col-sm-3 col-form-label">Short Description</label>
-                            <div className="col-sm-9">
-                                <textarea
-                                    className="form-control"
-                                    rows="3"
-                                    value={shortDescription}
-                                    onChange={(e) => setShortDescription(e.target.value)}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="mb-3 row align-items-center">
-                            <label className="col-sm-3 col-form-label">Image</label>
-                            <div className="col-sm-9">
-                                <input
-                                    type="file"
-                                    className="form-control"
-                                    accept="image/*"
-                                    onChange={handleImageChange}
-                                />
-                            </div>
-                        </div>
-
-                        {preview && (
-                            <div className="mb-3 row">
-                                <label className="col-sm-3 col-form-label">Preview</label>
-                                <div className="col-sm-9">
-                                    <img
-                                        src={preview}
-                                        alt="preview"
-                                        style={{
-                                            width: "180px",
-                                            height: "90px",
-                                            objectFit: "contain",
-                                            border: "1px solid #ddd",
-                                            borderRadius: "4px",
-                                            padding: "4px",
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="mb-3 row">
-                            <label className="col-sm-3 col-form-label">Content</label>
-                            <div className="col-sm-9">
-                                <CKEditor
-                                    editor={ClassicEditor}
-                                    data={content || ""}
-                                    onChange={(event, editor) => {
-                                        setContent(editor.getData());
-                                    }}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="row">
-                            <div className="col-sm-9 offset-sm-3 d-flex gap-2">
-                                <button
-                                    type="submit"
-                                    className="btn btn-info text-white"
-                                    disabled={loading}
-                                >
-                                    {loading ? "Updating..." : "Update"}
-                                </button>
-
-                                <button
-                                    type="button"
-                                    className="btn btn-secondary"
-                                    onClick={() => navigate("/admin/blog")}
-                                >
-                                    Cancel
-                                </button>
-                            </div>
-                        </div>
-
-                    </form>
-                </div>
+        <div className="container mt-4">
+            <div className="d-flex justify-content-between align-items-center mb-3">
+                <h2>Edit Blog</h2>
+                <button
+                    className="btn btn-secondary"
+                    onClick={() => navigate("/admin/blog")}
+                >
+                    Back
+                </button>
             </div>
+
+            <form onSubmit={handleUpdate} className="card p-4 shadow-sm">
+                {/* TITLE */}
+                <div className="mb-3">
+                    <label className="form-label">Title</label>
+                    <input
+                        type="text"
+                        name="title"
+                        className={`form-control ${errors.title ? "is-invalid" : ""}`}
+                        value={formData.title}
+                        onChange={handleChange}
+                    />
+                    {errors.title && (
+                        <div className="invalid-feedback">{errors.title}</div>
+                    )}
+                </div>
+
+                {/* AUTHOR */}
+                <div className="mb-3">
+                    <label className="form-label">Author</label>
+                    <input
+                        type="text"
+                        name="author"
+                        className={`form-control ${errors.author ? "is-invalid" : ""}`}
+                        value={formData.author}
+                        onChange={handleChange}
+                    />
+                    {errors.author && (
+                        <div className="invalid-feedback">{errors.author}</div>
+                    )}
+                </div>
+
+                {/* DESCRIPTION */}
+                <div className="mb-3">
+                    <label className="form-label">Description</label>
+                    <div
+                        className={
+                            errors.description ? "border border-danger rounded" : ""
+                        }
+                    >
+                        <CKEditor
+                            editor={ClassicEditor}
+                            data={formData.description || ""}
+                            config={{
+                                extraPlugins: [MyUploadAdapterPlugin],
+                            }}
+                            onChange={(event, editor) => {
+                                const data = editor.getData();
+
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    description: data,
+                                }));
+
+                                setErrors((prev) => ({
+                                    ...prev,
+                                    description: "",
+                                }));
+                            }}
+                        />
+                    </div>
+                    {errors.description && (
+                        <div className="text-danger mt-1">{errors.description}</div>
+                    )}
+                </div>
+
+                {/* CONTENT */}
+                <div className="mb-3">
+                    <label className="form-label">Content</label>
+                    <textarea
+                        name="content"
+                        className={`form-control ${errors.content ? "is-invalid" : ""}`}
+                        rows="6"
+                        value={formData.content}
+                        onChange={handleChange}
+                    />
+                    {errors.content && (
+                        <div className="invalid-feedback">{errors.content}</div>
+                    )}
+                </div>
+
+                {/* DATE */}
+                <div className="mb-3">
+                    <label className="form-label">Date</label>
+                    <input
+                        type="date"
+                        name="date"
+                        className={`form-control ${errors.date ? "is-invalid" : ""}`}
+                        value={formData.date}
+                        onChange={handleChange}
+                    />
+                    {errors.date && (
+                        <div className="invalid-feedback">{errors.date}</div>
+                    )}
+                </div>
+
+                {/* STATUS */}
+                <div className="mb-3">
+                    <label className="form-label">Status</label>
+                    <select
+                        name="status"
+                        className="form-control"
+                        value={formData.status}
+                        onChange={handleChange}
+                    >
+                        <option value="1">Active</option>
+                        <option value="0">Inactive</option>
+                    </select>
+                </div>
+
+                {/* IMAGE */}
+                <div className="mb-3">
+                    <label className="form-label">Image</label>
+                    <input
+                        type="file"
+                        className={`form-control ${errors.image ? "is-invalid" : ""}`}
+                        accept="image/*"
+                        onChange={handleImageChange}
+                    />
+                    {errors.image && (
+                        <div className="invalid-feedback d-block">{errors.image}</div>
+                    )}
+                </div>
+
+                {preview && (
+                    <div className="mb-3">
+                        <label className="form-label">Current Image</label>
+                        <br />
+                        <img
+                            src={preview}
+                            alt="Blog Preview"
+                            style={{
+                                width: "180px",
+                                height: "100px",
+                                objectFit: "contain",
+                                border: "1px solid #ddd",
+                                borderRadius: "5px",
+                                padding: "5px",
+                            }}
+                        />
+                    </div>
+                )}
+
+                <button type="submit" className="btn btn-primary" disabled={loading}>
+                    {loading ? "Updating..." : "Update Blog"}
+                </button>
+            </form>
         </div>
     );
 }

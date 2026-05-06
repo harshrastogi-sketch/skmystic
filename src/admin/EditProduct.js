@@ -222,6 +222,41 @@ function EditProduct() {
 
   const sortedItems = [...items].sort((a, b) => a.order - b.order);
 
+
+
+  function MyUploadAdapterPlugin(editor) {
+    editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
+      return createUploadAdapter(loader);
+    };
+  }
+
+  function createUploadAdapter(loader) {
+    return {
+      upload: () => {
+        return loader.file.then((file) => {
+          const imageFormData = new FormData();
+          imageFormData.append("image", file);
+
+          return fetch(`${BASE_URL}api/editor-image`, {
+            method: "POST",
+            body: imageFormData,
+          })
+            .then((res) => res.json())
+            .then((res) => {
+              if (!res.status) {
+                throw new Error(res.message || "Image upload failed");
+              }
+
+              return {
+                default: res.url,
+              };
+            });
+        });
+      },
+
+      abort: () => {},
+    };
+  }
   // ================= UI =================
   return (
     <div className="container mt-5">
@@ -261,6 +296,9 @@ function EditProduct() {
             <CKEditor
               editor={ClassicEditor}
               data={form.description}
+              config={{
+                    extraPlugins: [MyUploadAdapterPlugin],
+                  }}
               onChange={(e, editor) =>
                 setForm((p) => ({ ...p, description: editor.getData() }))
               }

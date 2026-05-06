@@ -133,7 +133,7 @@ function EditAboutUs() {
           const imageFormData = new FormData();
           imageFormData.append("image", file);
 
-          return fetch(`${BASE_URL}aboutus/editor-image`, {
+          return fetch(`${BASE_URL}api/editor-image`, {
             method: "POST",
             body: imageFormData,
           })
