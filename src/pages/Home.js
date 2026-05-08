@@ -121,23 +121,23 @@ const Home = () => {
   };
 
   const reviewSettings = {
-  dots: false,
-  infinite: true,
-  speed: 600,
-  slidesToShow: 3,
-  slidesToScroll: 1,
-  arrows: true,
-  autoplay: true,
-  autoplaySpeed: 4000,
-  responsive: [
-    {
-      breakpoint: 992,
-      settings: {
-        slidesToShow: 1,
+    dots: false,
+    infinite: true,
+    speed: 600,
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    arrows: true,
+    autoplay: true,
+    autoplaySpeed: 4000,
+    responsive: [
+      {
+        breakpoint: 992,
+        settings: {
+          slidesToShow: 1,
+        },
       },
-    },
-  ],
-};
+    ],
+  };
   return (
     <div className="home">
 
@@ -164,16 +164,17 @@ const Home = () => {
           {products.map((item) => (
             <div className="product-card" key={item.id}>
 
-              {/* ✅ FIXED IMAGE */}
-              <img src={getImage(item)} alt={item.name} />
+              <Link to={`/product/${item.id}`} className="product-link">
+                <img src={getImage(item)} alt={item.name} />
 
-              <h3>{item.name}</h3>
+                <h3>{item.name}</h3>
 
-              <div className="rating">
-                ⭐⭐⭐⭐⭐ <span>{item.rating}</span>
-              </div>
+                <div className="rating">
+                  ⭐⭐⭐⭐⭐ <span>{item.rating}</span>
+                </div>
 
-              <div className="price">₹{item.price}</div>
+                <div className="price">₹{item.price}</div>
+              </Link>
 
               <button onClick={() => addToCart(item)}>
                 ADD TO CART
@@ -187,45 +188,45 @@ const Home = () => {
         </Link>
       </div>
 
-     <div className="review-section">
-  <h2>Customer review</h2>
+      <div className="review-section">
+        <h2>Customer review</h2>
 
-  {reviews.length > 0 ? (
-    <Slider {...reviewSettings} className="review-slider">
-      {reviews.map((review) => (
-        <div key={review.id}>
-          <div className="review-card">
-            <div className="review-top">
-              <div className="review-profile">
-                <img
-                  src={getReviewImage(review.image)}
-                  alt={review.name}
-                />
+        {reviews.length > 0 ? (
+          <Slider {...reviewSettings} className="review-slider">
+            {reviews.map((review) => (
+              <div key={review.id}>
+                <div className="review-card">
+                  <div className="review-top">
+                    <div className="review-profile">
+                      <img
+                        src={getReviewImage(review.image)}
+                        alt={review.name}
+                      />
 
-                <div className="review-user">
-                  <h4>{review.name}</h4>
-                  <span>{review.title}</span>
+                      <div className="review-user">
+                        <h4>{review.name}</h4>
+                        <span>{review.title}</span>
+                      </div>
+                    </div>
+
+                    <div className="quote">❞</div>
+                  </div>
+
+                  <div className="review-divider"></div>
+
+                  <div className="review-content">
+                    <p>{review.description}</p>
+
+                    <div className="stars">★★★★★</div>
+                  </div>
                 </div>
               </div>
-
-              <div className="quote">❞</div>
-            </div>
-
-            <div className="review-divider"></div>
-
-            <div className="review-content">
-              <p>{review.description}</p>
-
-              <div className="stars">★★★★★</div>
-            </div>
-          </div>
-        </div>
-      ))}
-    </Slider>
-  ) : (
-    <p className="no-review">No customer reviews found.</p>
-  )}
-</div>
+            ))}
+          </Slider>
+        ) : (
+          <p className="no-review">No customer reviews found.</p>
+        )}
+      </div>
 
       {/* FEATURED */}
       <div className="products-section">
@@ -235,16 +236,17 @@ const Home = () => {
           {products.slice(4, 8).map((item) => (
             <div className="product-card" key={item.id}>
 
-              {/* ✅ FIXED IMAGE */}
-              <img src={getImage(item)} alt={item.name} />
+              <Link to={`/product/${item.id}`} className="product-link">
+                <img src={getImage(item)} alt={item.name} />
 
-              <h3>{item.name}</h3>
+                <h3>{item.name}</h3>
 
-              <div className="rating">
-                ⭐⭐⭐⭐⭐ <span>{item.rating}</span>
-              </div>
+                <div className="rating">
+                  ⭐⭐⭐⭐⭐ <span>{item.rating}</span>
+                </div>
 
-              <div className="price">₹{item.price}</div>
+                <div className="price">₹{item.price}</div>
+              </Link>
 
               <button onClick={() => addToCart(item)}>
                 ADD TO CART
