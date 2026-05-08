@@ -60,6 +60,7 @@ import EditAboutus from "./admin/EditAboutus";
 import AdminCustomerreview from "./admin/AdminCustomerreview";
 import AddCustomerreview from "./admin/AddCustomerreview";
 import EditCustomerreview from "./admin/EditCustomerreview";
+import ProductReview from "./admin/ProductReview"
 
 
 
@@ -157,12 +158,13 @@ function App() {
         <Route path="/admin/faq" element={<AdminLayout><FAQ /></AdminLayout>} />
         <Route path="/admin/add-faq" element={<AdminLayout><AddFAQ /></AdminLayout>} />
         <Route path="/admin/edit-faq/:id" element={<AdminLayout><EditFAQ /></AdminLayout>} />
-         <Route path="/admin/about-us" element={<AdminLayout><AdminAboutus /></AdminLayout>} />
+        <Route path="/admin/about-us" element={<AdminLayout><AdminAboutus /></AdminLayout>} />
         <Route path="/admin/add-aboutus" element={<AdminLayout><AddAboutus /></AdminLayout>} />
-        <Route path="/admin/edit-aboutus/:id" element={<AdminLayout><EditAboutus /></AdminLayout>} /> 
-         <Route path="/admin/customer-review" element={<AdminLayout><AdminCustomerreview /></AdminLayout>} />
-         <Route path="/admin/add-customerreview" element={<AdminLayout><AddCustomerreview /></AdminLayout>} />
-        <Route path="/admin/edit-customerreview/:id" element={<AdminLayout><EditCustomerreview /></AdminLayout>} /> 
+        <Route path="/admin/edit-aboutus/:id" element={<AdminLayout><EditAboutus /></AdminLayout>} />
+        <Route path="/admin/customer-review" element={<AdminLayout><AdminCustomerreview /></AdminLayout>} />
+        <Route path="/admin/add-customerreview" element={<AdminLayout><AddCustomerreview /></AdminLayout>} />
+        <Route path="/admin/edit-customerreview/:id" element={<AdminLayout><EditCustomerreview /></AdminLayout>} />
+        <Route path="/admin/product-reviews/:productId" element={<AdminLayout><ProductReview /></AdminLayout>} />
 
 
         <Route path="/admin" element={<AdminLogin />} />
