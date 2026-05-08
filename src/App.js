@@ -61,6 +61,8 @@ import AdminCustomerreview from "./admin/AdminCustomerreview";
 import AddCustomerreview from "./admin/AddCustomerreview";
 import EditCustomerreview from "./admin/EditCustomerreview";
 import ProductReview from "./admin/ProductReview"
+import ProductStock from "./admin/ProductStock"
+import ProductStockHistory from "./admin/ProductStockHistory"
 
 
 
@@ -165,6 +167,9 @@ function App() {
         <Route path="/admin/add-customerreview" element={<AdminLayout><AddCustomerreview /></AdminLayout>} />
         <Route path="/admin/edit-customerreview/:id" element={<AdminLayout><EditCustomerreview /></AdminLayout>} />
         <Route path="/admin/product-reviews/:productId" element={<AdminLayout><ProductReview /></AdminLayout>} />
+        <Route path="/admin/product-stock" element={<AdminLayout><ProductStock /></AdminLayout>} />
+        <Route path="/admin/product-stock-history/:productId" element={<AdminLayout><ProductStockHistory /></AdminLayout>} />
+
 
 
         <Route path="/admin" element={<AdminLogin />} />
