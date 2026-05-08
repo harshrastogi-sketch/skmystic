@@ -444,7 +444,10 @@
 .review-bottom-row span {
   color: #222;
 }
-
+.product-link{
+  text-decoration: none;
+  color: inherit;
+}
 
 @media (max-width: 576px) {
   .related-grid {

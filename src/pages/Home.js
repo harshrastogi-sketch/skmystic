@@ -170,7 +170,15 @@ const Home = () => {
                 <h3>{item.name}</h3>
 
                 <div className="rating">
-                  ⭐⭐⭐⭐⭐ <span>{item.rating}</span>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <span key={star}>
+                      {item.rating >= star ? "★" : "☆"}
+                    </span>
+                  ))}
+
+                  <span className="rate-box ms-1">
+                    {item.rating}
+                  </span>
                 </div>
 
                 <div className="price">₹{item.price}</div>
@@ -242,7 +250,15 @@ const Home = () => {
                 <h3>{item.name}</h3>
 
                 <div className="rating">
-                  ⭐⭐⭐⭐⭐ <span>{item.rating}</span>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <span key={star}>
+                      {item.rating >= star ? "★" : "☆"}
+                    </span>
+                  ))}
+
+                  <span className="rate-box ms-1">
+                    {item.rating}
+                  </span>
                 </div>
 
                 <div className="price">₹{item.price}</div>

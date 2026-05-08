@@ -29,6 +29,7 @@ function EditProduct() {
     product_short_description: "",
     hsn_code: "",
     product_sku: "",
+    rating: "5",
     status: "1",
     stock_status: "in_stock",
   });
@@ -51,6 +52,7 @@ function EditProduct() {
           description: product.description || "",
           category_id: String(product.category_id || ""),
           price: product.price || "",
+          rating: product.rating || "5",
           product_cut_price: product.product_cut_price || "",
           discount: product.discount || "",
           product_hurry_up: product.product_hurry_up || "",
@@ -334,7 +336,25 @@ function EditProduct() {
                 <input type="number" className="form-control" name="discount" value={form.discount} onChange={handleChange} />
               </div>
             </div>
+            <div className="row mb-3">
+              <label className="col-sm-3 col-form-label">
+                Product Rating
+              </label>
 
+              <div className="col-sm-9">
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="5"
+                  className="form-control"
+                  name="rating"
+                  value={form.rating}
+                  onChange={handleChange}
+                  placeholder="Example: 4.5"
+                />
+              </div>
+            </div>
             <div className="row mb-3">
               <label className="col-sm-3 col-form-label">Product Hurry Up</label>
               <div className="col-sm-9">
@@ -375,6 +395,7 @@ function EditProduct() {
               <div className="col-sm-9">
                 <select className="form-control" name="stock_status" value={form.stock_status} onChange={handleChange}>
                   <option value="in_stock">In Stock</option>
+                  <option value="low_stock">Low Stock</option>
                   <option value="out_of_stock">Out of Stock</option>
                 </select>
               </div>

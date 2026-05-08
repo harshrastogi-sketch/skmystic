@@ -3,14 +3,17 @@ import "./Checkout.css";
 import { useCart } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
 import { apiRequest } from "../api";
+import Swal from "sweetalert2";
 
 const Checkout = () => {
+
   const { cartItems = [], clearCart } = useCart();
+
   const navigate = useNavigate();
+
   const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   const [loading, setLoading] = useState(false);
-
 
   const [formData, setFormData] = useState({
     name: "",
@@ -25,15 +28,20 @@ const Checkout = () => {
 
   // ✅ Login check
   useEffect(() => {
+
     const token = localStorage.getItem("token");
+
     if (!token || token === "undefined" || token === "null") {
       navigate("/login");
     }
+
   }, [navigate]);
 
-  // ✅ Autofill
+  // ✅ Autofill user data
   useEffect(() => {
+
     const user = JSON.parse(localStorage.getItem("user"));
+
     if (user) {
       setFormData((prev) => ({
         ...prev,
@@ -41,27 +49,34 @@ const Checkout = () => {
         email: user.email || "",
       }));
     }
+
   }, []);
 
   // ✅ Empty cart redirect
   useEffect(() => {
+
     if (cartItems.length === 0) {
       navigate("/my-order");
     }
+
   }, [cartItems, navigate]);
 
   // ✅ Total
   const subtotal = useMemo(() => {
+
     return cartItems.reduce((sum, item) => {
       return sum + Number(item.price) * Number(item.quantity || 1);
     }, 0);
+
   }, [cartItems]);
 
   const shipping = 0;
+
   const orderTotal = subtotal + shipping;
 
   // ✅ Input
   const handleChange = (e) => {
+
     const { name, value } = e.target;
 
     setFormData((prev) => ({
@@ -77,37 +92,80 @@ const Checkout = () => {
 
   // ✅ Validation
   const validate = () => {
+
     let newErrors = {};
 
-    if (!formData.name.trim()) newErrors.name = "Name is required";
-    if (!/\S+@\S+\.\S+/.test(formData.email))
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required";
+    }
+
+    if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = "Valid email required";
-    if (!/^[6-9]\d{9}$/.test(formData.mobile))
+    }
+
+    if (!/^[6-9]\d{9}$/.test(formData.mobile)) {
       newErrors.mobile = "Valid mobile required";
-    if (!formData.address.trim()) newErrors.address = "Address required";
-    if (!/^\d{6}$/.test(formData.postcode))
+    }
+
+    if (!formData.address.trim()) {
+      newErrors.address = "Address required";
+    }
+
+    if (!/^\d{6}$/.test(formData.postcode)) {
       newErrors.postcode = "Valid PIN required";
+    }
 
     setErrors(newErrors);
+
     return Object.keys(newErrors).length === 0;
   };
 
   // ✅ Submit
   const handleSubmit = async (e) => {
+
     e.preventDefault();
-    if (!validate()) return;
+
+    if (!validate()) {
+
+      Swal.fire({
+        icon: "warning",
+        title: "Validation Error",
+        text: "Please fill all required fields correctly.",
+      });
+
+      return;
+    }
+
+    // ✅ Confirm Order
+    const confirmOrder = await Swal.fire({
+      title: "Place Order?",
+      text: "Do you want to confirm this order?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Place Order",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#198754",
+    });
+
+    if (!confirmOrder.isConfirmed) {
+      return;
+    }
 
     setLoading(true);
 
     try {
+
       const token = localStorage.getItem("token");
 
-      const data = await apiRequest(`${BASE_URL}api/order-create`,
+      const data = await apiRequest(
+        `${BASE_URL}api/order-create`,
         {
           method: "POST",
+
           headers: {
             Authorization: `Bearer ${token}`,
           },
+
           body: JSON.stringify({
             ...formData,
             cartItems,
@@ -121,38 +179,69 @@ const Checkout = () => {
 
       setLoading(false);
 
-      // 🔥 if token expired → helper already redirected
+      // token expired
       if (!data) return;
 
+      // ✅ Success
       if (data.status) {
-        alert("Order placed successfully ✅");
-        clearCart();
-        navigate("/my-order");
-      } else {
-        alert(data.message || "Failed ❌");
-      }
-    } catch (err) {
-      setLoading(false);
-      alert("Server error ❌");
-    }
 
-    console.log(cartItems);
+        await Swal.fire({
+          icon: "success",
+          title: "Order Placed Successfully",
+          text: `Your Order ID is #${data.order_id}`,
+          confirmButtonColor: "#198754",
+        });
+
+        clearCart();
+
+        navigate("/my-order");
+
+      } else {
+
+        Swal.fire({
+          icon: "error",
+          title: "Order Failed",
+          text: data.message || "Something went wrong",
+        });
+
+      }
+
+    } catch (err) {
+
+      setLoading(false);
+
+      Swal.fire({
+        icon: "error",
+        title: "Server Error",
+        text: "Something went wrong. Please try again later.",
+      });
+
+      console.log(err);
+    }
   };
+
   return (
     <section className="checkout-page">
+
       <div className="checkout-container">
-        <h1 className="checkout-title">Secure checkout</h1>
+
+        <h1 className="checkout-title">
+          Secure checkout
+        </h1>
 
         <div className="checkout-grid">
 
           {/* ✅ CART */}
           <div className="checkout-card">
+
             <div className="checkout-card-header">
               1. In your cart ({cartItems.length})
             </div>
 
             <div className="checkout-card-body">
+
               {cartItems.map((item, i) => (
+
                 <div className="checkout-product" key={i}>
 
                   <div className="checkout-product-image">
@@ -164,6 +253,7 @@ const Checkout = () => {
 
                   <div className="checkout-product-info">
                     <h4>{item.name}</h4>
+
                     <p>
                       ₹ {Number(item.price).toLocaleString("en-IN")} ×{" "}
                       {item.quantity}
@@ -171,12 +261,16 @@ const Checkout = () => {
                   </div>
 
                 </div>
+
               ))}
+
             </div>
+
           </div>
 
           {/* ✅ ADDRESS + PAYMENT */}
           <div className="checkout-card">
+
             <div className="checkout-card-header">
               2. Delivery Address
             </div>
@@ -185,41 +279,91 @@ const Checkout = () => {
 
               <div className="checkout-field">
                 <label>Name</label>
-                <input name="name" value={formData.name} onChange={handleChange} />
-                {errors.name && <p className="error">{errors.name}</p>}
+
+                <input
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                />
+
+                {errors.name && (
+                  <p className="error">{errors.name}</p>
+                )}
               </div>
 
               <div className="checkout-field">
+
                 <label>Email address</label>
-                <input name="email" value={formData.email} onChange={handleChange} />
-                {errors.email && <p className="error">{errors.email}</p>}
+
+                <input
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                />
+
+                {errors.email && (
+                  <p className="error">{errors.email}</p>
+                )}
+
               </div>
 
               <div className="checkout-field">
+
                 <label>Mobile</label>
-                <input name="mobile" value={formData.mobile} onChange={handleChange} />
-                {errors.mobile && <p className="error">{errors.mobile}</p>}
+
+                <input
+                  name="mobile"
+                  value={formData.mobile}
+                  onChange={handleChange}
+                />
+
+                {errors.mobile && (
+                  <p className="error">{errors.mobile}</p>
+                )}
+
               </div>
 
               <div className="checkout-field">
+
                 <label>Delivery address</label>
-                <textarea name="address" value={formData.address} onChange={handleChange} />
-                {errors.address && <p className="error">{errors.address}</p>}
+
+                <textarea
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                />
+
+                {errors.address && (
+                  <p className="error">{errors.address}</p>
+                )}
+
               </div>
 
               <div className="checkout-field">
+
                 <label>Postcode / ZIP Code</label>
-                <input name="postcode" value={formData.postcode} onChange={handleChange} />
-                {errors.postcode && <p className="error">{errors.postcode}</p>}
+
+                <input
+                  name="postcode"
+                  value={formData.postcode}
+                  onChange={handleChange}
+                />
+
+                {errors.postcode && (
+                  <p className="error">{errors.postcode}</p>
+                )}
+
               </div>
 
-              {/* ✅ PAYMENT METHOD (FIXED) */}
+              {/* ✅ PAYMENT */}
               <div className="checkout-field">
+
                 <label>Payment Method</label>
 
                 <div className="checkout-payment-options">
 
                   <label className="checkout-radio">
+
                     <input
                       type="radio"
                       name="paymentMethod"
@@ -227,10 +371,13 @@ const Checkout = () => {
                       checked={formData.paymentMethod === "cod"}
                       onChange={handleChange}
                     />
+
                     COD
+
                   </label>
 
                   <label className="checkout-radio">
+
                     <input
                       type="radio"
                       name="paymentMethod"
@@ -238,29 +385,43 @@ const Checkout = () => {
                       checked={formData.paymentMethod === "online"}
                       onChange={handleChange}
                     />
+
                     Payment
+
                   </label>
 
                 </div>
+
               </div>
 
-              <button className="checkout-btn" disabled={loading}>
-                {loading ? "Placing Order..." : "Complete order"}
+              <button
+                className="checkout-btn"
+                disabled={loading}
+              >
+                {loading
+                  ? "Placing Order..."
+                  : "Complete order"}
               </button>
 
             </form>
+
           </div>
 
           {/* ✅ SUMMARY */}
           <div className="checkout-card">
+
             <div className="checkout-card-header">
               3. Order summary
             </div>
 
             <div className="checkout-summary">
+
               <div className="checkout-summary-row">
                 <span>Total</span>
-                <span>₹ {subtotal.toLocaleString("en-IN")}</span>
+
+                <span>
+                  ₹ {subtotal.toLocaleString("en-IN")}
+                </span>
               </div>
 
               <div className="checkout-summary-row">
@@ -269,14 +430,23 @@ const Checkout = () => {
               </div>
 
               <div className="checkout-summary-row checkout-summary-total">
+
                 <span>Order total</span>
-                <span>₹ {orderTotal.toLocaleString("en-IN")}</span>
+
+                <span>
+                  ₹ {orderTotal.toLocaleString("en-IN")}
+                </span>
+
               </div>
+
             </div>
+
           </div>
 
         </div>
+
       </div>
+
     </section>
   );
 };

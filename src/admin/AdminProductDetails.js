@@ -6,7 +6,7 @@ function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  
+
   const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   const [product, setProduct] = useState(null);
@@ -59,8 +59,28 @@ function ProductDetails() {
 
           <tr>
             <th>Availability</th>
-            <td><span className={`badge ${product.stock_status === "in_stock" ? "bg-success" : "bg-danger"}`}>
-              {product.stock_status === "in_stock" ? "In Stock" : "Out of Stock"}</span></td>
+
+            <td>
+
+              {product.stock_status === "in_stock" && (
+                <span className="badge bg-success">
+                  In Stock
+                </span>
+              )}
+
+              {product.stock_status === "low_stock" && (
+                <span className="badge bg-warning text-dark">
+                  Low Stock
+                </span>
+              )}
+
+              {product.stock_status === "out_of_stock" && (
+                <span className="badge bg-danger">
+                  Out of Stock
+                </span>
+              )}
+
+            </td>
           </tr>
 
           <tr>

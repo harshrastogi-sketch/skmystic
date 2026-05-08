@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import "./ProductDetails.css";
 import { FaTruck } from "react-icons/fa";
@@ -49,22 +49,22 @@ const ProductDetails = () => {
   }, [id]);
 
   // ✅ Fetch Reviews
-useEffect(() => {
-  const getReviews = async () => {
-    try {
-      const res = await fetch(`${BASE_URL}Product_reviews/index/${id}`);
-      const data = await res.json();
+  useEffect(() => {
+    const getReviews = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}Product_reviews/index/${id}`);
+        const data = await res.json();
 
-      if (data.status) {
-        setReviews(data.data || []);
+        if (data.status) {
+          setReviews(data.data || []);
+        }
+      } catch (err) {
+        console.error("Review fetch error:", err);
       }
-    } catch (err) {
-      console.error("Review fetch error:", err);
-    }
-  };
+    };
 
-  getReviews();
-}, [id]);
+    getReviews();
+  }, [id]);
   // ✅ Fetch Related Products
   useEffect(() => {
     if (!product?.category_id) return;
@@ -102,7 +102,7 @@ useEffect(() => {
       : product.price;
 
 
-      
+
   return (
     <>
       {message && <div className="success-msg">{message}</div>}
@@ -140,23 +140,37 @@ useEffect(() => {
             <h2>{product.name}</h2>
 
             <div className="rating">
-              ⭐⭐⭐⭐⭐{" "}
-              <span className="rating-badge">
-                {product.rating}★
+              {[1, 2, 3, 4, 5].map((star) => (
+                <span key={star}>
+                  {product.rating >= star ? "★" : "☆"}
+                </span>
+              ))}
+
+              <span className="rate-box ms-1">
+                {product.rating}
               </span>
             </div>
 
             <p className="availability">
-              Availability: <span
-                className={`badge ${product.stock_status === "in_stock"
-                  ? "bg-success"
-                  : "bg-danger"
-                  }`}
-              >
-                {product.stock_status === "in_stock"
-                  ? "In Stock"
-                  : "Out of Stock"}
-              </span>
+              Availability:{" "}
+
+              {product.stock_status === "in_stock" && (
+                <span className="badge bg-success">
+                  In Stock
+                </span>
+              )}
+
+              {product.stock_status === "low_stock" && (
+                <span className="badge bg-warning text-dark">
+                  Low Stock
+                </span>
+              )}
+
+              {product.stock_status === "out_of_stock" && (
+                <span className="badge bg-danger">
+                  Out of Stock
+                </span>
+              )}
             </p>
 
             <div className="price-wrapper">
@@ -266,111 +280,110 @@ useEffect(() => {
       </div>
 
 
-<div className="product-tabs-section">
+      <div className="product-tabs-section">
 
-  {/* TABS */}
-  <div className="product-tabs">
+        {/* TABS */}
+        <div className="product-tabs">
 
-    <button
-      className={activeTab === "description" ? "active" : ""}
-      onClick={() => setActiveTab("description")}
-    >
-      DESCRIPTION
-    </button>
+          <button
+            className={activeTab === "description" ? "active" : ""}
+            onClick={() => setActiveTab("description")}
+          >
+            DESCRIPTION
+          </button>
 
-    <button
-      className={activeTab === "reviews" ? "active" : ""}
-      onClick={() => setActiveTab("reviews")}
-    >
-      REVIEWS
-    </button>
+          <button
+            className={activeTab === "reviews" ? "active" : ""}
+            onClick={() => setActiveTab("reviews")}
+          >
+            REVIEWS
+          </button>
 
-    <button
-      className={activeTab === "video" ? "active" : ""}
-      onClick={() => setActiveTab("video")}
-    >
-      VIDEO
-    </button>
+          <button
+            className={activeTab === "video" ? "active" : ""}
+            onClick={() => setActiveTab("video")}
+          >
+            VIDEO
+          </button>
 
-  </div>
+        </div>
 
-  {/* DESCRIPTION */}
-  {activeTab === "description" && (
-    <div className="tab-content">
-      <h3>More details</h3>
+        {/* DESCRIPTION */}
+        {activeTab === "description" && (
+          <div className="tab-content">
+            <h3>More details</h3>
 
-      {product.description && (
-        <div
-          className="description-content"
-          dangerouslySetInnerHTML={{
-            __html: product.description,
-          }}
-        />
-      )}
-    </div>
-  )}
+            {product.description && (
+              <div
+                className="description-content"
+                dangerouslySetInnerHTML={{
+                  __html: product.description,
+                }}
+              />
+            )}
+          </div>
+        )}
 
-{/* REVIEWS */}
-{activeTab === "reviews" && (
-  <div className="tab-content review-tab-content">
-    <h3>Customer reviews</h3>
+        {/* REVIEWS */}
+        {activeTab === "reviews" && (
+          <div className="tab-content review-tab-content">
+            <h3>Customer reviews</h3>
 
-    <div className="customer-review-list">
-      {reviews.length > 0 ? (
-        reviews.map((review) => (
-          <div className="customer-review-item" key={review.id}>
-            <div className="review-user-row">
-              <span className="review-rating">
-                {product.rating || "5"}★
-              </span>
+            <div className="customer-review-list">
+              {reviews.length > 0 ? (
+                reviews.map((review) => (
+                  <div className="customer-review-item" key={review.id}>
+                    <div className="review-user-row">
+                      <span className="review-rating">
+                        {product.rating || "5"}★
+                      </span>
 
-              <strong>
-                {review.user_name}
-              </strong>
-            </div>
+                      <strong>
+                        {review.user_name}
+                      </strong>
+                    </div>
 
-            <p>{review.description}</p>
+                    <p>{review.description}</p>
 
-            <div className="review-bottom-row">
-              <strong>
-                {review.post_date
-                  ? new Date(review.post_date).toLocaleDateString("en-IN", {
-                      weekday: "short",
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    })
-                  : ""}
-              </strong>
+                    <div className="review-bottom-row">
+                      <strong>
+                        {review.post_date
+                          ? new Date(review.post_date).toLocaleDateString("en-IN", {
+                            weekday: "short",
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })
+                          : ""}
+                      </strong>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p>No reviews found.</p>
+              )}
             </div>
           </div>
-        ))
-      ) : (
-        <p>No reviews found.</p>
-      )}
-    </div>
-  </div>
-)}
+        )}
 
-  {/* VIDEO */}
-  {activeTab === "video" && (
-    <div className="tab-content">
-      <h3>Product Video</h3>
+        {/* VIDEO */}
+        {activeTab === "video" && (
+          <div className="tab-content">
+            <h3>Product Video</h3>
 
-      <div className="video-wrapper">
-        <iframe
-          width="100%"
-          height="450"
-          src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-          title="Product Video"
-          frameBorder="0"
-          allowFullScreen
-        ></iframe>
+            <div className="video-wrapper">
+              <iframe
+                width="100%"
+                height="450"
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                title="Product Video"
+                allowFullScreen
+              ></iframe>
+            </div>
+          </div>
+        )}
+
       </div>
-    </div>
-  )}
-
-</div>
       {/* RELATED PRODUCTS */}
       <div className="related-section">
         <h2 className="related-title">Related Products</h2>
@@ -387,18 +400,18 @@ useEffect(() => {
                     {item.discount}%
                   </div>
                 )}
+                <Link to={`/product/${item.id}`} className="product-link">
+                  <img
+                    src={getFirstImage(item)}
+                    alt={item.name}
+                  />
 
-                <img
-                  src={getFirstImage(item)}
-                  alt={item.name}
-                />
+                  <h4>{item.name}</h4>
 
-                <h4>{item.name}</h4>
-
-                <p className="related-price">
-                  ₹ {Number(item.price).toLocaleString()}
-                </p>
-
+                  <p className="related-price">
+                    ₹ {Number(item.price).toLocaleString()}
+                  </p>
+                </Link>
                 <button
                   className="cart-btn"
                   onClick={() => handleAddToCart(item)}

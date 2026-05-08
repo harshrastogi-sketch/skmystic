@@ -161,9 +161,16 @@ const Collection = () => {
 
               <div className="card-body">
                 <h4>{item.name}</h4>
-
                 <div className="rating">
-                  ⭐⭐⭐⭐⭐ <span className="rate-box">{item.rating}</span>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <span key={star}>
+                      {item.rating >= star ? "★" : "☆"}
+                    </span>
+                  ))}
+
+                  <span className="rate-box ms-1">
+                    {item.rating}
+                  </span>
                 </div>
 
                 <p className="price">

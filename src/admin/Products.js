@@ -211,24 +211,31 @@ function Products() {
                     <td>{item.discount || 0}%</td>
 
                     <td>
-                      <span
-                        className={`badge ${
-                          item.stock_status === "in_stock"
-                            ? "bg-success"
-                            : "bg-danger"
-                        }`}
-                      >
-                        {item.stock_status === "in_stock"
-                          ? "In Stock"
-                          : "Out of Stock"}
-                      </span>
+
+                      {item.stock_status === "in_stock" && (
+                        <span className="badge bg-success">
+                          In Stock
+                        </span>
+                      )}
+
+                      {item.stock_status === "low_stock" && (
+                        <span className="badge bg-warning text-dark">
+                          Low Stock
+                        </span>
+                      )}
+
+                      {item.stock_status === "out_of_stock" && (
+                        <span className="badge bg-danger">
+                          Out of Stock
+                        </span>
+                      )}
+
                     </td>
 
                     <td>
                       <button
-                        className={`btn btn-sm ${
-                          isActive ? "btn-success" : "btn-secondary"
-                        }`}
+                        className={`btn btn-sm ${isActive ? "btn-success" : "btn-secondary"
+                          }`}
                         onClick={() =>
                           handleToggleStatus(item.id, item.status)
                         }

@@ -20,6 +20,7 @@ function AddProduct() {
     description: "",
     category_id: "",
     price: "",
+    rating: "5",
     product_cut_price: "",
     discount: "",
     product_hurry_up: "",
@@ -165,6 +166,14 @@ function AddProduct() {
       tempErrors.hsn_code = "HSN code cannot be negative";
     }
 
+    if (form.rating && Number(form.rating) > 5) {
+      tempErrors.rating = "Rating cannot exceed 5";
+    }
+
+    if (form.rating && Number(form.rating) < 0) {
+      tempErrors.rating = "Rating cannot be negative";
+    }
+
     if (images.length === 0) {
       tempErrors.images = "At least one image is required";
     }
@@ -195,6 +204,7 @@ function AddProduct() {
         form.product_short_description
       );
       formData.append("hsn_code", form.hsn_code);
+      formData.append("rating", form.rating);
       formData.append("product_sku", form.product_sku);
       formData.append("status", form.status);
       formData.append("stock_status", form.stock_status);
@@ -278,7 +288,7 @@ function AddProduct() {
         });
       },
 
-      abort: () => {},
+      abort: () => { },
     };
   }
 
@@ -323,9 +333,8 @@ function AddProduct() {
               <div className="col-sm-9">
                 <select
                   name="category_id"
-                  className={`form-control ${
-                    errors.category_id ? "is-invalid" : ""
-                  }`}
+                  className={`form-control ${errors.category_id ? "is-invalid" : ""
+                    }`}
                   value={form.category_id}
                   onChange={handleChange}
                 >
@@ -384,9 +393,8 @@ function AddProduct() {
                 <input
                   type="number"
                   name="price"
-                  className={`form-control ${
-                    errors.price ? "is-invalid" : ""
-                  }`}
+                  className={`form-control ${errors.price ? "is-invalid" : ""
+                    }`}
                   value={form.price}
                   onChange={handleChange}
                 />
@@ -396,6 +404,7 @@ function AddProduct() {
                 )}
               </div>
             </div>
+
 
             {/* PRODUCT CUT PRICE */}
             <div className="row mb-3">
@@ -407,9 +416,8 @@ function AddProduct() {
                 <input
                   type="number"
                   name="product_cut_price"
-                  className={`form-control ${
-                    errors.product_cut_price ? "is-invalid" : ""
-                  }`}
+                  className={`form-control ${errors.product_cut_price ? "is-invalid" : ""
+                    }`}
                   value={form.product_cut_price}
                   onChange={handleChange}
                 />
@@ -430,9 +438,8 @@ function AddProduct() {
                 <input
                   type="number"
                   name="discount"
-                  className={`form-control ${
-                    errors.discount ? "is-invalid" : ""
-                  }`}
+                  className={`form-control ${errors.discount ? "is-invalid" : ""
+                    }`}
                   value={form.discount}
                   onChange={handleChange}
                 />
@@ -442,7 +449,33 @@ function AddProduct() {
                 )}
               </div>
             </div>
+            {/* RATING */}
+            <div className="row mb-3">
+              <label className="col-sm-3 col-form-label">
+                Product Rating
+              </label>
 
+              <div className="col-sm-9">
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="5"
+                  name="rating"
+                  className={`form-control ${errors.rating ? "is-invalid" : ""
+                    }`}
+                  value={form.rating}
+                  onChange={handleChange}
+                  placeholder="Example: 4.5"
+                />
+
+                {errors.rating && (
+                  <div className="invalid-feedback">
+                    {errors.rating}
+                  </div>
+                )}
+              </div>
+            </div>
             {/* PRODUCT HURRY UP */}
             <div className="row mb-3">
               <label className="col-sm-3 col-form-label">
@@ -494,9 +527,8 @@ function AddProduct() {
                 <input
                   type="number"
                   name="hsn_code"
-                  className={`form-control ${
-                    errors.hsn_code ? "is-invalid" : ""
-                  }`}
+                  className={`form-control ${errors.hsn_code ? "is-invalid" : ""
+                    }`}
                   value={form.hsn_code}
                   onChange={handleChange}
                 />
@@ -537,6 +569,7 @@ function AddProduct() {
                   onChange={handleChange}
                 >
                   <option value="in_stock">In Stock</option>
+                  <option value="low_stock">Low Stock</option>
                   <option value="out_of_stock">Out of Stock</option>
                 </select>
               </div>
@@ -567,9 +600,8 @@ function AddProduct() {
                 <input
                   type="file"
                   multiple
-                  className={`form-control ${
-                    errors.images ? "is-invalid" : ""
-                  }`}
+                  className={`form-control ${errors.images ? "is-invalid" : ""
+                    }`}
                   onChange={handleImageChange}
                 />
 
