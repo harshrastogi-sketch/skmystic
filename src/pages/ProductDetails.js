@@ -17,6 +17,8 @@ const ProductDetails = () => {
   const [allProducts, setAllProducts] = useState([]);
   const [selectedImage, setSelectedImage] = useState("");
   const [message, setMessage] = useState("");
+  const [activeTab, setActiveTab] = useState("description");
+  const [reviews, setReviews] = useState([]);
 
   // ✅ Helper: Get first image safely
   const getFirstImage = (item) => {
@@ -33,7 +35,6 @@ const ProductDetails = () => {
           `${BASE_URL}products/view/${id}`
         );
         const data = await res.json();
-
         const productData = data.data;
         setProduct(productData);
 
@@ -47,6 +48,23 @@ const ProductDetails = () => {
     getProduct();
   }, [id]);
 
+  // ✅ Fetch Reviews
+useEffect(() => {
+  const getReviews = async () => {
+    try {
+      const res = await fetch(`${BASE_URL}Product_reviews/index/${id}`);
+      const data = await res.json();
+
+      if (data.status) {
+        setReviews(data.data || []);
+      }
+    } catch (err) {
+      console.error("Review fetch error:", err);
+    }
+  };
+
+  getReviews();
+}, [id]);
   // ✅ Fetch Related Products
   useEffect(() => {
     if (!product?.category_id) return;
@@ -83,6 +101,8 @@ const ProductDetails = () => {
       ? product.price / (1 - product.discount / 100)
       : product.price;
 
+
+      
   return (
     <>
       {message && <div className="success-msg">{message}</div>}
@@ -129,8 +149,8 @@ const ProductDetails = () => {
             <p className="availability">
               Availability: <span
                 className={`badge ${product.stock_status === "in_stock"
-                    ? "bg-success"
-                    : "bg-danger"
+                  ? "bg-success"
+                  : "bg-danger"
                   }`}
               >
                 {product.stock_status === "in_stock"
@@ -141,25 +161,53 @@ const ProductDetails = () => {
 
             <div className="price-wrapper">
               <div className="price-row">
+
+                {/* SELLING PRICE */}
                 <span className="new-price">
                   ₹ {Number(product.price).toLocaleString()}
                 </span>
 
-                {product.discount > 0 && (
-                  <>
+                {/* CUT PRICE */}
+                {product.product_cut_price &&
+                  Number(product.product_cut_price) > Number(product.price) && (
                     <span className="old-price">
-                      ₹{" "}
-                      {oldPrice.toLocaleString(undefined, {
-                        maximumFractionDigits: 0,
-                      })}
+                      ₹ {Number(product.product_cut_price).toLocaleString()}
                     </span>
+                  )}
+
+                {/* DISCOUNT */}
+                {product.product_cut_price &&
+                  Number(product.product_cut_price) > Number(product.price) && (
                     <span className="discount-tag">
-                      -{product.discount}%
+                      -
+                      {Math.round(
+                        ((Number(product.product_cut_price) - Number(product.price)) /
+                          Number(product.product_cut_price)) *
+                        100
+                      )}
+                      %
                     </span>
-                  </>
-                )}
+                  )}
+
               </div>
             </div>
+
+            {/* ✅ PRODUCT HURRY UP */}
+            {product.product_hurry_up && (
+              <div className="product-hurry-up">
+                {product.product_hurry_up}
+              </div>
+            )}
+
+            {/* ✅ SHORT DESCRIPTION */}
+            {product.product_short_description && (
+              <div
+                className="product-short-description"
+                dangerouslySetInnerHTML={{
+                  __html: product.product_short_description,
+                }}
+              />
+            )}
 
             <div className="buttons">
               <button
@@ -217,6 +265,112 @@ const ProductDetails = () => {
         </div>
       </div>
 
+
+<div className="product-tabs-section">
+
+  {/* TABS */}
+  <div className="product-tabs">
+
+    <button
+      className={activeTab === "description" ? "active" : ""}
+      onClick={() => setActiveTab("description")}
+    >
+      DESCRIPTION
+    </button>
+
+    <button
+      className={activeTab === "reviews" ? "active" : ""}
+      onClick={() => setActiveTab("reviews")}
+    >
+      REVIEWS
+    </button>
+
+    <button
+      className={activeTab === "video" ? "active" : ""}
+      onClick={() => setActiveTab("video")}
+    >
+      VIDEO
+    </button>
+
+  </div>
+
+  {/* DESCRIPTION */}
+  {activeTab === "description" && (
+    <div className="tab-content">
+      <h3>More details</h3>
+
+      {product.description && (
+        <div
+          className="description-content"
+          dangerouslySetInnerHTML={{
+            __html: product.description,
+          }}
+        />
+      )}
+    </div>
+  )}
+
+{/* REVIEWS */}
+{activeTab === "reviews" && (
+  <div className="tab-content review-tab-content">
+    <h3>Customer reviews</h3>
+
+    <div className="customer-review-list">
+      {reviews.length > 0 ? (
+        reviews.map((review) => (
+          <div className="customer-review-item" key={review.id}>
+            <div className="review-user-row">
+              <span className="review-rating">
+                {product.rating || "5"}★
+              </span>
+
+              <strong>
+                {review.user_name}
+              </strong>
+            </div>
+
+            <p>{review.description}</p>
+
+            <div className="review-bottom-row">
+              <strong>
+                {review.post_date
+                  ? new Date(review.post_date).toLocaleDateString("en-IN", {
+                      weekday: "short",
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })
+                  : ""}
+              </strong>
+            </div>
+          </div>
+        ))
+      ) : (
+        <p>No reviews found.</p>
+      )}
+    </div>
+  </div>
+)}
+
+  {/* VIDEO */}
+  {activeTab === "video" && (
+    <div className="tab-content">
+      <h3>Product Video</h3>
+
+      <div className="video-wrapper">
+        <iframe
+          width="100%"
+          height="450"
+          src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+          title="Product Video"
+          frameBorder="0"
+          allowFullScreen
+        ></iframe>
+      </div>
+    </div>
+  )}
+
+</div>
       {/* RELATED PRODUCTS */}
       <div className="related-section">
         <h2 className="related-title">Related Products</h2>

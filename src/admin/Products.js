@@ -255,6 +255,13 @@ function Products() {
                       >
                         Add Images
                       </button>
+                      <button
+                        className="btn btn-sm btn-primary me-2"
+                        onClick={() =>
+                          navigate(`/admin/product-reviews/${item.id}`)}
+                      >
+                        Product Reviews
+                      </button>
 
                       <button
                         className="btn btn-sm btn-danger"

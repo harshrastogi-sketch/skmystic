@@ -23,7 +23,12 @@ function EditProduct() {
     description: "",
     category_id: "",
     price: "",
+    product_cut_price: "",
     discount: "",
+    product_hurry_up: "",
+    product_short_description: "",
+    hsn_code: "",
+    product_sku: "",
     status: "1",
     stock_status: "in_stock",
   });
@@ -33,7 +38,6 @@ function EditProduct() {
     fetchCategories();
   }, [id]);
 
-  // ================= FETCH PRODUCT =================
   const fetchProduct = async () => {
     try {
       const res = await fetch(`${BASE_URL}products/view/${id}`);
@@ -47,7 +51,12 @@ function EditProduct() {
           description: product.description || "",
           category_id: String(product.category_id || ""),
           price: product.price || "",
+          product_cut_price: product.product_cut_price || "",
           discount: product.discount || "",
+          product_hurry_up: product.product_hurry_up || "",
+          product_short_description: product.product_short_description || "",
+          hsn_code: product.hsn_code || "",
+          product_sku: product.product_sku || "",
           status: String(product.status ?? "1"),
           stock_status: product.stock_status || "in_stock",
         });
@@ -76,7 +85,6 @@ function EditProduct() {
     }
   };
 
-  // ================= FETCH CATEGORIES =================
   const fetchCategories = async () => {
     try {
       const res = await fetch(`${BASE_URL}categories`);
@@ -96,7 +104,6 @@ function EditProduct() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  // ================= IMAGES =================
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
 
@@ -115,14 +122,15 @@ function EditProduct() {
     if (item.type === "old") {
       setDeletedImages((prev) => [...prev, item.dbId]);
     }
+
     setItems((prev) => prev.filter((i) => i.id !== item.id));
   };
 
-  // ================= DRAG =================
   const handleDragStart = (index) => setDragIndex(index);
 
   const handleDragOver = (e, index) => {
     e.preventDefault();
+
     if (dragIndex === null || dragIndex === index) return;
 
     const updated = [...items];
@@ -137,7 +145,6 @@ function EditProduct() {
 
   const handleDragEnd = () => setDragIndex(null);
 
-  // ================= SUBMIT =================
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -162,8 +169,8 @@ function EditProduct() {
           formData.append(`old_images[${i}]`, img.dbId);
         });
 
-      deletedImages.forEach((id, i) => {
-        formData.append(`delete_images[${i}]`, id);
+      deletedImages.forEach((imageId, i) => {
+        formData.append(`delete_images[${i}]`, imageId);
       });
 
       items
@@ -189,6 +196,7 @@ function EditProduct() {
       });
 
       const data = await res.json();
+
       Swal.close();
 
       if (data.status) {
@@ -210,6 +218,7 @@ function EditProduct() {
       }
     } catch (err) {
       Swal.close();
+
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -221,8 +230,6 @@ function EditProduct() {
   };
 
   const sortedItems = [...items].sort((a, b) => a.order - b.order);
-
-
 
   function MyUploadAdapterPlugin(editor) {
     editor.plugins.get("FileRepository").createUploadAdapter = (loader) => {
@@ -254,75 +261,156 @@ function EditProduct() {
         });
       },
 
-      abort: () => {},
+      abort: () => { },
     };
   }
-  // ================= UI =================
+
   return (
     <div className="container mt-5">
       <div className="card shadow">
-
         <div className="card-header bg-dark text-white d-flex justify-content-between">
           <button className="btn btn-light btn-sm" onClick={() => navigate(-1)}>
             ← Back
           </button>
+
           <h5>Edit Product</h5>
+
           <div />
         </div>
 
         <div className="card-body">
           <form onSubmit={handleSubmit}>
 
-            <input
-              className="form-control mb-2"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              placeholder="Product Name"
-            />
+            <div className="row mb-3">
+              <label className="col-sm-3 col-form-label">Product Name</label>
+              <div className="col-sm-9">
+                <input className="form-control" name="name" value={form.name} onChange={handleChange} />
+              </div>
+            </div>
 
-            <select
-              className="form-control mb-2"
-              name="category_id"
-              value={form.category_id}
-              onChange={handleChange}
-            >
-              <option value="">Select</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
+            <div className="row mb-3">
+              <label className="col-sm-3 col-form-label">Category</label>
+              <div className="col-sm-9">
+                <select className="form-control" name="category_id" value={form.category_id} onChange={handleChange}>
+                  <option value="">Select Category</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
 
-            <CKEditor
-              editor={ClassicEditor}
-              data={form.description}
-              config={{
-                    extraPlugins: [MyUploadAdapterPlugin],
-                  }}
-              onChange={(e, editor) =>
-                setForm((p) => ({ ...p, description: editor.getData() }))
-              }
-            />
+            <div className="row mb-3">
+              <label className="col-sm-3 col-form-label">Description</label>
+              <div className="col-sm-9">
+                <CKEditor
+                  editor={ClassicEditor}
+                  data={form.description}
+                  config={{ extraPlugins: [MyUploadAdapterPlugin] }}
+                  onChange={(e, editor) =>
+                    setForm((p) => ({ ...p, description: editor.getData() }))
+                  }
+                />
+              </div>
+            </div>
 
-            <input className="form-control mb-2" name="price" value={form.price} onChange={handleChange} />
-            <input className="form-control mb-2" name="discount" value={form.discount} onChange={handleChange} />
+            <div className="row mb-3">
+              <label className="col-sm-3 col-form-label">Selling Price</label>
+              <div className="col-sm-9">
+                <input type="number" className="form-control" name="price" value={form.price} onChange={handleChange} />
+              </div>
+            </div>
 
-            <input type="file" multiple className="form-control mb-3" onChange={handleImageChange} />
+            <div className="row mb-3">
+              <label className="col-sm-3 col-form-label">Product Cut Price</label>
+              <div className="col-sm-9">
+                <input type="number" className="form-control" name="product_cut_price" value={form.product_cut_price} onChange={handleChange} />
+              </div>
+            </div>
 
-            <div className="image-grid">
-              {sortedItems.map((item, index) => (
-                <div
-                  key={item.id}
-                  className="image-card"
-                  draggable
-                  onDragStart={() => handleDragStart(index)}
-                  onDragOver={(e) => handleDragOver(e, index)}
-                  onDragEnd={handleDragEnd}
-                >
-                  <img src={item.url} alt="" />
-                  <button type="button" onClick={() => handleRemove(item)}>×</button>
+            <div className="row mb-3">
+              <label className="col-sm-3 col-form-label">Discount (%)</label>
+              <div className="col-sm-9">
+                <input type="number" className="form-control" name="discount" value={form.discount} onChange={handleChange} />
+              </div>
+            </div>
+
+            <div className="row mb-3">
+              <label className="col-sm-3 col-form-label">Product Hurry Up</label>
+              <div className="col-sm-9">
+                <input className="form-control" name="product_hurry_up" value={form.product_hurry_up} onChange={handleChange} />
+              </div>
+            </div>
+
+            <div className="row mb-3">
+              <label className="col-sm-3 col-form-label">Product Short Description</label>
+              <div className="col-sm-9">
+                <CKEditor
+                  editor={ClassicEditor}
+                  data={form.product_short_description}
+                  config={{ extraPlugins: [MyUploadAdapterPlugin] }}
+                  onChange={(e, editor) =>
+                    setForm((p) => ({ ...p, product_short_description: editor.getData() }))
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="row mb-3">
+              <label className="col-sm-3 col-form-label">HSN Code</label>
+              <div className="col-sm-9">
+                <input type="number" className="form-control" name="hsn_code" value={form.hsn_code} onChange={handleChange} />
+              </div>
+            </div>
+
+            <div className="row mb-3">
+              <label className="col-sm-3 col-form-label">Product SKU</label>
+              <div className="col-sm-9">
+                <input className="form-control" name="product_sku" value={form.product_sku} onChange={handleChange} />
+              </div>
+            </div>
+
+            <div className="row mb-3">
+              <label className="col-sm-3 col-form-label">Stock Status</label>
+              <div className="col-sm-9">
+                <select className="form-control" name="stock_status" value={form.stock_status} onChange={handleChange}>
+                  <option value="in_stock">In Stock</option>
+                  <option value="out_of_stock">Out of Stock</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="row mb-3">
+              <label className="col-sm-3 col-form-label">Status</label>
+              <div className="col-sm-9">
+                <select className="form-control" name="status" value={form.status} onChange={handleChange}>
+                  <option value="1">Active</option>
+                  <option value="0">Inactive</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="row mb-3">
+              <label className="col-sm-3 col-form-label">Images</label>
+              <div className="col-sm-9">
+                <input type="file" multiple className="form-control mb-3" onChange={handleImageChange} />
+
+                <div className="image-grid">
+                  {sortedItems.map((item, index) => (
+                    <div
+                      key={item.id}
+                      className="image-card"
+                      draggable
+                      onDragStart={() => handleDragStart(index)}
+                      onDragOver={(e) => handleDragOver(e, index)}
+                      onDragEnd={handleDragEnd}
+                    >
+                      <img src={item.url} alt="" />
+                      <button type="button" onClick={() => handleRemove(item)}>×</button>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
 
             <div className="text-end">
