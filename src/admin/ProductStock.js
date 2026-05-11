@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { FaCheckCircle, FaExclamationTriangle, FaTimesCircle } from "react-icons/fa";
+import {
+    FaCheckCircle,
+    FaExclamationTriangle,
+    FaTimesCircle,
+} from "react-icons/fa";
 
 function ProductStock() {
     const navigate = useNavigate();
@@ -13,6 +17,7 @@ function ProductStock() {
     const [stockForm, setStockForm] = useState({
         type: "in",
         quantity: "",
+        minimum_stock: "",
         note: "",
     });
 
@@ -39,6 +44,7 @@ function ProductStock() {
         setStockForm({
             type: "in",
             quantity: "",
+            minimum_stock: product.minimum_stock || "",
             note: "",
         });
     };
@@ -53,12 +59,18 @@ function ProductStock() {
     const handleStockSubmit = async (e) => {
         e.preventDefault();
 
-        try {
-            const formData = new FormData();
+        if (!stockForm.quantity) {
+            Swal.fire("Error", "Please enter quantity", "error");
+            return;
+        }
 
-            formData.append("product_id", selectedProduct.product_id);
-            formData.append("quantity", stockForm.quantity);
-            formData.append("note", stockForm.note);
+        try {
+            const stockData = new FormData();
+
+            stockData.append("product_id", selectedProduct.product_id);
+            stockData.append("quantity", stockForm.quantity);
+            stockData.append("minimum_stock", stockForm.minimum_stock);
+            stockData.append("note", stockForm.note);
 
             let apiUrl = "";
 
@@ -74,31 +86,39 @@ function ProductStock() {
                 apiUrl = `${BASE_URL}Product_stock/adjust_stock`;
             }
 
-            const res = await fetch(apiUrl, {
+            const stockRes = await fetch(apiUrl, {
                 method: "POST",
-                body: formData,
+                body: stockData,
             });
 
-            const data = await res.json();
+            const stockResult = await stockRes.json();
 
-            if (data.status) {
-                Swal.fire("Success", data.message, "success");
-
-                setSelectedProduct(null);
-
-                fetchStockProducts();
-            } else {
-                Swal.fire("Error", data.message, "error");
+            if (!stockResult.status) {
+                Swal.fire("Error", stockResult.message, "error");
+                return;
             }
+
+            const minStockData = new FormData();
+
+            minStockData.append("product_id", selectedProduct.product_id);
+            minStockData.append("minimum_stock", stockForm.minimum_stock);
+
+            await fetch(`${BASE_URL}Product_stock/save_minimum_stock`, {
+                method: "POST",
+                body: minStockData,
+            });
+
+            Swal.fire("Success", stockResult.message, "success");
+
+            setSelectedProduct(null);
+            fetchStockProducts();
         } catch (err) {
             console.log(err);
-
             Swal.fire("Error", "Stock update failed", "error");
         }
     };
 
     const getStatusBadge = (status) => {
-
         if (status === "in_stock") {
             return (
                 <span className="badge rounded-pill bg-success px-3 py-2 d-inline-flex align-items-center gap-1">
@@ -126,15 +146,14 @@ function ProductStock() {
             );
         }
 
+        return "-";
     };
 
     return (
         <div className="container-fluid mt-4">
-
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <div>
                     <h4 className="mb-1">Product Stock Inventory</h4>
-
                     <p className="text-muted mb-0">
                         Manage product stock, low stock and inventory movement
                     </p>
@@ -148,9 +167,7 @@ function ProductStock() {
                 </button>
             </div>
 
-            {/* STATS */}
             <div className="row mb-4">
-
                 <div className="col-md-3">
                     <div className="card shadow-sm">
                         <div className="card-body">
@@ -164,7 +181,6 @@ function ProductStock() {
                     <div className="card shadow-sm">
                         <div className="card-body">
                             <h6>Total Stock</h6>
-
                             <h3>
                                 {products.reduce(
                                     (total, item) =>
@@ -180,11 +196,11 @@ function ProductStock() {
                     <div className="card shadow-sm">
                         <div className="card-body">
                             <h6>Low Stock</h6>
-
                             <h3>
                                 {
                                     products.filter(
-                                        (item) => item.stock_status === "low_stock"
+                                        (item) =>
+                                            item.stock_status === "low_stock"
                                     ).length
                                 }
                             </h3>
@@ -196,32 +212,27 @@ function ProductStock() {
                     <div className="card shadow-sm">
                         <div className="card-body">
                             <h6>Out of Stock</h6>
-
                             <h3>
                                 {
                                     products.filter(
                                         (item) =>
-                                            item.stock_status === "out_of_stock"
+                                            item.stock_status ===
+                                            "out_of_stock"
                                     ).length
                                 }
                             </h3>
                         </div>
                     </div>
                 </div>
-
             </div>
 
-            {/* TABLE */}
             <div className="card shadow-sm">
-
                 <div className="card-header bg-dark text-white">
                     Stock Inventory List
                 </div>
 
                 <div className="card-body">
-
                     <table className="table table-bordered table-striped">
-
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -236,34 +247,30 @@ function ProductStock() {
                         </thead>
 
                         <tbody>
-
                             {products.length > 0 ? (
                                 products.map((item, index) => (
                                     <tr key={item.product_id}>
-
                                         <td>{index + 1}</td>
-
                                         <td>{item.name}</td>
-
                                         <td>{item.product_sku || "-"}</td>
-
                                         <td>{item.category_name}</td>
-
                                         <td>
-                                            <strong>{item.current_stock}</strong>
+                                            <strong>
+                                                {item.current_stock}
+                                            </strong>
                                         </td>
-
-                                        <td>{item.minimum_stock}</td>
-
+                                        <td>{item.minimum_stock || 0}</td>
                                         <td>
-                                            {getStatusBadge(item.stock_status)}
+                                            {getStatusBadge(
+                                                item.stock_status
+                                            )}
                                         </td>
-
                                         <td>
-
                                             <button
                                                 className="btn btn-primary btn-sm me-2"
-                                                onClick={() => handleOpenModal(item)}
+                                                onClick={() =>
+                                                    handleOpenModal(item)
+                                                }
                                             >
                                                 Manage Stock
                                             </button>
@@ -278,9 +285,7 @@ function ProductStock() {
                                             >
                                                 History
                                             </button>
-
                                         </td>
-
                                     </tr>
                                 ))
                             ) : (
@@ -290,32 +295,21 @@ function ProductStock() {
                                     </td>
                                 </tr>
                             )}
-
                         </tbody>
-
                     </table>
-
                 </div>
-
             </div>
 
-            {/* MODAL */}
             {selectedProduct && (
-
                 <div
                     className="modal show d-block"
                     tabIndex="-1"
                     style={{ background: "rgba(0,0,0,0.5)" }}
                 >
-
                     <div className="modal-dialog">
-
                         <div className="modal-content">
-
                             <form onSubmit={handleStockSubmit}>
-
                                 <div className="modal-header">
-
                                     <h5 className="modal-title">
                                         Manage Stock - {selectedProduct.name}
                                     </h5>
@@ -323,13 +317,13 @@ function ProductStock() {
                                     <button
                                         type="button"
                                         className="btn-close"
-                                        onClick={() => setSelectedProduct(null)}
+                                        onClick={() =>
+                                            setSelectedProduct(null)
+                                        }
                                     ></button>
-
                                 </div>
 
                                 <div className="modal-body">
-
                                     <p>
                                         Current Stock:
                                         <strong className="ms-2">
@@ -338,7 +332,21 @@ function ProductStock() {
                                     </p>
 
                                     <div className="mb-3">
+                                        <label className="form-label">
+                                            Minimum Stock
+                                        </label>
 
+                                        <input
+                                            type="number"
+                                            name="minimum_stock"
+                                            className="form-control"
+                                            value={stockForm.minimum_stock}
+                                            onChange={handleChange}
+                                            placeholder="Enter minimum stock"
+                                        />
+                                    </div>
+
+                                    <div className="mb-3">
                                         <label className="form-label">
                                             Stock Type
                                         </label>
@@ -349,15 +357,19 @@ function ProductStock() {
                                             value={stockForm.type}
                                             onChange={handleChange}
                                         >
-                                            <option value="in">Stock In</option>
-                                            <option value="out">Stock Out</option>
-                                            <option value="adjust">Adjust Stock</option>
+                                            <option value="in">
+                                                Stock In
+                                            </option>
+                                            <option value="out">
+                                                Stock Out
+                                            </option>
+                                            <option value="adjust">
+                                                Adjust Stock
+                                            </option>
                                         </select>
-
                                     </div>
 
                                     <div className="mb-3">
-
                                         <label className="form-label">
                                             {stockForm.type === "adjust"
                                                 ? "New Stock Quantity"
@@ -370,13 +382,10 @@ function ProductStock() {
                                             className="form-control"
                                             value={stockForm.quantity}
                                             onChange={handleChange}
-                                            required
                                         />
-
                                     </div>
 
                                     <div className="mb-3">
-
                                         <label className="form-label">
                                             Note
                                         </label>
@@ -389,36 +398,32 @@ function ProductStock() {
                                             onChange={handleChange}
                                             placeholder="Example: Initial stock / Damaged item / Manual correction"
                                         ></textarea>
-
                                     </div>
-
                                 </div>
 
                                 <div className="modal-footer">
-
                                     <button
                                         type="button"
                                         className="btn btn-secondary"
-                                        onClick={() => setSelectedProduct(null)}
+                                        onClick={() =>
+                                            setSelectedProduct(null)
+                                        }
                                     >
                                         Cancel
                                     </button>
 
-                                    <button className="btn btn-success">
+                                    <button
+                                        type="submit"
+                                        className="btn btn-success"
+                                    >
                                         Save Stock
                                     </button>
-
                                 </div>
-
                             </form>
-
                         </div>
-
                     </div>
-
                 </div>
             )}
-
         </div>
     );
 }
