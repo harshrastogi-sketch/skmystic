@@ -245,37 +245,43 @@ function Products() {
                     </td>
 
                     <td>
-                      <button
-                        className="btn btn-sm btn-warning me-2"
-                        onClick={() =>
-                          navigate(`/admin/edit-product/${item.id}`)
-                        }
-                      >
-                        Edit
-                      </button>
+                      <div className="d-flex flex-wrap gap-2">
 
-                      <button
-                        className="btn btn-sm btn-info me-2"
-                        onClick={() =>
-                          navigate(`/admin/add-product-images/${item.id}`)
-                        }
-                      >
-                        Add Images
-                      </button>
-                      <button
-                        className="btn btn-sm btn-primary me-2"
-                        onClick={() =>
-                          navigate(`/admin/product-reviews/${item.id}`)}
-                      >
-                        Product Reviews
-                      </button>
+                        <button
+                          className="btn btn-warning btn-sm"
+                          onClick={() =>
+                            navigate(`/admin/edit-product/${item.id}`)
+                          }
+                        >
+                          Edit
+                        </button>
 
-                      <button
-                        className="btn btn-sm btn-danger"
-                        onClick={() => handleDelete(item.id)}
-                      >
-                        Delete
-                      </button>
+                        <button
+                          className="btn btn-info btn-sm text-white"
+                          onClick={() =>
+                            navigate(`/admin/add-product-images/${item.id}`)
+                          }
+                        >
+                          Add Images
+                        </button>
+
+                        <button
+                          className="btn btn-primary btn-sm"
+                          onClick={() =>
+                            navigate(`/admin/product-reviews/${item.id}`)
+                          }
+                        >
+                          Product Reviews
+                        </button>
+
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={() => handleDelete(item.id)}
+                        >
+                          Delete
+                        </button>
+
+                      </div>
                     </td>
                   </tr>
                 );
