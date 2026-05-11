@@ -110,8 +110,19 @@ function ProductStockHistory() {
                     <td>{index + 1}</td>
 
                     <td>
-                      {new Date(item.created_at)
-                        .toLocaleString()}
+                      {item.created_at
+                        ? new Intl.DateTimeFormat("en-IN", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                          hour12: true,
+                          timeZone: "Asia/Kolkata",
+                        }).format(new Date(item.created_at.replace(" ", "T")))
+                        : "-"
+                      }
                     </td>
 
                     <td>{item.product_name}</td>
