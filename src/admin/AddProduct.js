@@ -3,6 +3,7 @@ import { apiRequest } from "../api";
 import { useNavigate } from "react-router-dom";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import Select from "react-select";
 import Swal from "sweetalert2";
 import "./EditProduct.css";
 
@@ -18,7 +19,7 @@ function AddProduct() {
   const [form, setForm] = useState({
     name: "",
     description: "",
-    category_id: "",
+    category_id: [],
     price: "",
     rating: "5",
     product_cut_price: "",
@@ -55,6 +56,12 @@ function AddProduct() {
     fetchCategories();
   }, [BASE_URL]);
 
+  const stripHtml = (html) => {
+    const div = document.createElement("div");
+    div.innerHTML = html || "";
+    return div.textContent || div.innerText || "";
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -71,6 +78,29 @@ function AddProduct() {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
+
+    if (files.length === 0) return;
+
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+    const maxSize = 2 * 1024 * 1024;
+
+    for (let file of files) {
+      if (!allowedTypes.includes(file.type)) {
+        setErrors((prev) => ({
+          ...prev,
+          images: "Only JPG, PNG and WEBP images are allowed",
+        }));
+        return;
+      }
+
+      if (file.size > maxSize) {
+        setErrors((prev) => ({
+          ...prev,
+          images: "Each image must be less than 2MB",
+        }));
+        return;
+      }
+    }
 
     const newImages = files.map((file, index) => ({
       file,
@@ -132,11 +162,15 @@ function AddProduct() {
       tempErrors.name = "Product name is required";
     }
 
-    if (!form.category_id) {
-      tempErrors.category_id = "Category is required";
-    }
+   if (
+  !form.category_id ||
+  form.category_id.length === 0
+) {
+  tempErrors.category_id =
+    "Category is required";
+}
 
-    if (!form.description.trim()) {
+    if (!stripHtml(form.description).trim()) {
       tempErrors.description = "Description is required";
     }
 
@@ -146,32 +180,56 @@ function AddProduct() {
       tempErrors.price = "Price must be greater than 0";
     }
 
-    if (
-      form.product_cut_price &&
-      Number(form.product_cut_price) <= Number(form.price)
-    ) {
+    if (!form.product_cut_price) {
+      tempErrors.product_cut_price = "Product cut price is required";
+    } else if (Number(form.product_cut_price) <= 0) {
+      tempErrors.product_cut_price = "Product cut price must be greater than 0";
+    } else if (Number(form.product_cut_price) <= Number(form.price)) {
       tempErrors.product_cut_price =
         "Cut price must be greater than selling price";
     }
 
-    if (form.discount && Number(form.discount) < 0) {
+    if (!form.discount) {
+      tempErrors.discount = "Discount is required";
+    } else if (Number(form.discount) < 0) {
       tempErrors.discount = "Discount cannot be negative";
-    }
-
-    if (form.discount && Number(form.discount) > 100) {
+    } else if (Number(form.discount) > 100) {
       tempErrors.discount = "Discount cannot exceed 100%";
     }
 
-    if (form.hsn_code && Number(form.hsn_code) < 0) {
-      tempErrors.hsn_code = "HSN code cannot be negative";
-    }
-
-    if (form.rating && Number(form.rating) > 5) {
+    if (!form.rating) {
+      tempErrors.rating = "Rating is required";
+    } else if (Number(form.rating) < 0) {
+      tempErrors.rating = "Rating cannot be negative";
+    } else if (Number(form.rating) > 5) {
       tempErrors.rating = "Rating cannot exceed 5";
     }
 
-    if (form.rating && Number(form.rating) < 0) {
-      tempErrors.rating = "Rating cannot be negative";
+    if (!form.product_hurry_up.trim()) {
+      tempErrors.product_hurry_up = "Product hurry up text is required";
+    }
+
+    if (!stripHtml(form.product_short_description).trim()) {
+      tempErrors.product_short_description =
+        "Product short description is required";
+    }
+
+    if (!form.hsn_code) {
+      tempErrors.hsn_code = "HSN code is required";
+    } else if (Number(form.hsn_code) < 0) {
+      tempErrors.hsn_code = "HSN code cannot be negative";
+    }
+
+    if (!form.product_sku.trim()) {
+      tempErrors.product_sku = "Product SKU is required";
+    }
+
+    if (!form.stock_status) {
+      tempErrors.stock_status = "Stock status is required";
+    }
+
+    if (!form.status) {
+      tempErrors.status = "Status is required";
     }
 
     if (images.length === 0) {
@@ -185,7 +243,14 @@ function AddProduct() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validate()) return;
+    if (!validate()) {
+      Swal.fire({
+        icon: "error",
+        title: "Validation Error",
+        text: "Please fill all required fields correctly",
+      });
+      return;
+    }
 
     try {
       setLoading(true);
@@ -194,7 +259,9 @@ function AddProduct() {
 
       formData.append("name", form.name);
       formData.append("description", form.description);
-      formData.append("category_id", form.category_id);
+      form.category_id.forEach((catId) => {
+  formData.append("category_id[]", catId);
+});
       formData.append("price", form.price);
       formData.append("product_cut_price", form.product_cut_price);
       formData.append("discount", form.discount);
@@ -288,7 +355,7 @@ function AddProduct() {
         });
       },
 
-      abort: () => { },
+      abort: () => {},
     };
   }
 
@@ -307,7 +374,6 @@ function AddProduct() {
 
         <div className="card-body">
           <form onSubmit={handleSubmit}>
-            {/* NAME */}
             <div className="row mb-3">
               <label className="col-sm-3 col-form-label">Product Name</label>
 
@@ -326,58 +392,88 @@ function AddProduct() {
               </div>
             </div>
 
-            {/* CATEGORY */}
-            <div className="row mb-3">
-              <label className="col-sm-3 col-form-label">Category</label>
+        {/* CATEGORY */}
+<div className="row mb-3">
+  <label className="col-sm-3 col-form-label">
+    Category
+  </label>
 
-              <div className="col-sm-9">
-                <select
-                  name="category_id"
-                  className={`form-control ${errors.category_id ? "is-invalid" : ""
-                    }`}
-                  value={form.category_id}
-                  onChange={handleChange}
-                >
-                  <option value="">Select Category</option>
+  <div className="col-sm-9">
 
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
+    <Select
+  isMulti
+  name="category_id"
+  options={categories.map((cat) => ({
+    value: String(cat.id),
+    label: cat.name,
+  }))}
+  value={categories
+    .filter((cat) => form.category_id.includes(String(cat.id)))
+    .map((cat) => ({
+      value: String(cat.id),
+      label: cat.name,
+    }))}
+  onChange={(selectedOptions) => {
+    const values = selectedOptions
+      ? selectedOptions.map((item) => item.value)
+      : [];
 
-                {errors.category_id && (
-                  <div className="invalid-feedback">{errors.category_id}</div>
-                )}
-              </div>
-            </div>
+    setForm((prev) => ({
+      ...prev,
+      category_id: values,
+    }));
 
-            {/* DESCRIPTION */}
+    setErrors((prev) => ({
+      ...prev,
+      category_id: "",
+    }));
+  }}
+  placeholder="Select Categories"
+  classNamePrefix="react-select"
+  menuPortalTarget={document.body}
+  styles={{
+    menuPortal: (base) => ({
+      ...base,
+      zIndex: 9999,
+    }),
+  }}
+/>
+
+    {errors.category_id && (
+      <div className="text-danger mt-1">
+        {errors.category_id}
+      </div>
+    )}
+
+  </div>
+</div>
+
             <div className="row mb-3">
               <label className="col-sm-3 col-form-label">Description</label>
 
               <div className="col-sm-9">
-                <CKEditor
-                  editor={ClassicEditor}
-                  data={form.description}
-                  config={{
-                    extraPlugins: [MyUploadAdapterPlugin],
-                  }}
-                  onChange={(event, editor) => {
-                    const data = editor.getData();
+                <div className={errors.description ? "border border-danger" : ""}>
+                  <CKEditor
+                    editor={ClassicEditor}
+                    data={form.description}
+                    config={{
+                      extraPlugins: [MyUploadAdapterPlugin],
+                    }}
+                    onChange={(event, editor) => {
+                      const data = editor.getData();
 
-                    setForm((prev) => ({
-                      ...prev,
-                      description: data,
-                    }));
+                      setForm((prev) => ({
+                        ...prev,
+                        description: data,
+                      }));
 
-                    setErrors((prev) => ({
-                      ...prev,
-                      description: "",
-                    }));
-                  }}
-                />
+                      setErrors((prev) => ({
+                        ...prev,
+                        description: "",
+                      }));
+                    }}
+                  />
+                </div>
 
                 {errors.description && (
                   <div className="text-danger mt-1">{errors.description}</div>
@@ -385,7 +481,6 @@ function AddProduct() {
               </div>
             </div>
 
-            {/* PRICE */}
             <div className="row mb-3">
               <label className="col-sm-3 col-form-label">Price</label>
 
@@ -393,8 +488,9 @@ function AddProduct() {
                 <input
                   type="number"
                   name="price"
-                  className={`form-control ${errors.price ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${
+                    errors.price ? "is-invalid" : ""
+                  }`}
                   value={form.price}
                   onChange={handleChange}
                 />
@@ -405,8 +501,6 @@ function AddProduct() {
               </div>
             </div>
 
-
-            {/* PRODUCT CUT PRICE */}
             <div className="row mb-3">
               <label className="col-sm-3 col-form-label">
                 Product Cut Price
@@ -416,8 +510,9 @@ function AddProduct() {
                 <input
                   type="number"
                   name="product_cut_price"
-                  className={`form-control ${errors.product_cut_price ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${
+                    errors.product_cut_price ? "is-invalid" : ""
+                  }`}
                   value={form.product_cut_price}
                   onChange={handleChange}
                 />
@@ -430,7 +525,6 @@ function AddProduct() {
               </div>
             </div>
 
-            {/* DISCOUNT */}
             <div className="row mb-3">
               <label className="col-sm-3 col-form-label">Discount (%)</label>
 
@@ -438,8 +532,9 @@ function AddProduct() {
                 <input
                   type="number"
                   name="discount"
-                  className={`form-control ${errors.discount ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${
+                    errors.discount ? "is-invalid" : ""
+                  }`}
                   value={form.discount}
                   onChange={handleChange}
                 />
@@ -449,11 +544,9 @@ function AddProduct() {
                 )}
               </div>
             </div>
-            {/* RATING */}
+
             <div className="row mb-3">
-              <label className="col-sm-3 col-form-label">
-                Product Rating
-              </label>
+              <label className="col-sm-3 col-form-label">Product Rating</label>
 
               <div className="col-sm-9">
                 <input
@@ -462,21 +555,20 @@ function AddProduct() {
                   min="0"
                   max="5"
                   name="rating"
-                  className={`form-control ${errors.rating ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${
+                    errors.rating ? "is-invalid" : ""
+                  }`}
                   value={form.rating}
                   onChange={handleChange}
                   placeholder="Example: 4.5"
                 />
 
                 {errors.rating && (
-                  <div className="invalid-feedback">
-                    {errors.rating}
-                  </div>
+                  <div className="invalid-feedback">{errors.rating}</div>
                 )}
               </div>
             </div>
-            {/* PRODUCT HURRY UP */}
+
             <div className="row mb-3">
               <label className="col-sm-3 col-form-label">
                 Product Hurry Up
@@ -486,40 +578,65 @@ function AddProduct() {
                 <input
                   type="text"
                   name="product_hurry_up"
-                  className="form-control"
+                  className={`form-control ${
+                    errors.product_hurry_up ? "is-invalid" : ""
+                  }`}
                   value={form.product_hurry_up}
                   onChange={handleChange}
                   placeholder="Hurry up! only 7 products left in stock!"
                 />
+
+                {errors.product_hurry_up && (
+                  <div className="invalid-feedback">
+                    {errors.product_hurry_up}
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* PRODUCT SHORT DESCRIPTION */}
             <div className="row mb-3">
               <label className="col-sm-3 col-form-label">
                 Product Short Description
               </label>
 
               <div className="col-sm-9">
-                <CKEditor
-                  editor={ClassicEditor}
-                  data={form.product_short_description}
-                  config={{
-                    extraPlugins: [MyUploadAdapterPlugin],
-                  }}
-                  onChange={(event, editor) => {
-                    const data = editor.getData();
+                <div
+                  className={
+                    errors.product_short_description
+                      ? "border border-danger"
+                      : ""
+                  }
+                >
+                  <CKEditor
+                    editor={ClassicEditor}
+                    data={form.product_short_description}
+                    config={{
+                      extraPlugins: [MyUploadAdapterPlugin],
+                    }}
+                    onChange={(event, editor) => {
+                      const data = editor.getData();
 
-                    setForm((prev) => ({
-                      ...prev,
-                      product_short_description: data,
-                    }));
-                  }}
-                />
+                      setForm((prev) => ({
+                        ...prev,
+                        product_short_description: data,
+                      }));
+
+                      setErrors((prev) => ({
+                        ...prev,
+                        product_short_description: "",
+                      }));
+                    }}
+                  />
+                </div>
+
+                {errors.product_short_description && (
+                  <div className="text-danger mt-1">
+                    {errors.product_short_description}
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* HSN CODE */}
             <div className="row mb-3">
               <label className="col-sm-3 col-form-label">HSN Code</label>
 
@@ -527,8 +644,9 @@ function AddProduct() {
                 <input
                   type="number"
                   name="hsn_code"
-                  className={`form-control ${errors.hsn_code ? "is-invalid" : ""
-                    }`}
+                  className={`form-control ${
+                    errors.hsn_code ? "is-invalid" : ""
+                  }`}
                   value={form.hsn_code}
                   onChange={handleChange}
                 />
@@ -539,7 +657,6 @@ function AddProduct() {
               </div>
             </div>
 
-            {/* PRODUCT SKU */}
             <div className="row mb-3">
               <label className="col-sm-3 col-form-label">
                 Product SKU Number
@@ -549,50 +666,67 @@ function AddProduct() {
                 <input
                   type="text"
                   name="product_sku"
-                  className="form-control"
+                  className={`form-control ${
+                    errors.product_sku ? "is-invalid" : ""
+                  }`}
                   value={form.product_sku}
                   onChange={handleChange}
                   placeholder="Example: RUBY-001"
                 />
+
+                {errors.product_sku && (
+                  <div className="invalid-feedback">{errors.product_sku}</div>
+                )}
               </div>
             </div>
 
-            {/* STOCK STATUS */}
             <div className="row mb-3">
               <label className="col-sm-3 col-form-label">Stock Status</label>
 
               <div className="col-sm-9">
                 <select
                   name="stock_status"
-                  className="form-control"
+                  className={`form-control ${
+                    errors.stock_status ? "is-invalid" : ""
+                  }`}
                   value={form.stock_status}
                   onChange={handleChange}
                 >
+                  <option value="">Select Stock Status</option>
                   <option value="in_stock">In Stock</option>
                   <option value="low_stock">Low Stock</option>
                   <option value="out_of_stock">Out of Stock</option>
                 </select>
+
+                {errors.stock_status && (
+                  <div className="invalid-feedback">{errors.stock_status}</div>
+                )}
               </div>
             </div>
 
-            {/* STATUS */}
             <div className="row mb-3">
               <label className="col-sm-3 col-form-label">Status</label>
 
               <div className="col-sm-9">
                 <select
                   name="status"
-                  className="form-control"
+                  className={`form-control ${
+                    errors.status ? "is-invalid" : ""
+                  }`}
                   value={form.status}
                   onChange={handleChange}
                 >
+                  <option value="">Select Status</option>
                   <option value="1">Active</option>
                   <option value="0">Inactive</option>
                 </select>
+
+                {errors.status && (
+                  <div className="invalid-feedback">{errors.status}</div>
+                )}
               </div>
             </div>
 
-            {/* IMAGES */}
             <div className="row mb-3">
               <label className="col-sm-3 col-form-label">Images</label>
 
@@ -600,8 +734,10 @@ function AddProduct() {
                 <input
                   type="file"
                   multiple
-                  className={`form-control ${errors.images ? "is-invalid" : ""
-                    }`}
+                  accept="image/png,image/jpeg,image/jpg,image/webp"
+                  className={`form-control ${
+                    errors.images ? "is-invalid" : ""
+                  }`}
                   onChange={handleImageChange}
                 />
 
@@ -666,7 +802,6 @@ function AddProduct() {
               </div>
             </div>
 
-            {/* SUBMIT */}
             <div className="text-end">
               <button className="btn btn-success" disabled={loading}>
                 {loading ? "Saving..." : "Save Product"}
