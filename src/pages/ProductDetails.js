@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import "./ProductDetails.css";
 import { FaTruck } from "react-icons/fa";
 import { FiRefreshCw } from "react-icons/fi";
 import { HiOutlineIdentification } from "react-icons/hi";
+import { verifyTokenRequest } from "../api";
 
 
 const BASE_URL = process.env.REACT_APP_BASE_URL;
@@ -12,6 +13,7 @@ const BASE_URL = process.env.REACT_APP_BASE_URL;
 const ProductDetails = () => {
   const { id } = useParams();
   const { addToCart } = useCart();
+  const navigate = useNavigate();
 
   const [product, setProduct] = useState(null);
   const [allProducts, setAllProducts] = useState([]);
@@ -82,13 +84,32 @@ const ProductDetails = () => {
     };
 
     getRelatedProducts();
-  }, [product]);
+  }, [product?.category_id]);
 
   // ✅ Add to cart handler (reusable)
   const handleAddToCart = (item) => {
     addToCart(item);
     setMessage("Product has been added!");
     setTimeout(() => setMessage(""), 2000);
+  };
+
+  const handleCheckout = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const isValid = await verifyTokenRequest(token);
+
+      if (!isValid) {
+        navigate("/login");
+        return;
+      }
+
+      addToCart(product);
+
+      navigate("/checkout");
+    } catch (err) {
+      console.error("Checkout error:", err);
+    }
   };
 
   if (!product) {
@@ -115,7 +136,7 @@ const ProductDetails = () => {
           {/* IMAGE SECTION */}
           <div className="product-image-section">
             <div className="main-image">
-              <img src={selectedImage} alt={product.name} />
+              <img src={selectedImage || "/no-image.png"} alt={product.name} />
             </div>
 
             <div className="thumbnail-row">
@@ -231,10 +252,7 @@ const ProductDetails = () => {
                 ADD TO CART
               </button>
 
-              <button
-                className="add-to-cart"
-                onClick={() => handleAddToCart(product)}
-              >
+              <button className="checkout-btn" onClick={handleCheckout}>
                 BUY NOW
               </button>
             </div>
