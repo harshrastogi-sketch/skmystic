@@ -16,8 +16,8 @@ function AddBanner() {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const userData = localStorage.getItem("user");
+    const token = localStorage.getItem("admin_token");
+    const userData = localStorage.getItem("admin_user");
     const user = userData ? JSON.parse(userData) : null;
 
     if (!token || !user || user.role !== "admin") {
@@ -84,7 +84,7 @@ function AddBanner() {
         didOpen: () => Swal.showLoading(),
       });
 
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("admin_token");
 
       const formData = new FormData();
       formData.append("title", title.trim());

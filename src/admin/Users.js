@@ -8,7 +8,7 @@ function Users() {
 
   const fetchUsers = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("admin_token");
 
       const res = await fetch(BASE_URL + "api/allusers", {
         method: "GET",

@@ -14,9 +14,11 @@ function AdminDashboard() {
   });
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const userData = localStorage.getItem("user");
+    const token = localStorage.getItem("admin_token");
+    const userData = localStorage.getItem("admin_user");
     const user = userData ? JSON.parse(userData) : null;
+
+    console.log(user);
 
     if (!token || !user || user.role !== "admin") {
       navigate("/admin");
@@ -55,8 +57,8 @@ function AdminDashboard() {
           text: "Please login again",
         });
 
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
+        localStorage.removeItem("admin_token");
+        localStorage.removeItem("admin_user");
 
         navigate("/admin");
       }

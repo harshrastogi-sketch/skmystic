@@ -73,7 +73,7 @@ export default function AdminLogin() {
         didOpen: () => Swal.showLoading(),
       });
 
-      const res = await fetch(`${BASE_URL}api/login-user`, {
+      const res = await fetch(`${BASE_URL}api/login-admin`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -88,8 +88,8 @@ export default function AdminLogin() {
         const role = data?.user?.role;
 
         if (role === "admin") {
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("user", JSON.stringify(data.user));
+          localStorage.setItem("admin_token", data.token);
+          localStorage.setItem("admin_user", JSON.stringify(data.user));
 
           Swal.fire({
             icon: "success",

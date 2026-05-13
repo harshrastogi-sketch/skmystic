@@ -12,8 +12,8 @@ function Banner() {
   const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const userData = localStorage.getItem("user");
+    const token = localStorage.getItem("admin_token");
+    const userData = localStorage.getItem("admin_user");
     const user = userData ? JSON.parse(userData) : null;
 
     if (!token || !user || user.role !== "admin") {
@@ -83,7 +83,7 @@ function Banner() {
     if (!result.isConfirmed) return;
 
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("admin_token");
       const newStatus = isActive ? 0 : 1;
 
       Swal.fire({
@@ -151,7 +151,7 @@ function Banner() {
     if (!result.isConfirmed) return;
 
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("admin_token");
 
       Swal.fire({
         title: "Deleting...",

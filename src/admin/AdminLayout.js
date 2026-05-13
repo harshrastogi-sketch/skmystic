@@ -10,8 +10,8 @@ function AdminLayout({ children }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const userData = localStorage.getItem("user");
+    const token = localStorage.getItem("admin_token");
+    const userData = localStorage.getItem("admin_user");
     const user = userData ? JSON.parse(userData) : null;
 
     if (!token || !user || user.role !== "admin") {

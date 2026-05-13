@@ -14,8 +14,8 @@ function EditBanner() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const userData = localStorage.getItem("user");
+    const token = localStorage.getItem("admin_token");
+    const userData = localStorage.getItem("admin_user");
     const user = userData ? JSON.parse(userData) : null;
 
     if (!token || !user || user.role !== "admin") {
@@ -84,7 +84,7 @@ function EditBanner() {
     try {
       setLoading(true);
 
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("admin_token");
 
       Swal.fire({
         title: "Updating banner...",
