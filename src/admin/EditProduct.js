@@ -4,6 +4,7 @@ import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import Swal from "sweetalert2";
 import "./EditProduct.css";
+import Select from "react-select";
 
 function EditProduct() {
   const { id } = useParams();
@@ -21,7 +22,7 @@ function EditProduct() {
   const [form, setForm] = useState({
     name: "",
     description: "",
-    category_id: "",
+    category_id: [],
     price: "",
     product_cut_price: "",
     discount: "",
@@ -50,7 +51,11 @@ function EditProduct() {
         setForm({
           name: product.name || "",
           description: product.description || "",
-          category_id: String(product.category_id || ""),
+          category_id: product.category_id
+            ? String(product.category_id)
+              .split(",")
+              .map((id) => id.trim())
+            : [],
           price: product.price || "",
           rating: product.rating || "5",
           product_cut_price: product.product_cut_price || "",
@@ -162,7 +167,15 @@ function EditProduct() {
       const formData = new FormData();
 
       Object.entries(form).forEach(([k, v]) => {
-        formData.append(k, v);
+
+        if (k === "category_id") {
+          v.forEach((catId) => {
+            formData.append("category_id[]", catId);
+          });
+        } else {
+          formData.append(k, v);
+        }
+
       });
 
       items
@@ -291,14 +304,51 @@ function EditProduct() {
             </div>
 
             <div className="row mb-3">
-              <label className="col-sm-3 col-form-label">Category</label>
+              <label className="col-sm-3 col-form-label">
+                Category
+              </label>
+
               <div className="col-sm-9">
-                <select className="form-control" name="category_id" value={form.category_id} onChange={handleChange}>
-                  <option value="">Select Category</option>
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
-                </select>
+
+                <Select
+                  isMulti
+                  name="category_id"
+                  options={categories.map((cat) => ({
+                    value: String(cat.id),
+                    label: cat.name,
+                  }))}
+
+                  value={categories
+                    .filter((cat) =>
+                      form.category_id.includes(String(cat.id))
+                    )
+                    .map((cat) => ({
+                      value: String(cat.id),
+                      label: cat.name,
+                    }))}
+
+                  onChange={(selectedOptions) => {
+                    const values = selectedOptions
+                      ? selectedOptions.map((item) => item.value)
+                      : [];
+
+                    setForm((prev) => ({
+                      ...prev,
+                      category_id: values,
+                    }));
+                  }}
+
+                  placeholder="Select Categories"
+                  classNamePrefix="react-select"
+                  menuPortalTarget={document.body}
+                  styles={{
+                    menuPortal: (base) => ({
+                      ...base,
+                      zIndex: 9999,
+                    }),
+                  }}
+                />
+
               </div>
             </div>
 

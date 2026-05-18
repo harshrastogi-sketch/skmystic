@@ -78,23 +78,17 @@ const Collection = () => {
     selectedCategories.length === 0
       ? products
       : products.filter((product) => {
-        const productCategoryId = String(product.category_id || "");
-        const productCategoryName = String(
-          product.category_name || product.category || ""
-        ).toLowerCase();
 
-        return selectedCategories.some((selectedId) => {
-          const matchedCategory = categories.find(
-            (cat) => String(cat.id) === String(selectedId)
-          );
+        // convert "1,2,3" => ["1","2","3"]
+        const productCategoryIds = String(
+          product.category_id || ""
+        )
+          .split(",")
+          .map((id) => id.trim());
 
-          if (!matchedCategory) return false;
-
-          return (
-            productCategoryId === String(matchedCategory.id) ||
-            productCategoryName === String(matchedCategory.name).toLowerCase()
-          );
-        });
+        return selectedCategories.some((selectedId) =>
+          productCategoryIds.includes(String(selectedId))
+        );
       });
 
   return (
