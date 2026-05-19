@@ -97,14 +97,13 @@ const ProductDetails = () => {
     try {
       const token = localStorage.getItem("token");
 
+      addToCart(product);
       const isValid = await verifyTokenRequest(token);
 
       if (!isValid) {
         navigate("/login");
         return;
       }
-
-      addToCart(product);
 
       navigate("/checkout");
     } catch (err) {

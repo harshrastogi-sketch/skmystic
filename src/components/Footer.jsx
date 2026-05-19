@@ -111,7 +111,7 @@ const Footer = () => {
         </div>
 
         <div className="copyright">
-          Copyright 2023 SKMystic
+          Copyright 2026 SKMystic
         </div>
       </footer>
     </>

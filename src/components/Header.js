@@ -84,7 +84,7 @@ const Header = ({ setIsCartOpen }) => {
             )}
           </div>
 
-          <Link to="/language">LANGUAGE ▾</Link>
+          {/* <Link to="/language">LANGUAGE ▾</Link> */}
         </div>
       </div>
 

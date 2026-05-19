@@ -137,8 +137,23 @@ const Register = () => {
                     <button onClick={() => navigate("/login")} className="login-btn">Log in</button>
 
                     <p className="terms">
-                        * Terms & conditions. <br />
-                        Your privacy and security are important to us. For more information on how we use your data read our <span>privacy policy</span>
+                        *{" "}
+                        <span
+                            className="link-text"
+                            onClick={() => navigate("/policies/terms")}
+                        >
+                            Terms & Conditions
+                        </span>
+                        <br />
+
+                        Your privacy and security are important to us. For more information on how we use your data read our{" "}
+
+                        <span
+                            className="link-text"
+                            onClick={() => navigate("/policies/privacy")}
+                        >
+                            Privacy Policy
+                        </span>
                     </p>
                 </div>
 

@@ -31,3 +31,12 @@
   color: #ff7a00;
   margin: 0 10px;
 }
+
+.breadcrumb-link {
+  color: white;
+  text-decoration: none;
+}
+
+.breadcrumb-link:hover {
+  text-decoration: underline;
+}

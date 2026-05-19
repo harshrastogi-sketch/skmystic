@@ -1,5 +1,6 @@
 import banner from "../assets/banner-collection.webp";
 import "./Breadcrumb.css";
+import { Link } from "react-router-dom";
 
 const Breadcrumb = ({ title }) => {
   return (
@@ -9,7 +10,13 @@ const Breadcrumb = ({ title }) => {
     >
       <div className="breadcrumb-overlay">
         <h2>
-          Home <span>|</span> {title}
+          <Link to="/" className="breadcrumb-link">
+            Home
+          </Link>
+
+          <span> | </span>
+
+          {title}
         </h2>
       </div>
     </section>
