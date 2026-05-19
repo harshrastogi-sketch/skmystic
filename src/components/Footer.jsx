@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import "./Footer.css";
 import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
 
 
 const Footer = () => {
 
   const [categories, setCategories] = useState([]);
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
   const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   useEffect(() => {
@@ -26,6 +29,72 @@ const Footer = () => {
 
     getCategories();
   }, []);
+
+  const handleSubscribe = async () => {
+    if (!email.trim()) {
+      Swal.fire({
+        icon: "warning",
+        title: "Email Required",
+        text: "Please enter your email",
+      });
+
+      return;
+    }
+
+    // EMAIL VALIDATION
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Email",
+        text: "Please enter valid email address",
+      });
+
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await fetch(`${BASE_URL}newsletter-subscribe`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.status === true) {
+        Swal.fire({
+          icon: "success",
+          title: "Thank You!",
+          text: "You are subscribed successfully.",
+        });
+
+        setEmail("");
+      } else {
+        Swal.fire({
+          icon: "info",
+          title: "Already Subscribed",
+          text: data.message || "This email already exists",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Something went wrong",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   const newsletterBg = "https://www.skmystic.com/assets/image/newsletter-image.webp";
   return (
     <>
@@ -42,8 +111,8 @@ const Footer = () => {
           </p>
 
           <div className="newsletter-input">
-            <input type="email" placeholder="Enter Your Email Address" />
-            <button>➤</button>
+            <input type="email" placeholder="Enter Your Email Address" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <button onClick={handleSubscribe} disabled={loading}>{loading ? "..." : "➤"}</button>
           </div>
         </div>
       </section>
@@ -81,7 +150,7 @@ const Footer = () => {
           <div className="footer-col">
             <h4>Quick Link</h4>
             <ul>
-              <li><Link to="/policies/privacy"  onClick={() => window.scrollTo(0, 0)} className="text-white text-decoration-none">Privacy Policy</Link></li>
+              <li><Link to="/policies/privacy" onClick={() => window.scrollTo(0, 0)} className="text-white text-decoration-none">Privacy Policy</Link></li>
               <li><Link to="/policies/terms" onClick={() => window.scrollTo(0, 0)} className="text-white text-decoration-none">Terms & Conditions</Link></li>
               <li><Link to="/policies/shipping" onClick={() => window.scrollTo(0, 0)} className="text-white text-decoration-none">Shipping / Delivery Policy</Link></li>
             </ul>
