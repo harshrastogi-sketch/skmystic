@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import "./ProductDetails.css";
-import { FaTruck } from "react-icons/fa";
+import { FaTruck, FaShareAlt } from "react-icons/fa";
 import { FiRefreshCw } from "react-icons/fi";
 import { HiOutlineIdentification } from "react-icons/hi";
 import { verifyTokenRequest } from "../api";
@@ -123,6 +123,17 @@ const ProductDetails = () => {
 
 
 
+  const handleShare = async () => {
+    try {
+      await navigator.share({
+        title: product.name,
+        text: product.product_short_description || product.name,
+        url: window.location.href,
+      });
+    } catch (error) {
+      console.log("Share cancelled");
+    }
+  };
   return (
     <>
       {message && <div className="success-msg">{message}</div>}
@@ -240,9 +251,15 @@ const ProductDetails = () => {
                 dangerouslySetInnerHTML={{
                   __html: product.product_short_description,
                 }}
+
               />
             )}
-
+            <button
+              className="share-product-btn"
+              onClick={handleShare}
+            >
+              <FaShareAlt />
+            </button>
             <div className="buttons">
               <button
                 className="add-to-cart"
@@ -254,6 +271,7 @@ const ProductDetails = () => {
               <button className="checkout-btn" onClick={handleCheckout}>
                 BUY NOW
               </button>
+
             </div>
           </div>
         </div>
