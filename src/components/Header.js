@@ -13,6 +13,14 @@ const Header = ({ setIsCartOpen }) => {
   const [categories, setCategories] = useState([]);
   const [showAstrology, setShowAstrology] = useState(false);
   const [showAccount, setShowAccount] = useState(false);
+  const [search, setSearch] = useState("");
+  const [searchResults, setSearchResults] = useState({
+    products: [],
+    blogs: [],
+    categories: [],
+  });
+
+  const [showSearch, setShowSearch] = useState(false);
 
   const token = localStorage.getItem("token");
   const user = getUser();
@@ -42,6 +50,46 @@ const Header = ({ setIsCartOpen }) => {
     localStorage.clear();
     navigate("/login");
   };
+
+  const fetchSearch = async (query) => {
+    try {
+      const res = await fetch(
+        `${BASE_URL}search?q=${encodeURIComponent(query)}`
+      );
+
+      const data = await res.json();
+
+      if (data.status === true) {
+        setSearchResults({
+          products: data.data.products || [],
+          blogs: data.data.blogs || [],
+          categories: data.data.categories || [],
+        });
+
+        setShowSearch(true);
+      }
+    } catch (error) {
+      console.log("Search error:", error);
+    }
+  };
+
+
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      if (search.trim()) {
+        fetchSearch(search);
+      } else {
+        setSearchResults({
+          products: [],
+          blogs: [],
+          categories: [],
+        });
+      }
+    }, 400);
+
+    return () => clearTimeout(delayDebounce);
+  }, [search]);
 
   return (
     <header className="header">
@@ -97,10 +145,85 @@ const Header = ({ setIsCartOpen }) => {
         </div>
 
         <div className="search-box">
-          <input type="text" placeholder="Search Product." />
-          <button type="button">
-            <FaSearch />
-          </button>
+          <input
+            type="text"
+            placeholder="Search anything..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onFocus={() => setShowSearch(true)}
+          />
+
+
+
+          {showSearch && search && (
+            <div className="search-dropdown">
+
+              {/* PRODUCTS */}
+              {searchResults.products.length > 0 && (
+                <>
+                  <div className="search-heading">Products</div>
+
+                  {searchResults.products.map((item) => (
+                    <Link
+                      key={item.id}
+                      to={`/product/${item.slug || item.id}`}
+                      className="search-item"
+                      onClick={() => setShowSearch(false)}
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
+                </>
+              )}
+
+              {/* BLOGS */}
+              {searchResults.blogs.length > 0 && (
+                <>
+                  <div className="search-heading">Blogs</div>
+
+                  {searchResults.blogs.map((item) => (
+                    <Link
+                      key={item.id}
+                      to={`/blog/${item.slug}`}
+                      className="search-item"
+                      onClick={() => setShowSearch(false)}
+                    >
+                      {item.title}
+                    </Link>
+                  ))}
+                </>
+              )}
+
+              {/* CATEGORIES */}
+              {searchResults.categories.length > 0 && (
+                <>
+                  <div className="search-heading">Categories</div>
+
+                  {searchResults.categories.map((item) => (
+                    <Link
+                      key={item.id}
+                      to={`/collection?category=${encodeURIComponent(
+                        item.slug || item.name || item.id
+                      )}`}
+                      className="search-item"
+                      onClick={() => setShowSearch(false)}
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
+                </>
+              )}
+
+              {/* EMPTY */}
+              {searchResults.products.length === 0 &&
+                searchResults.blogs.length === 0 &&
+                searchResults.categories.length === 0 && (
+                  <div className="search-empty">
+                    No results found
+                  </div>
+                )}
+            </div>
+          )}
         </div>
 
         {!isAdmin && (
